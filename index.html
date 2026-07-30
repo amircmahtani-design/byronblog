@@ -36,7 +36,7 @@ window.SITE_CONFIG = {
   // Artwork, uploaded to the repo alongside index.html.
   assets: {
     hero:    "assets/hero-plate.jpg",  // Byron left, castle right, dark centre
-    mark:    "assets/mark.png",        // the LB monogram with its flourish
+    mark:    "assets/crest.png",       // the crowned shield, used throughout
     crest:   "assets/crest.png",       // the crowned shield
     paper:   "assets/paper.jpg",       // seamless page fibre
     archive: "assets/archive-bg.jpg",  // the castle plate behind the archive heading
@@ -151,7 +151,7 @@ button{font:inherit;color:inherit}
   background:linear-gradient(to right,transparent,rgba(201,162,39,.55),transparent)}
 .brand{display:flex;align-items:center;gap:.85rem;text-decoration:none;flex:none}
 .brand .mono{font-size:clamp(1.7rem,3vw,2.3rem)}
-.brand .crest{height:clamp(2.3rem,4vw,3.1rem);width:auto;display:block}
+.brand .crest{height:clamp(2.5rem,4.4vw,3.5rem);width:auto;display:block;flex:none}
 .brand .fl{width:2.4rem;height:.6rem;margin-top:-.15rem}
 .brand-txt{display:flex;flex-direction:column;gap:.12rem}
 .brand-txt b{font-family:var(--display);font-weight:500;font-size:clamp(.78rem,1.3vw,.98rem);
@@ -734,7 +734,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 
 <header class="bar">
   <a class="brand" href="#/" id="brand">
-    <img class="crest" src="assets/mark.png" alt="" onerror="this.remove()">
+    <img class="crest" src="assets/crest.png" alt="" onerror="this.remove()">
     <span class="brand-txt"><b>BAD, MAD &amp; DANGEROUS</b><span>BY LORD BYRON</span></span>
   </a>
   <nav class="nav" id="nav"></nav>
@@ -1035,7 +1035,7 @@ const QUILL = (cls="qi") => `<svg class="${cls}" viewBox="0 0 24 44" aria-hidden
 
 /* your logo, if you've supplied one */
 const ART = Object.assign({
-  hero:"assets/hero-plate.jpg", mark:"assets/mark.png", crest:"assets/crest.png",
+  hero:"assets/hero-plate.jpg", mark:"assets/crest.png", crest:"assets/crest.png",
   paper:"assets/paper.jpg", archive:"assets/archive-bg.jpg",
   orn:"assets/orn1.png", ornLB:"assets/orn3.png", ornCrown:"assets/orn4.png"
 }, CFG.assets||{});
