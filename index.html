@@ -176,9 +176,15 @@ button{font:inherit;color:inherit}
   .nav::-webkit-scrollbar{display:none}
   .nav a{letter-spacing:.12em;font-size:.8rem;white-space:nowrap;flex:none}
 }
+@media (max-width:900px){
+  .hero-bg{background-position:26% center}
+}
 @media (max-width:560px){
-  .hero{min-height:calc(88svh - var(--bar))}
-  .hero-say{font-size:clamp(1.5rem,7.4vw,2.4rem);max-width:16ch}
+  .hero{min-height:calc(78svh - var(--bar))}
+  .hero-bg{background-position:30% center}
+  .hero-in{padding-top:34vh}
+  .hero-say{font-size:clamp(1.45rem,7vw,2.2rem);max-width:15ch;
+    text-shadow:0 2px 24px rgba(6,6,8,.96),0 0 60px rgba(6,6,8,.9)}
   .archead{min-height:12rem}
   .kfoot .brandcol{flex-direction:column;align-items:flex-start;gap:.75rem}
 }
@@ -192,9 +198,9 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .centre{text-align:center}
 
 /* ══════════════════════ 6 · HOME ══════════════════════ */
-.hero{position:relative;min-height:calc(100svh - var(--bar));
+.hero{position:relative;min-height:calc(86svh - var(--bar));
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(3rem,9vh,6rem);
+  text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(1.5rem,4vh,3rem);
   margin-top:calc(var(--bar) * -1);padding-top:calc(var(--bar) + clamp(2rem,7vh,5rem));
   isolation:isolate;overflow:hidden}
 .hero-bg{position:absolute;inset:0;z-index:-2;background:var(--void) center 62% / cover no-repeat;
@@ -202,7 +208,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 @keyframes heroIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
 .hero-bg::after{content:"";position:absolute;inset:0;
   background:radial-gradient(66% 78% at 50% 46%,rgba(9,9,11,.9) 0%,rgba(9,9,11,.55) 42%,transparent 70%),
-             linear-gradient(to bottom,rgba(9,9,11,.72) 0%,transparent 22%,transparent 62%,rgba(9,9,11,.96) 100%),
+             linear-gradient(to bottom,rgba(13,13,13,.72) 0%,transparent 20%,transparent 52%,rgba(13,13,13,.88) 88%,#0D0D0D 100%),
              linear-gradient(to right,rgba(9,9,11,.55),transparent 22%,transparent 78%,rgba(9,9,11,.55))}
 .hero-crest{width:clamp(5.5rem,11vw,9.5rem);margin:0 auto clamp(.75rem,2vh,1.4rem);
   filter:drop-shadow(0 6px 26px rgba(201,162,39,.34))}
@@ -231,7 +237,8 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 @keyframes cue{0%,100%{transform:scaleY(.4);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
 
 /* section heading with filigree rules */
-.sec{padding:clamp(3rem,9vh,7rem) 0}
+.sec{padding:clamp(2.25rem,6vh,4.5rem) 0}
+.hero + .wrap .sec:first-child{padding-top:clamp(1.75rem,4.5vh,3rem)}
 .sec-head{display:flex;align-items:center;gap:1.5rem;margin-bottom:clamp(2rem,5vh,3.5rem)}
 .sec-head .ln{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(201,162,39,.42),transparent)}
 .sec-head h2{font-family:var(--display);font-weight:500;font-size:clamp(1.15rem,2.4vw,1.7rem);
@@ -267,7 +274,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .spine{position:absolute;left:50%;top:0;bottom:0;width:64px;transform:translateX(-50%);
   z-index:40;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(48,34,18,.5) 34%,rgba(24,16,8,.62) 50%,rgba(48,34,18,.5) 66%,transparent)}
-.book.single .spine,.book.single .base.l{display:none}
+.book.single .spine,.book.single .base.l,.book.single .ribbon{display:none}
 
 .leaf{position:absolute;top:0;right:0;width:var(--pw);height:100%;
   transform-origin:left center;transform-style:preserve-3d;--t:0;will-change:transform}
@@ -573,6 +580,8 @@ img[data-fallback]{opacity:0}
   .rnav{position:absolute;bottom:-.2rem;z-index:11}
   .rnav.prev{left:1rem}.rnav.next{right:1rem}
   .reader-bar{font-size:.74rem;letter-spacing:.1em}
+  .ribbon{height:100%}
+  .reader-stage{padding-bottom:3.2rem}
 }
 
 
@@ -1379,10 +1388,13 @@ async function mountEssay(){
 
   let pages = buildPages(mBody, illuminate(md(body)), pageHead(post, img));
   meas.remove();
-  if(pages.length % 2) pages.push("");           // books have even leaves
 
   BOOK.pages = pages;
-  BOOK.n = Math.max(1, Math.ceil((pages.length-1)/2));
+  // A spread turns two pages at a time and opens on 1|2, so the last turn is
+  // floor((n-1)/2). A single page turns one at a time, so leaf i simply carries
+  // page i on its front and page i+1 on its back.
+  BOOK.n = single ? Math.max(1, pages.length - 1)
+                  : Math.max(1, Math.floor((pages.length - 1) / 2));
   BOOK.turned = 0;
   BOOK.single = single;
   BOOK.post = post;
@@ -1398,8 +1410,9 @@ async function mountEssay(){
   const face = (n) => n>total || pages[n-1]===undefined ? "" :
     `<div class="pg paper"><div class="pg-body">${pages[n-1]}</div>${foot(n)}</div>`;
 
-  // page 1 sits on the left of the opening spread, as a printed book does:
-  // the static left page carries it, and leaf i carries pages 2i+2 / 2i+3.
+  // On a spread, page 1 sits on the static left panel and leaf i carries
+  // pages 2i+2 / 2i+3. On a phone there is no left panel, so leaf i carries
+  // page i+1 on the front and page i+2 on the back.
   const lBase = pagesEl.querySelector(".base.l .pg");
   if(lBase) lBase.innerHTML = `<div class="pg-body">${pages[0]||""}</div>${foot(1)}`;
   pagesEl.querySelectorAll(".leaf").forEach(l=>l.remove());
@@ -1409,9 +1422,11 @@ async function mountEssay(){
     const leaf = document.createElement("div");
     leaf.className = "leaf";
     leaf.dataset.i = i;
+    const nf = single ? i+1   : 2*i+2;
+    const nb = single ? i+2   : 2*i+3;
     leaf.innerHTML =
-      `<div class="side f">${face(2*i+2)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
-       <div class="side b">${face(2*i+3)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
+      `<div class="side f">${face(nf)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
+       <div class="side b">${face(nb)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
        <div class="peel" title="Drag to turn the page"></div>`;
     frag.appendChild(leaf);
     BOOK.leaves.push(leaf);
@@ -1434,11 +1449,11 @@ function zorder(){
   });
 }
 function updateBookUI(){
-  const first = BOOK.turned*2 + 1;
+  const total = BOOK.pages.length;
   const c = $("#pcount");
   if(c) c.textContent = BOOK.single
-    ? `${Math.min(first,BOOK.pages.length)} / ${BOOK.pages.length}`
-    : `${first}–${Math.min(first+1,BOOK.pages.length)} / ${BOOK.pages.length}`;
+    ? `${Math.min(BOOK.turned+1, total)} / ${total}`
+    : `${BOOK.turned*2+1}\u2013${Math.min(BOOK.turned*2+2, total)} / ${total}`;
   const pr = $("#rProg");
   if(pr) pr.style.width = ((BOOK.turned/Math.max(1,BOOK.n))*100).toFixed(1)+"%";
   const pv=$("#pPrev"), nx=$("#pNext");
