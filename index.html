@@ -325,7 +325,12 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-foot.one{justify-content:space-between}
 .pg-foot::before{content:"";position:absolute;left:0;right:0;top:calc(-.9rem*var(--ps,1));
   height:1px;background:linear-gradient(to right,transparent,rgba(120,94,52,.35),transparent)}
-.pg-foot .foot-orn{height:calc(.62rem*var(--ps,1));width:auto;opacity:.75}
+.pg-foot .foot-orn{height:calc(.62rem*var(--ps,1));width:auto;opacity:.75;flex:none}
+/* "Previous" is a wider word than "Next", so space-between pushed the ornament
+   off-centre. Equal flex on both buttons puts it back on the spine line. */
+.pg-foot:not(.one) button{flex:1 1 0;min-width:0}
+.pg-foot:not(.one) button:first-child{text-align:left}
+.pg-foot:not(.one) button:last-child{text-align:right}
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
 .pg-foot button:hover:not(:disabled){color:var(--crimson)}
@@ -343,7 +348,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
    bare `.pg-fl`, so it was winning and stretching this to the full page width.
    Scoped selector here so the width actually holds. --fl-w is the one number
    to change if you want it bigger or smaller. */
-.pg-body .pg-fl,.pg-fl{width:var(--fl-w,20%);height:auto;
+.pg-body .pg-fl,.pg-fl{width:var(--fl-w,40%);height:auto;
   margin:.15rem auto calc(.95rem*var(--ps,1));opacity:.8;filter:none}
 .pg-dek{font-family:var(--display);font-style:italic;text-align:center;color:#54493A;
   font-size:calc(1.02rem*var(--ps,1));margin:0 0 calc(.5rem*var(--ps,1))}
