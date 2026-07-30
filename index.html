@@ -28,9 +28,14 @@ window.SITE_CONFIG = {
 
   // Artwork, uploaded to the repo alongside index.html.
   assets: {
-    hero:  "assets/hero-plate.jpg",   // Byron left, castle right, dark centre
-    crest: "assets/crest.png",        // the crowned LB shield
-    paper: "assets/paper.jpg"         // seamless page fibre
+    hero:    "assets/hero-plate.jpg",  // Byron left, castle right, dark centre
+    mark:    "assets/mark.png",        // the LB monogram with its flourish
+    crest:   "assets/crest.png",       // the crowned shield
+    paper:   "assets/paper.jpg",       // seamless page fibre
+    archive: "assets/archive-bg.jpg",  // the castle plate behind the archive heading
+    orn:     "assets/orn1.png",        // the long divider
+    ornLB:   "assets/orn3.png",        // the divider carrying the monogram
+    ornCrown:"assets/orn4.png"         // the divider carrying the crown
   }
 };
 </script>
@@ -38,13 +43,13 @@ window.SITE_CONFIG = {
 <style>
 /* ══════════════════════════ 1 · TOKENS ══════════════════════════ */
 :root{
-  --void:#09090B; --coal:#111013; --ink:#18161A; --slate:#26232A;
-  --crimson:#8B1A2B; --crimson-lt:#A9293C; --crimson-deep:#5E1220;
+  --void:#0D0D0D; --coal:#1C1C1C; --ink:#141414; --slate:#26232A;
+  --crimson:#5B0E14; --crimson-lt:#7C1620; --crimson-deep:#3D080D;
 
-  --gold:#C9A227; --gold-lt:#E8CE84; --gold-pale:#F2E3B4; --gold-deep:#6E5216;
-  --leaf:linear-gradient(147deg,#6E5216 0%,#C9A227 18%,#F2E3B4 38%,#B8912F 55%,#EBD79C 74%,#8A6A1C 100%);
+  --gold:#C8A96A; --gold-lt:#E0C68F; --gold-pale:#F2E6C9; --gold-deep:#6E5216;
+  --leaf:linear-gradient(147deg,#7A5C20 0%,#C8A96A 20%,#F2E6C9 40%,#BE9E5C 56%,#E8D3A0 74%,#8A6A28 100%);
 
-  --parch:#E7DBBE; --parch-2:#D9C9A3; --parch-3:#C7B489; --cream:#F5EDDC;
+  --parch:#E7DBBE; --parch-2:#D9C9A3; --parch-3:#C7B489; --cream:#F2E6C9;
   --sepia:#3A3226; --sepia-2:#5C5040; --sepia-3:#7E7059;
 
   --display:"Playfair Display",Georgia,serif;
@@ -156,11 +161,18 @@ button{font:inherit;color:inherit}
 .bar .quill{width:1px;height:1.8rem;background:rgba(201,162,39,.3);margin-left:.4rem}
 .bar .qi{width:1.05rem;flex:none;opacity:.9}
 .bar .qi path{fill:var(--gold)}
-@media (max-width:760px){
+@media (max-width:900px){
   .brand-txt{display:none}
-  .nav{gap:1.15rem}
-  .nav a{letter-spacing:.16em;font-size:.7rem}
-  .bar .qi,.bar .quill{display:none}
+  .nav{gap:1.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    margin-left:auto;padding:0 .25rem;mask-image:linear-gradient(to right,transparent,#000 12px,#000 calc(100% - 18px),transparent)}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{letter-spacing:.15em;font-size:.68rem;white-space:nowrap;flex:none}
+}
+@media (max-width:560px){
+  .hero{min-height:calc(88svh - var(--bar))}
+  .hero-say{font-size:clamp(1.5rem,7.4vw,2.4rem);max-width:16ch}
+  .archead{min-height:12rem}
+  .kfoot .brandcol{flex-direction:column;align-items:flex-start;gap:.75rem}
 }
 
 /* ══════════════════════ 5 · SHELL ══════════════════════ */
@@ -585,20 +597,23 @@ footer.foot{position:relative;z-index:2;border-top:1px solid rgba(201,162,39,.16
   transition:transform .5s var(--ease),border-color .4s,box-shadow .5s var(--ease)}
 .wcard:hover{transform:translateY(-5px);border-color:rgba(200,169,106,.6);
   box-shadow:0 20px 44px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,106,.12)}
-.wcard .shot{position:relative;overflow:hidden;background:var(--coal);margin:.6rem .6rem 0}
-.wcard .shot img{width:100%;aspect-ratio:16/10;object-fit:cover;
-  filter:saturate(.62) contrast(1.16) brightness(.8);transition:transform 1.2s var(--ease),filter .6s}
+.wcard .shot{display:block;position:relative;overflow:hidden;background:var(--coal);margin:.6rem .6rem 0}
+.wcard .shot{background:linear-gradient(150deg,#241C10,#0F0D0B)}
+.wcard .shot::before{content:"";display:block;padding-top:62.5%}
+.wcard .shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(.62) contrast(1.16) brightness(.8);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
+img[data-fallback]{opacity:0}
 .wcard:hover .shot img{transform:scale(1.07);filter:saturate(.8) contrast(1.16) brightness(.94)}
 .wcard .shot::after{content:"";position:absolute;inset:0;
   background:linear-gradient(to top,rgba(13,13,13,.65),transparent 55%)}
-.wcard .txt{padding:1rem 1.05rem 1.25rem}
+.wcard .txt{display:block;padding:1rem 1.05rem 1.25rem}
 .wcard .cat{display:flex;align-items:center;gap:.45rem;font-family:var(--body);font-weight:500;
   font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
 .wcard .cat img{width:.9rem;height:.9rem;object-fit:contain;opacity:.9}
 .wcard h3{font-family:var(--display);font-weight:500;color:var(--cream);
   font-size:1.16rem;line-height:1.22;margin:0 0 .65rem;transition:color .35s}
 .wcard:hover h3{color:var(--gold-lt)}
-.wcard .meta{font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.2em;
+.wcard .meta{display:block;font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.2em;
   text-transform:uppercase;color:#8A7F68}
 
 /* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
@@ -1122,7 +1137,13 @@ const QUILL = (cls="qi") => `<svg class="${cls}" viewBox="0 0 24 44" aria-hidden
   <path d="M7.4 37.6c1.8-3.5 4.4-7.3 7.5-10.6l-.9-.9c-3.5 3.5-6.4 7.5-8.4 11.3l1.8.2z"/></svg>`;
 
 /* your logo, if you've supplied one */
-const ART = Object.assign({hero:"assets/hero-plate.jpg",crest:"assets/crest.png",paper:"assets/paper.jpg"}, CFG.assets||{});
+const ART = Object.assign({
+  hero:"assets/hero-plate.jpg", mark:"assets/mark.png", crest:"assets/crest.png",
+  paper:"assets/paper.jpg", archive:"assets/archive-bg.jpg",
+  orn:"assets/orn1.png", ornLB:"assets/orn3.png", ornCrown:"assets/orn4.png"
+}, CFG.assets||{});
+const CATICON = { reflections:"assets/ico-reflections.png", poems:"assets/ico-poems.png",
+  letters:"assets/ico-letters.png", essays:"assets/ico-essays.png", archive:"assets/ico-archive.png" };
 const LOGO = CFG.logo || {};
 const logoHTML = h => !LOGO.src ? "" : (LOGO.tint==="none"
   ? `<img class="logo-img" src="${esc(LOGO.src)}" alt="" style="height:${h||LOGO.height||52}px">`
@@ -1909,7 +1930,17 @@ async function savePost(status){
     bodyCache.set(id, draft.body||"");
     if(!isURL && draft.thumb){ await setDoc(doc(db,"posts",id,"media","thumb"),{data:draft.thumb}); mediaCache.set(id+":thumb",draft.thumb); }
     if(draft._newFull){ await setDoc(doc(db,"posts",id,"media","cover"),{data:draft._newFull}); mediaCache.set(id+":cover",draft._newFull); draft._newFull=null; }
-    await loadPosts(); toast(status==="published"?"Published":"Draft saved");
+    // any decorative asset that fails to load hides itself rather than showing
+// a broken-image placeholder
+document.addEventListener("error", e=>{
+  const el = e.target;
+  if(el.tagName === "IMG" && !el.dataset.fallback){
+    el.dataset.fallback = "1";
+    el.style.visibility = "hidden";
+  }
+}, true);
+
+await loadPosts(); toast(status==="published"?"Published":"Draft saved");
     draft = null; render();
   }catch(e){ console.error(e); toast("Couldn't save — check your Firestore rules"); }
 }
