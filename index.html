@@ -58,6 +58,10 @@ window.SITE_CONFIG = {
 
   --gold:#C8A96A; --gold-lt:#E8D3A4; --gold-pale:#F5EBD3; --gold-deep:#6E5216;
   --gold-text:#DFC489;                 /* gold at small sizes, lifted to stay legible */
+  /* The divider artwork ships a brighter, more yellow gold than the house one.
+     This pulls it back onto #C8A96A. Raise saturate toward 1 for more yellow,
+     lower it for more bronze. */
+  --orn-grade:saturate(.5) brightness(.9) contrast(1.02);
   --leaf:linear-gradient(147deg,#7A5C20 0%,#C8A96A 20%,#F2E6C9 40%,#BE9E5C 56%,#E8D3A0 74%,#8A6A28 100%);
 
   --parch:#EFE6D2; --parch-2:#D9C9A3; --parch-3:#C7B489; --cream:#F5EDDA;
@@ -130,7 +134,8 @@ button{font:inherit;color:inherit}
 
 /* ══════════════════════ 3 · GOLD & ORNAMENT ══════════════════════ */
 .gold{background:var(--leaf);-webkit-background-clip:text;background-clip:text;color:transparent}
-.fil{display:block;width:100%;height:auto;opacity:.92;pointer-events:none}
+.fil{display:block;width:100%;height:auto;opacity:.92;pointer-events:none;
+  filter:var(--orn-grade)}
 
 .mono{display:inline-block;font-family:var(--display);font-weight:500;
   line-height:.85;letter-spacing:-.06em}
@@ -334,13 +339,18 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-title{font-family:var(--display);font-weight:500;color:#241E15;
   font-size:calc(2.05rem*var(--ps,1));line-height:1.08;text-align:center;
   margin:0 0 calc(.7rem*var(--ps,1));text-wrap:balance;letter-spacing:.005em}
-.pg-fl{width:31%;margin:.1rem auto calc(.85rem*var(--ps,1));opacity:.9}
+/* The flourish under the title. `.pg-body img` below is more specific than a
+   bare `.pg-fl`, so it was winning and stretching this to the full page width.
+   Scoped selector here so the width actually holds. --fl-w is the one number
+   to change if you want it bigger or smaller. */
+.pg-body .pg-fl,.pg-fl{width:var(--fl-w,20%);height:auto;
+  margin:.15rem auto calc(.95rem*var(--ps,1));opacity:.8;filter:none}
 .pg-dek{font-family:var(--display);font-style:italic;text-align:center;color:#54493A;
   font-size:calc(1.02rem*var(--ps,1));margin:0 0 calc(.5rem*var(--ps,1))}
 .pg-by{font-family:var(--body);font-weight:600;font-size:calc(.74rem*var(--ps,1));letter-spacing:.16em;
   text-transform:uppercase;text-align:center;color:#5C4E37;margin:0 0 calc(1.2rem*var(--ps,1))}
 .pg-imgwrap{position:relative;margin-bottom:calc(1.1rem*var(--ps,1))}
-.pg-img{width:100%;aspect-ratio:16/9;object-fit:cover;margin:0;
+.pg-body .pg-img,.pg-img{width:100%;aspect-ratio:16/9;object-fit:cover;margin:0;
   filter:saturate(.66) contrast(1.08) brightness(.94) sepia(.14);
   clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),
     calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)}
@@ -358,7 +368,9 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-body ul,.pg-body ol{margin:0 0 .9em;padding-left:1.4em;text-indent:0}
 .pg-body li{margin-bottom:.3em}
 .pg-body a{color:var(--crimson);text-decoration-thickness:1px;text-underline-offset:2px}
-.pg-body img{width:100%;margin:1em 0;filter:sepia(.18) saturate(.72) contrast(1.06)}
+/* images written into the story body — not the flourish, not the cover plate */
+.pg-body img:not(.fil):not(.pg-img){width:100%;margin:1em 0;
+  filter:sepia(.18) saturate(.72) contrast(1.06)}
 .pg-body figure{margin:1em 0;text-indent:0}
 .pg-body figcaption{font-size:.86em;font-style:italic;text-align:center;color:#5C4E37;margin-top:.4em}
 .pg-body hr{border:0;height:18px;margin:1.6em auto;width:8rem;
@@ -679,6 +691,29 @@ img[data-fallback]{opacity:0}
   border-radius:4px;transition:.25s;font-size:.87rem;color:var(--dim-2)}
 .drop:hover,.drop.over{border-color:var(--gold);color:var(--parch)}
 .drop img{margin:0 auto 1rem;max-height:11rem;width:auto}
+
+/* ── framing tray ── */
+.cropper{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+  padding:clamp(.75rem,3vw,2rem);background:rgba(6,6,8,.86);backdrop-filter:blur(8px);
+  font-family:var(--ui);color:var(--parch)}
+.crop-box{width:min(46rem,100%);max-height:100%;overflow:auto;border-radius:5px;
+  border:1px solid rgba(201,162,39,.28);background:linear-gradient(168deg,#191919,#0E0E0E);
+  padding:clamp(1rem,3vw,1.5rem);box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.crop-box h3{font-family:var(--display);font-weight:500;font-size:1.25rem;
+  color:var(--gold-lt);margin:0 0 .9rem;letter-spacing:.02em}
+.crop-stage{position:relative;width:100%;overflow:hidden;border:1px solid rgba(201,162,39,.3);
+  background:#0A0A0A;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.crop-stage:active{cursor:grabbing}
+.crop-stage img{position:absolute;top:0;left:0;transform-origin:0 0;max-width:none;
+  pointer-events:none;-webkit-user-drag:none}
+/* the sides the cards trim away */
+.crop-guide{position:absolute;inset:0 5%;pointer-events:none;
+  border-left:1px dashed rgba(240,228,200,.5);border-right:1px dashed rgba(240,228,200,.5)}
+.crop-tools{display:flex;align-items:center;gap:.6rem;margin-top:.9rem;flex-wrap:wrap}
+.crop-tools input[type=range]{flex:1;min-width:9rem;accent-color:var(--gold);
+  background:none;height:1.6rem}
+.crop-box .hint{font-size:.8rem;color:var(--dim-2);margin:.7rem 0 0;line-height:1.5}
+@media (max-width:560px){ .crop-tools .btn{flex:1;text-align:center} }
 .pill{display:inline-block;font-size:.64rem;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;padding:.2rem .5rem;border-radius:99px;margin-right:.4rem}
 .pill.live{background:rgba(139,26,43,.3);color:#E4A0AB}
@@ -1080,22 +1115,210 @@ function md(src){
   fp(); fl(); return out.join("\n");
 }
 
-/* resize + compress in the browser, so uploads never need thinking about */
-function processImage(file,maxW,quality){
+/* ══════════════════════════════════════════════════════════════════
+   COVER IMAGES
+   Every cover is stored already cut to 16:9 — the shape the book page
+   and the cards both draw it in — so nothing is left to chance at
+   display time. The cut is guessed from the picture itself, then the
+   guess is handed to you to push around.
+   ══════════════════════════════════════════════════════════════════ */
+const COVER_AR   = 16/9;    // the stored shape
+const CARD_AR    = 16/10;   // the card, which crops the sides a little
+const PAPER_FILL = "#EFE6D2"; // behind anything transparent — JPEG has no alpha
+
+/* a File, or a data URL, becomes a decoded image */
+function loadImage(src){
   return new Promise((res,rej)=>{
+    const go = url => { const img=new Image();
+      img.onerror = ()=>rej(new Error("That file isn't an image we can open."));
+      img.onload  = ()=>res(img);
+      img.src = url; };
+    if(typeof src === "string") return go(src);
     const r=new FileReader();
     r.onerror=()=>rej(new Error("Couldn't read that file."));
-    r.onload=()=>{ const img=new Image();
-      img.onerror=()=>rej(new Error("That file isn't an image we can open."));
-      img.onload=()=>{
-        const s=Math.min(1,maxW/img.width), c=document.createElement("canvas");
-        c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
-        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-        let q=quality,out=c.toDataURL("image/jpeg",q);
-        while(out.length>780000&&q>0.35){ q-=0.08; out=c.toDataURL("image/jpeg",q); }
-        res(out); };
-      img.src=r.result; };
-    r.readAsDataURL(file);
+    r.onload =()=>go(r.result);
+    r.readAsDataURL(src);
+  });
+}
+
+/* Where is the picture actually busy? Downscale hard, measure how much the
+   pixels change from neighbour to neighbour, and slide a 16:9 window to the
+   noisiest position — with a pull back toward the middle so a plain photo
+   doesn't lurch to one edge. Faces, text and horizons all read as detail,
+   which is close enough to a focal point for a cover plate. */
+function autoRect(img, ar=COVER_AR){
+  const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+  // the largest 16:9 rectangle that fits
+  let w = Math.min(iw, ih*ar), h = w/ar;
+  const slideX = iw - w, slideY = ih - h;
+  const centre = { x:(iw-w)/2, y:(ih-h)/2, w, h };
+  if(slideX < 2 && slideY < 2) return centre;
+
+  try{
+    const N = 84, s = N/iw;
+    const sw = Math.max(2,Math.round(iw*s)), sh = Math.max(2,Math.round(ih*s));
+    const c = document.createElement("canvas"); c.width=sw; c.height=sh;
+    const cx = c.getContext("2d", {willReadFrequently:true});
+    cx.fillStyle = PAPER_FILL; cx.fillRect(0,0,sw,sh);
+    cx.drawImage(img,0,0,sw,sh);
+    const d = cx.getImageData(0,0,sw,sh).data;
+    const g = new Float32Array(sw*sh);
+    for(let i=0,p=0;i<g.length;i++,p+=4)
+      g[i] = 0.299*d[p] + 0.587*d[p+1] + 0.114*d[p+2];
+
+    const cols = new Float32Array(sw), rows = new Float32Array(sh);
+    for(let y=0;y<sh;y++) for(let x=0;x<sw;x++){
+      const i=y*sw+x;
+      const e = (x+1<sw ? Math.abs(g[i+1]-g[i]) : 0)
+              + (y+1<sh ? Math.abs(g[i+sw]-g[i]) : 0);
+      cols[x]+=e; rows[y]+=e;
+    }
+    const best = (arr, span, full) => {           // span & full in small pixels
+      const win = Math.max(1, Math.round(span));
+      if(win >= arr.length) return 0;
+      const pre = new Float32Array(arr.length+1);
+      for(let i=0;i<arr.length;i++) pre[i+1]=pre[i]+arr[i];
+      const mid = (arr.length-win)/2;
+      let bi=Math.round(mid), bv=-Infinity;
+      for(let i=0;i+win<=arr.length;i++){
+        const pull = 1 - 0.35*Math.abs(i-mid)/(mid||1);   // gentle centre bias
+        const v = (pre[i+win]-pre[i]) * pull;
+        if(v>bv){ bv=v; bi=i; }
+      }
+      return bi/ (arr.length) * full;             // back to source pixels
+    };
+    const x = slideX > 2 ? best(cols, w*s, iw) : centre.x;
+    const y = slideY > 2 ? best(rows, h*s, ih) : centre.y;
+    return { x:Math.max(0,Math.min(iw-w,x)), y:Math.max(0,Math.min(ih-h,y)), w, h };
+  }catch(e){ return centre; }   // tainted canvas, or anything else — centre it
+}
+
+/* cut the chosen rectangle out and compress it */
+function renderCrop(img, rect, outW, quality){
+  const c = document.createElement("canvas");
+  c.width = Math.round(outW); c.height = Math.round(outW/COVER_AR);
+  const cx = c.getContext("2d");
+  cx.imageSmoothingQuality = "high";
+  cx.fillStyle = PAPER_FILL; cx.fillRect(0,0,c.width,c.height);   // no black boxes behind PNGs
+  cx.drawImage(img, rect.x, rect.y, rect.w, rect.h, 0, 0, c.width, c.height);
+  let q=quality, out=c.toDataURL("image/jpeg",q);
+  while(out.length>780000 && q>0.35){ q-=0.08; out=c.toDataURL("image/jpeg",q); }
+  return out;
+}
+
+/* ── the framing tray ──────────────────────────────────────────────
+   The stage IS the 16:9 frame: what you can see is exactly what gets
+   kept. Drag to move, wheel or pinch or the slider to zoom.        */
+function openCropper(img, rect){
+  return new Promise(resolve=>{
+    const el = document.createElement("div");
+    el.className = "cropper";
+    el.innerHTML = `
+      <div class="crop-box" role="dialog" aria-label="Frame the cover image">
+        <h3>Frame the cover</h3>
+        <div class="crop-stage" id="cropStage">
+          <img id="cropImg" alt="" draggable="false">
+          <div class="crop-guide" aria-hidden="true"></div>
+        </div>
+        <div class="crop-tools">
+          <input type="range" id="cropZoom" min="1" max="5" step="0.005" value="1"
+                 aria-label="Zoom">
+          <button class="btn ghost" id="cropAuto">Auto</button>
+          <button class="btn ghost" id="cropCancel">Cancel</button>
+          <button class="btn primary" id="cropOk">Use this crop</button>
+        </div>
+        <p class="hint">Drag to move · wheel, pinch or the slider to zoom.
+          Everything inside the frame is kept. The dashed edges are trimmed on
+          the cards, so keep the important part away from them.</p>
+      </div>`;
+    document.body.appendChild(el);
+    document.body.style.overflow = "hidden";
+
+    const stage = el.querySelector("#cropStage"),
+          face  = el.querySelector("#cropImg"),
+          zoom  = el.querySelector("#cropZoom");
+    face.src = img.src;
+
+    const iw = img.naturalWidth||img.width, ih = img.naturalHeight||img.height;
+    let SW=0, SH=0, kMin=1, k=1, ox=0, oy=0;
+
+    const clamp = ()=>{
+      ox = Math.min(0, Math.max(SW - iw*k, ox));
+      oy = Math.min(0, Math.max(SH - ih*k, oy));
+    };
+    const paint = ()=>{
+      face.style.width  = (iw*k)+"px";
+      face.style.height = (ih*k)+"px";
+      face.style.transform = `translate(${ox}px,${oy}px)`;
+      zoom.value = Math.min(5, k/kMin);
+    };
+    const setRect = r =>{
+      k = SW / r.w; ox = -r.x*k; oy = -r.y*k; clamp(); paint();
+    };
+    const measure = keep =>{
+      const r = keep ? currentRect() : null;
+      SW = stage.clientWidth; SH = Math.round(SW/COVER_AR);
+      stage.style.height = SH+"px";
+      kMin = Math.max(SW/iw, SH/ih);
+      if(r) setRect(r); else setRect(rect);
+    };
+    const currentRect = ()=>({ x:-ox/k, y:-oy/k, w:SW/k, h:SH/k });
+
+    measure(false);
+    const onResize = ()=>measure(true);
+    addEventListener("resize", onResize);
+
+    /* zoom about a point in stage coordinates, so the thing under your
+       finger stays under your finger */
+    const zoomTo = (nk, px, py)=>{
+      nk = Math.max(kMin, Math.min(kMin*5, nk));
+      ox = px - (px-ox)*(nk/k); oy = py - (py-oy)*(nk/k);
+      k = nk; clamp(); paint();
+    };
+    zoom.oninput = ()=>zoomTo(kMin*parseFloat(zoom.value), SW/2, SH/2);
+    stage.onwheel = e=>{ e.preventDefault();
+      const b=stage.getBoundingClientRect();
+      zoomTo(k*Math.pow(0.9993, e.deltaY), e.clientX-b.left, e.clientY-b.top); };
+
+    const pts = new Map(); let last=null, gap=0;
+    stage.addEventListener("pointerdown", e=>{
+      stage.setPointerCapture(e.pointerId);
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      last = {x:e.clientX,y:e.clientY}; gap = 0;
+    });
+    stage.addEventListener("pointermove", e=>{
+      if(!pts.has(e.pointerId)) return;
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const p=[...pts.values()];
+      if(p.length>=2){                                  // pinch
+        const d = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+        const b = stage.getBoundingClientRect();
+        if(gap) zoomTo(k*(d/gap), (p[0].x+p[1].x)/2-b.left, (p[0].y+p[1].y)/2-b.top);
+        gap = d; last = null; return;
+      }
+      if(last){ ox += e.clientX-last.x; oy += e.clientY-last.y; clamp(); paint(); }
+      last = {x:e.clientX,y:e.clientY};
+    });
+    const up = e=>{ pts.delete(e.pointerId);
+      if(pts.size<2) gap=0;
+      last = pts.size===1 ? [...pts.values()][0] : null; };
+    stage.addEventListener("pointerup",up);
+    stage.addEventListener("pointercancel",up);
+
+    const close = value =>{
+      removeEventListener("resize", onResize);
+      removeEventListener("keydown", onKey);
+      el.remove(); document.body.style.overflow="";
+      resolve(value);
+    };
+    const onKey = e=>{ if(e.key==="Escape") close(null);
+      if(e.key==="Enter") close(currentRect()); };
+    addEventListener("keydown", onKey);
+
+    el.querySelector("#cropAuto").onclick   = ()=>setRect(autoRect(img));
+    el.querySelector("#cropCancel").onclick = ()=>close(null);
+    el.querySelector("#cropOk").onclick     = ()=>close(currentRect());
+    el.onclick = e=>{ if(e.target===el) close(null); };
   });
 }
 
@@ -1774,8 +1997,12 @@ function studioEditor(){
           <div class="drop" id="drop">${d.thumb?`<img src="${esc(d.thumb)}" alt="">`:""}
             <span>${d.thumb?"Replace image":"Drop an image, or click to choose"}</span></div>
           <input type="file" id="file" accept="image/*" hidden>
-          ${d.thumb?`<button class="btn ghost" id="removeImg" style="margin-top:.6rem">Remove image</button>`:""}
-          <p class="hint">Resized and compressed in your browser.</p>
+          ${d.thumb?`<div class="btnrow" style="margin-top:.6rem">
+            ${d._srcImg?`<button class="btn" id="recropImg">Adjust crop</button>`:""}
+            <button class="btn ghost" id="removeImg">Remove image</button></div>`:""}
+          <p class="hint">Cut to 16:9 and compressed in your browser. The framing
+            is guessed from the picture — press <em>Adjust crop</em> to move it.
+            ${d._srcImg?"":d.thumb?"<br>Reloading loses the original, so re-frame by choosing the file again.":""}</p>
         </div>
         <div class="panel">
           <h3>Publishing</h3>
@@ -1996,18 +2223,33 @@ function bindEditor(){
   drop.ondrop = e=>{ e.preventDefault(); drop.classList.remove("over"); takeImage(e.dataTransfer.files[0]); };
   file.onchange = ()=>takeImage(file.files[0]);
   const rm = document.getElementById("removeImg");
-  if(rm) rm.onclick = ()=>{ collectDraft(); draft.thumb=""; draft._newFull=null; render(); };
+  if(rm) rm.onclick = ()=>{ collectDraft(); draft.thumb=""; draft._newFull=null;
+    draft._srcImg=null; draft._crop=null; render(); };
+  const rc = document.getElementById("recropImg");
+  if(rc) rc.onclick = ()=>{ collectDraft();
+    if(draft._srcImg) frameImage(draft._srcImg, draft._crop || autoRect(draft._srcImg)); };
 }
 async function takeImage(f){
   if(!f) return;
   if(!f.type.startsWith("image/")){ toast("That's not an image"); return; }
-  toast("Processing image…");
   try{
     collectDraft();
-    draft.thumb = await processImage(f, 1100, 0.76);
-    draft._newFull = await processImage(f, 2000, 0.86);
-    render();
-  }catch(e){ toast(e.message); }
+    const img = await loadImage(f);
+    await frameImage(img, autoRect(img));
+  }catch(e){ toast(e.message || "Couldn't use that image"); }
+}
+
+/* open the tray, and if a crop comes back, cut and keep it */
+async function frameImage(img, rect){
+  const chosen = await openCropper(img, rect);
+  if(!chosen) return;                     // cancelled — the old cover stands
+  toast("Processing image…");
+  await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+  draft.thumb    = renderCrop(img, chosen, 1120, 0.78);
+  draft._newFull = renderCrop(img, chosen, 1920, 0.86);
+  draft._srcImg  = img;                   // held in memory so you can nudge it again
+  draft._crop    = chosen;
+  render();
 }
 
 /* ══════════════════════════════════════════════════════════════════
