@@ -1203,18 +1203,99 @@ function autoRect(img, ar=COVER_AR){
   }catch(e){ return centre; }   // tainted canvas, or anything else — centre it
 }
 
-/* cut the chosen rectangle out and compress it */
-function renderCrop(img, rect, outW, quality){
-  const c = document.createElement("canvas");
-  c.width = Math.round(outW); c.height = Math.round(outW/COVER_AR);
-  const cx = c.getContext("2d");
-  cx.imageSmoothingQuality = "high";
-  cx.fillStyle = PAPER_FILL; cx.fillRect(0,0,c.width,c.height);   // no black boxes behind PNGs
-  cx.drawImage(img, rect.x, rect.y, rect.w, rect.h, 0, 0, c.width, c.height);
-  let q=quality, out=c.toDataURL("image/jpeg",q);
-  while(out.length>780000 && q>0.35){ q-=0.08; out=c.toDataURL("image/jpeg",q); }
-  return out;
+/* ── weight ────────────────────────────────────────────────────────
+   The smallest encoding that still looks like the original, chosen by
+   measuring rather than guessing. Each candidate is decoded back and
+   scored against the source with SSIM — a structural comparison, not a
+   pixel-average, so it notices the things an eye notices. The lowest
+   quality that stays above the threshold wins.
+
+   The useful consequence: a soft photograph compresses hard, while a
+   pen-and-ink drawing full of fine hatching scores badly the moment the
+   lines start to smear, so it automatically keeps more quality. Nothing
+   to set per image.                                                     */
+const COVER_W  = 1600;   // stored width for the book page — 2× the widest page
+const THUMB_W  = 1100;   // stored width for the cards
+const LOOKS_OK = 0.985;  // SSIM floor. Nearer 1 is fussier and heavier.
+const DOC_CAP  = 780000; // a Firestore document is 1 MB, and base64 adds a third
+
+/* WebP runs 25–35% under JPEG at the same measured quality, and holds fine
+   line work far better. Everything since Safari 16 can encode it. */
+const WEBP_OK = (()=>{ try{
+  const c=document.createElement("canvas"); c.width=c.height=1;
+  return c.toDataURL("image/webp").indexOf("data:image/webp")===0;
+}catch(e){ return false; } })();
+
+/* greyscale samples of a source, at a fixed comparison size */
+function greyOf(src, w, h){
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const cx=c.getContext("2d",{willReadFrequently:true});
+  cx.drawImage(src,0,0,w,h);
+  const d=cx.getImageData(0,0,w,h).data, g=new Float32Array(w*h);
+  for(let i=0,p=0;i<g.length;i++,p+=4) g[i]=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];
+  return g;
 }
+
+/* structural similarity, averaged over 8×8 windows */
+function ssim(a,b,w,h){
+  const C1=6.5025, C2=58.5225, B=8, N=B*B;
+  let sum=0, n=0;
+  for(let y=0;y+B<=h;y+=B) for(let x=0;x+B<=w;x+=B){
+    let ma=0, mb=0;
+    for(let j=0;j<B;j++){ const r=(y+j)*w+x;
+      for(let i=0;i<B;i++){ ma+=a[r+i]; mb+=b[r+i]; } }
+    ma/=N; mb/=N;
+    let va=0, vb=0, cab=0;
+    for(let j=0;j<B;j++){ const r=(y+j)*w+x;
+      for(let i=0;i<B;i++){ const da=a[r+i]-ma, db=b[r+i]-mb;
+        va+=da*da; vb+=db*db; cab+=da*db; } }
+    va/=N-1; vb/=N-1; cab/=N-1;
+    sum += ((2*ma*mb+C1)*(2*cab+C2)) / ((ma*ma+mb*mb+C1)*(va+vb+C2));
+    n++;
+  }
+  return n ? sum/n : 1;
+}
+
+async function encodeSmallest(canvas, target=LOOKS_OK){
+  const type = WEBP_OK ? "image/webp" : "image/jpeg";
+  const cw = Math.min(canvas.width, 800), ch = Math.round(cw*canvas.height/canvas.width);
+  const ref = greyOf(canvas, cw, ch);
+  const score = async url => ssim(ref, greyOf(await loadImage(url), cw, ch), cw, ch);
+
+  let lo=0.35, hi=0.95, keep=null;
+  for(let i=0;i<5;i++){
+    const q = +((lo+hi)/2).toFixed(3);
+    const url = canvas.toDataURL(type,q);
+    if(await score(url) >= target){ keep={url,q}; hi=q; } else lo=q;
+  }
+  if(!keep) keep = { url:canvas.toDataURL(type,0.95), q:0.95 };
+
+  // a hard ceiling for the document store, whatever the measurement said
+  while(keep.url.length>DOC_CAP && keep.q>0.3){
+    keep.q = +(keep.q-0.07).toFixed(3);
+    keep.url = canvas.toDataURL(type,keep.q);
+  }
+  return { url:keep.url, q:keep.q, bytes:Math.round(keep.url.length*0.75), type };
+}
+
+/* cut the chosen rectangle out and squeeze it */
+async function renderCrop(img, rect, outW){
+  let W = Math.round(outW);
+  for(;;){
+    const c = document.createElement("canvas");
+    c.width = W; c.height = Math.round(W/COVER_AR);
+    const cx = c.getContext("2d");
+    cx.imageSmoothingQuality = "high";
+    cx.fillStyle = PAPER_FILL; cx.fillRect(0,0,c.width,c.height); // no black behind PNGs
+    cx.drawImage(img, rect.x, rect.y, rect.w, rect.h, 0, 0, c.width, c.height);
+    const out = await encodeSmallest(c);
+    out.w = W;
+    if(out.url.length <= DOC_CAP || W < 700) return out;
+    W = Math.round(W*0.85);        // still too heavy — give up some pixels
+  }
+}
+const kb = n => n<1024*1024 ? Math.round(n/1024)+" KB"
+                            : (n/1048576).toFixed(1)+" MB";
 
 /* ── the framing tray ──────────────────────────────────────────────
    The stage IS the 16:9 frame: what you can see is exactly what gets
@@ -2087,9 +2168,11 @@ function studioEditor(){
           ${d.thumb?`<div class="btnrow" style="margin-top:.6rem">
             ${d._srcImg?`<button class="btn" id="recropImg">Adjust crop</button>`:""}
             <button class="btn ghost" id="removeImg">Remove image</button></div>`:""}
-          <p class="hint">Cut to 16:9 and compressed in your browser. The framing
-            is guessed from the picture — press <em>Adjust crop</em> to move it.
-            ${d._srcImg?"":d.thumb?"<br>Reloading loses the original, so re-frame by choosing the file again.":""}</p>
+          <p class="hint">Cut to 16:9, then squeezed as far as it will go without
+            visibly changing — the quality is measured, not guessed.
+            ${d._weight?`<br><b style="color:var(--gold-text)">Stored: ${kb(d._weight.bytes)}</b>
+              · ${esc(d._weight.type)} q${d._weight.q} · ${d._weight.w}px wide`:""}
+            ${d._srcImg?"<br>Press <em>Adjust crop</em> to move the framing.":d.thumb?"<br>Reloading loses the original, so re-frame by choosing the file again.":""}</p>
         </div>
         <div class="panel">
           <h3>Publishing</h3>
@@ -2311,7 +2394,7 @@ function bindEditor(){
   file.onchange = ()=>takeImage(file.files[0]);
   const rm = document.getElementById("removeImg");
   if(rm) rm.onclick = ()=>{ collectDraft(); draft.thumb=""; draft._newFull=null;
-    draft._srcImg=null; draft._crop=null; render(); };
+    draft._srcImg=null; draft._crop=null; draft._weight=null; render(); };
   const rc = document.getElementById("recropImg");
   if(rc) rc.onclick = ()=>{ collectDraft();
     if(draft._srcImg) frameImage(draft._srcImg, draft._crop || autoRect(draft._srcImg)); };
@@ -2330,12 +2413,17 @@ async function takeImage(f){
 async function frameImage(img, rect){
   const chosen = await openCropper(img, rect);
   if(!chosen) return;                     // cancelled — the old cover stands
-  toast("Processing image…");
+  toast("Finding the smallest size that still looks right…");
   await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
-  draft.thumb    = renderCrop(img, chosen, 1120, 0.78);
-  draft._newFull = renderCrop(img, chosen, 1920, 0.86);
+  const full  = await renderCrop(img, chosen, COVER_W);
+  const thumb = await renderCrop(img, chosen, THUMB_W);
+  draft.thumb    = thumb.url;
+  draft._newFull = full.url;
+  draft._weight  = { bytes: full.bytes + thumb.bytes, q: full.q, w: full.w,
+                     type: full.type === "image/webp" ? "WebP" : "JPEG" };
   draft._srcImg  = img;                   // held in memory so you can nudge it again
   draft._crop    = chosen;
+  toast(`Cover stored at ${kb(draft._weight.bytes)}`);
   render();
 }
 
