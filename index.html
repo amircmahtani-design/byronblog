@@ -333,9 +333,16 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-foot .foot-orn{height:calc(.62rem*var(--ps,1));width:auto;opacity:.75;flex:none}
 /* "Previous" is a wider word than "Next", so space-between pushed the ornament
    off-centre. Equal flex on both buttons puts it back on the spine line. */
-.pg-foot:not(.one) button{flex:1 1 0;min-width:0}
-.pg-foot:not(.one) button:first-child{text-align:left}
-.pg-foot:not(.one) button:last-child{text-align:right}
+.pg-foot:not(.one)>:first-child{flex:1 1 0;min-width:0;text-align:left}
+.pg-foot:not(.one)>:last-child{flex:1 1 0;min-width:0;text-align:right}
+.pg-foot .foot-end{cursor:default;opacity:.55;padding:.2rem .1rem}
+
+/* the closing page */
+.pg-fin{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:calc(1.3rem*var(--ps,1))}
+.pg-fin img{width:38%;height:auto;opacity:.5}
+.pg-fin p{font-family:var(--display);font-style:italic;color:#5C4E37;margin:0;
+  font-size:calc(1.45rem*var(--ps,1));letter-spacing:.16em}
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
 .pg-foot button:hover:not(:disabled){color:var(--crimson)}
@@ -1794,10 +1801,14 @@ async function mountEssay(){
   BOOK.post = post;
 
   const total = pages.length;
+  // On a spread the left page carries its neighbour, so the book ends on the
+  // page whose partner doesn't exist. On a phone each page stands alone.
+  const isLast = n => single ? n >= total : n+1 >= total;
   const foot = (n) => n%2 ? `<div class="pg-foot">
       <button data-turn="prev"><span class="ar-l"></span>Previous</button>
       <img class="foot-orn" src="${esc(ART.ornInk)}" alt="" aria-hidden="true" onerror="this.remove()">
-      <button data-turn="next">Next<span class="ar-r"></span></button>
+      ${isLast(n) ? `<span class="foot-end">End</span>`
+                  : `<button data-turn="next">Next<span class="ar-r"></span></button>`}
     </div>` : `<div class="pg-foot one">
       <span class="mid">${esc(store.site.byline)}</span><span>${n} / ${total}</span>
     </div>`;
@@ -1809,6 +1820,12 @@ async function mountEssay(){
   // page i+1 on the front and page i+2 on the back.
   const lBase = pagesEl.querySelector(".base.l .pg");
   if(lBase) lBase.innerHTML = `<div class="pg-body">${pages[0]||""}</div>${foot(1)}`;
+  // the right-hand base lies under every leaf and is uncovered only when the
+  // last one has been turned, so it is the natural place for the closing page
+  const rBase = pagesEl.querySelector(".base.r .pg");
+  if(rBase) rBase.innerHTML = `<div class="pg-fin">
+      <img src="${esc(ART.ornInk)}" alt="" aria-hidden="true" onerror="this.remove()">
+      <p>End</p></div>`;
   pagesEl.querySelectorAll(".leaf").forEach(l=>l.remove());
   const frag = document.createDocumentFragment();
   BOOK.leaves = [];
