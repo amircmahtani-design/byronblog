@@ -337,12 +337,8 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-foot:not(.one)>:last-child{flex:1 1 0;min-width:0;text-align:right}
 .pg-foot .foot-end{cursor:default;opacity:.55;padding:.2rem .1rem}
 
-/* the closing page */
-.pg-fin{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:calc(1.3rem*var(--ps,1))}
-.pg-fin img{width:38%;height:auto;opacity:.5}
-.pg-fin p{font-family:var(--display);font-style:italic;color:#5C4E37;margin:0;
-  font-size:calc(1.45rem*var(--ps,1));letter-spacing:.16em}
+/* the sign-off — the signature and the closing mark, kept together so a page
+   break can never leave "End" stranded on a leaf of its own */
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
 .pg-foot button:hover:not(:disabled){color:var(--crimson)}
@@ -397,6 +393,12 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .dc-word{font-variant:small-caps;letter-spacing:.05em}
 .pg .sig{font-family:var(--sign);font-size:calc(2.6rem*var(--ps,1));line-height:1;color:#3A2E1C;
   text-align:right;margin:.6rem 0 0;text-indent:0}
+/* The signature holds the right edge; the closing mark sits on the page's
+   centre line. Change text-align to `right` here to tuck it under the name. */
+.pg .pg-close{text-indent:0;text-align:center}
+.pg .fin{font-family:var(--display);font-style:italic;color:#5C4E37;text-indent:0;
+  text-align:inherit;font-size:calc(1.1rem*var(--ps,1));letter-spacing:.16em;
+  margin:calc(.9rem*var(--ps,1)) 0 0}
 
 /* ══════════════════════ KIT · BUTTONS ══════════════════════ */
 .kb{display:inline-flex;align-items:center;gap:1.1rem;text-decoration:none;cursor:pointer;
@@ -1645,10 +1647,17 @@ function buildPages(mBody, bodyHTML, headerHTML){
     i--;
   }
 
+  // The signature and the closing mark travel together as one block, so "End"
+  // always lands directly beneath the name rather than on a page of its own.
+  const close = document.createElement("div");
+  close.className = "pg-close";
   const sig = document.createElement("p");
   sig.className = "sig"; sig.textContent = "Byron";
-  mBody.appendChild(sig);
-  if(over()){ mBody.removeChild(sig); pages.push(mBody.innerHTML); mBody.innerHTML=""; mBody.appendChild(sig); }
+  const fin = document.createElement("p");
+  fin.className = "fin"; fin.textContent = "End";
+  close.append(sig, fin);
+  mBody.appendChild(close);
+  if(over()){ mBody.removeChild(close); pages.push(mBody.innerHTML); mBody.innerHTML=""; mBody.appendChild(close); }
   pages.push(mBody.innerHTML);
   mBody.innerHTML = "";
   return pages;
@@ -1791,16 +1800,22 @@ async function mountEssay(){
   meas.remove();
 
   BOOK.pages = pages;
-  // A spread turns two pages at a time and opens on 1|2, so the last turn is
-  // floor((n-1)/2). A single page turns one at a time, so leaf i simply carries
-  // page i on its front and page i+1 on its back.
-  BOOK.n = single ? Math.max(1, pages.length - 1)
-                  : Math.max(1, Math.floor((pages.length - 1) / 2));
+  const total = pages.length;
+  // A spread opens on 1|2 and shows two pages at a time, so it runs to
+  // ceil(total/2) spreads and one fewer turn than that. Leaf k carries page
+  // 2k+2 on its front, so the last spread still needs its own leaf even though
+  // that leaf is never turned — counting turns and leaves as the same number is
+  // what used to drop the final page of every even-length story. A phone shows
+  // one page at a time, so leaf i simply carries page i+1 and page i+2.
+  BOOK.n = single ? Math.max(0, total - 1)                  // turns available
+                  : Math.max(0, Math.ceil(total / 2) - 1);
+  const leafCount = single
+    ? Math.max(1, total - 1)
+    : Math.max(1, BOOK.n + (2 * BOOK.n + 2 <= total ? 1 : 0));
   BOOK.turned = 0;
   BOOK.single = single;
   BOOK.post = post;
 
-  const total = pages.length;
   // On a spread the left page carries its neighbour, so the book ends on the
   // page whose partner doesn't exist. On a phone each page stands alone.
   const isLast = n => single ? n >= total : n+1 >= total;
@@ -1812,7 +1827,9 @@ async function mountEssay(){
     </div>` : `<div class="pg-foot one">
       <span class="mid">${esc(store.site.byline)}</span><span>${n} / ${total}</span>
     </div>`;
-  const face = (n) => n>total || pages[n-1]===undefined ? "" :
+  // a face past the end of the writing is a blank leaf, not a hole — it still
+  // has to be parchment or you'd see straight through the turning page
+  const face = (n) => n>total || pages[n-1]===undefined ? `<div class="pg paper"></div>` :
     `<div class="pg paper"><div class="pg-body">${pages[n-1]}</div>${foot(n)}</div>`;
 
   // On a spread, page 1 sits on the static left panel and leaf i carries
@@ -1821,15 +1838,14 @@ async function mountEssay(){
   const lBase = pagesEl.querySelector(".base.l .pg");
   if(lBase) lBase.innerHTML = `<div class="pg-body">${pages[0]||""}</div>${foot(1)}`;
   // the right-hand base lies under every leaf and is uncovered only when the
-  // last one has been turned, so it is the natural place for the closing page
+  // last one has been turned. The closing mark now sits with the signature, so
+  // this is left as the blank facing leaf a printed book would end on.
   const rBase = pagesEl.querySelector(".base.r .pg");
-  if(rBase) rBase.innerHTML = `<div class="pg-fin">
-      <img src="${esc(ART.ornInk)}" alt="" aria-hidden="true" onerror="this.remove()">
-      <p>End</p></div>`;
+  if(rBase) rBase.innerHTML = "";
   pagesEl.querySelectorAll(".leaf").forEach(l=>l.remove());
   const frag = document.createDocumentFragment();
   BOOK.leaves = [];
-  for(let i=0;i<BOOK.n;i++){
+  for(let i=0;i<leafCount;i++){
     const leaf = document.createElement("div");
     leaf.className = "leaf";
     leaf.dataset.i = i;
@@ -1854,9 +1870,11 @@ function setLeaf(leaf, deg){
   leaf.style.setProperty("--t", (deg/180).toFixed(4));
 }
 function zorder(){
+  const L = BOOK.leaves.length;
   BOOK.leaves.forEach((lf,i)=>{
-    lf.style.zIndex = (i < BOOK.turned) ? (i+1) : (2*BOOK.n - i);
-    lf.querySelector(".peel").style.display = (i === BOOK.turned) ? "" : "none";
+    lf.style.zIndex = (i < BOOK.turned) ? (i+1) : (2*L - i);
+    lf.querySelector(".peel").style.display =
+      (i === BOOK.turned && BOOK.turned < BOOK.n) ? "" : "none";
   });
 }
 function updateBookUI(){
@@ -1876,7 +1894,7 @@ function goNext(){
   if(BOOK.busy || BOOK.turned >= BOOK.n) return;
   const lf = BOOK.leaves[BOOK.turned];
   BOOK.busy = true;
-  lf.style.zIndex = 3*BOOK.n + 5;
+  lf.style.zIndex = 3*BOOK.leaves.length + 5;
   lf.classList.add("anim");
   requestAnimationFrame(()=>setLeaf(lf,180));
   setTimeout(()=>{ BOOK.turned++; BOOK.busy=false; lf.classList.remove("anim"); zorder(); updateBookUI(); }, 800);
@@ -1885,7 +1903,7 @@ function goPrev(){
   if(BOOK.busy || BOOK.turned <= 0) return;
   const lf = BOOK.leaves[BOOK.turned-1];
   BOOK.busy = true;
-  lf.style.zIndex = 3*BOOK.n + 5;
+  lf.style.zIndex = 3*BOOK.leaves.length + 5;
   lf.classList.add("anim");
   requestAnimationFrame(()=>setLeaf(lf,0));
   setTimeout(()=>{ BOOK.turned--; BOOK.busy=false; lf.classList.remove("anim"); zorder(); updateBookUI(); }, 800);
@@ -1909,7 +1927,7 @@ function wireTurning(pagesEl, pw){
     drag = { leaf, spineX: BOOK.single ? box.left : box.left + pw, t:0, moved:false };
     document.body.classList.add("dragging");
     leaf.classList.remove("anim");
-    leaf.style.zIndex = 3*BOOK.n + 5;
+    leaf.style.zIndex = 3*BOOK.leaves.length + 5;
   }, sig);
 
   pagesEl.addEventListener("pointermove", e=>{
