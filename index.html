@@ -1806,11 +1806,15 @@ async function mountEssay(){
   // 2k+2 on its front, so the last spread still needs its own leaf even though
   // that leaf is never turned — counting turns and leaves as the same number is
   // what used to drop the final page of every even-length story. A phone shows
-  // one page at a time, so leaf i simply carries page i+1 and page i+2.
+  // one page at a time, so leaf i simply carries page i+1 and page i+2 — and
+  // it needs one leaf per page, not one per turn. The final leaf is never
+  // turned; it is the leaf the sign-off is printed on. Binding only total-1 of
+  // them left the last turn uncovering the blank right-hand base, which is why
+  // every story on a phone ended on an empty page with no signature and no End.
   BOOK.n = single ? Math.max(0, total - 1)                  // turns available
                   : Math.max(0, Math.ceil(total / 2) - 1);
   const leafCount = single
-    ? Math.max(1, total - 1)
+    ? Math.max(1, total)
     : Math.max(1, BOOK.n + (2 * BOOK.n + 2 <= total ? 1 : 0));
   BOOK.turned = 0;
   BOOK.single = single;
