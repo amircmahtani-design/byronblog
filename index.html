@@ -403,6 +403,8 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   letter-spacing:.24em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(20.5rem,1fr));gap:clamp(1.4rem,2.6vw,2.2rem)}
+.cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}}
 .wcard{display:block;text-decoration:none;border:1px solid rgba(200,169,106,.22);
   background:linear-gradient(168deg,rgba(28,28,28,.9),rgba(13,13,13,.95));
   transition:transform .5s var(--ease),border-color .4s,box-shadow .5s var(--ease)}
@@ -1117,7 +1119,7 @@ function viewHome(){
   const list = published();
   if(!list.length) return `<div class="empty">Nothing published yet. Open the <a href="#/studio">Studio</a> and write the first one.</div>`;
   const [lead,...rest] = list;
-  const latest = [lead,...rest].slice(0,4);
+  const latest = [lead,...rest].slice(0,3);
 
   return `
   <section class="hero">
@@ -1133,7 +1135,7 @@ function viewHome(){
   <div class="wrap" id="latest">
     <section class="sec">
       <div class="sec-head rise"><span class="ln"></span><h2>Latest Writings</h2><span class="ln"></span></div>
-      <div class="cards rise">${latest.map(wcard).join("")}</div>
+      <div class="cards three rise">${latest.map(wcard).join("")}</div>
       <div style="display:flex;justify-content:center;margin-top:clamp(2rem,5vh,3.25rem)">
         <a class="kb plain rise" href="#/archive"><span>View the archive</span><span class="ar"></span></a>
       </div>
