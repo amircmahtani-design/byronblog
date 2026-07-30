@@ -80,7 +80,12 @@ window.SITE_CONFIG = {
 }
 
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;background:var(--void)}
+/* One dial for the whole site. Everything is sized in rem, so this scales the
+   type, the gutters, the masthead and the buttons together, in proportion.
+   Cormorant Garamond has a small x-height and reads a size or so below what
+   the number says, which is why the base sits above the usual 16px. */
+html{font-size:var(--type,18px);
+  -webkit-text-size-adjust:100%;scroll-behavior:smooth;background:var(--void)}
 body{
   margin:0;color:var(--parch);
   font-family:var(--body);font-weight:450;font-size:1.15rem;line-height:1.7;
@@ -472,8 +477,8 @@ img[data-fallback]{opacity:0}
 .kfind input:focus{outline:none}
 .kfind svg{width:1rem;height:1rem;fill:var(--gold);opacity:.8;flex:none}
 .pager{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:clamp(2rem,5vh,3rem);
-  font-family:var(--body);font-weight:600;font-size:.95rem;letter-spacing:.1em}
-.pager button{min-width:2.3rem;height:2.3rem;padding:0 .55rem;border:1px solid transparent;
+  font-family:var(--body);font-weight:600;font-size:1.02rem;letter-spacing:.1em}
+.pager button{min-width:2.5rem;height:2.5rem;padding:0 .6rem;border:1px solid transparent;
   background:none;cursor:pointer;color:var(--dim-2);transition:.3s}
 .pager button:hover:not(:disabled){color:var(--gold-pale)}
 .pager button[aria-current="true"]{color:var(--gold-pale);border-color:var(--gold)}
@@ -1472,6 +1477,15 @@ let readerCandle = false;
 let readerSize = 1;
 let pendingEssay = null;
 
+/* The page scale. A page is measured in pixels, not in rem, so the book is
+   deliberately held apart from --type: raising the site's type dial mustn't
+   silently reflow every story into more pages. Readers who want bigger type in
+   the book have the A− / A+ in the reader bar. */
+const psFor = pw => {
+  const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  return (pw/470 * readerSize * (16/root)).toFixed(3);
+};
+
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
 function deckle(seed){
@@ -1518,6 +1532,16 @@ function buildPages(mBody, bodyHTML, headerHTML){
     if(!over()) continue;
     mBody.removeChild(node);
 
+    // A book doesn't leave half a page white because the next paragraph is
+    // long — it sets as far as the foot of the page and carries the rest over.
+    // So try to cut the block in the space that's left before giving up on it.
+    if(!forced.has(node)){
+      const cut = splitNode(node, mBody);
+      if(cut.length > 1){ items.splice(i, 1, ...cut); i--; continue; }
+    }
+
+    // it won't cut — a picture, a heading, a line or two — so it starts the
+    // next page instead
     if(mBody.childNodes.length){
       pages.push(mBody.innerHTML);
       mBody.innerHTML = "";
@@ -1525,10 +1549,10 @@ function buildPages(mBody, bodyHTML, headerHTML){
       if(!over()) continue;
       mBody.removeChild(node);
     }
-    // the block alone is taller than a page — cut it
+    // taller than an empty page and uncuttable: let it spill rather than spin
     if(forced.has(node)){ mBody.appendChild(node); continue; }
     const parts = splitNode(node, mBody);
-    if(parts.length < 2){ forced.add(parts[0]); }
+    if(parts.length < 2){ forced.add(node); mBody.appendChild(node); continue; }
     items.splice(i, 1, ...parts);
     i--;
   }
@@ -1542,22 +1566,80 @@ function buildPages(mBody, bodyHTML, headerHTML){
   return pages;
 }
 
-/* binary-search the longest run of words that still fits on an empty page */
+/* every text node of a block, in reading order */
+function textNodesIn(el){
+  const out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  while(w.nextNode()) out.push(w.currentNode);
+  return out;
+}
+const blockWords = el => textNodesIn(el)
+  .reduce((n,t)=> n + t.textContent.split(/\s+/).filter(Boolean).length, 0);
+
+/* A deep copy of the block holding only words [from,to), with the bold, the
+   italics, the links and the drop cap still wrapped around whatever survives.
+   The old splitter flattened everything to plain text; now that blocks break
+   at nearly every page turn, that would have stripped the formatting out of
+   half the book. */
+function sliceBlock(node, from, to){
+  const clone = node.cloneNode(true);
+  let seen = 0;
+  for(const t of textNodesIn(clone)){
+    const raw = t.textContent;
+    const ws  = raw.split(/\s+/).filter(Boolean);
+    if(!ws.length) continue;                       // spacing between inlines
+    const start = seen; seen += ws.length;
+    const a = Math.max(0, from-start), b = Math.min(ws.length, to-start);
+    if(a >= b){ t.textContent = ""; continue; }
+    t.textContent = (a>0 || /^\s/.test(raw) ? " " : "")
+                  + ws.slice(a,b).join(" ")
+                  + (b<ws.length || /\s$/.test(raw) ? " " : "");
+  }
+  for(const el of [...clone.querySelectorAll("*")]){
+    if(/^(IMG|BR|HR|SVG)$/.test(el.tagName)) continue;
+    if(!el.textContent.trim() && !el.querySelector("img,br,hr,svg")) el.remove();
+  }
+  return clone;
+}
+
+/* Cut a block at the last word that still fits in whatever room is left on the
+   page. Returns [head, tail], or [node] when cutting here would look worse
+   than moving the whole block down. */
 function splitNode(node, mBody){
-  const words = (node.textContent||"").split(/\s+/).filter(Boolean);
-  if(words.length < 8) return [node];
-  const probe = node.cloneNode(false);
-  mBody.appendChild(probe);
-  const fits = n => { probe.textContent = words.slice(0,n).join(" ");
-    return mBody.scrollHeight <= mBody.clientHeight + 1; };
-  let lo=1, hi=words.length, best=1;
-  while(lo<=hi){ const mid=(lo+hi)>>1; if(fits(mid)){ best=mid; lo=mid+1; } else hi=mid-1; }
-  mBody.removeChild(probe);
-  if(best>=words.length) return [node];
-  const a=node.cloneNode(false); a.textContent = words.slice(0,best).join(" ");
-  const b=node.cloneNode(false); b.textContent = words.slice(best).join(" ");
-  b.dataset.cont = "1";
-  return [a,b];
+  if(node.nodeType !== 1) return [node];
+  if(node.querySelector && node.querySelector("img,figure,table")) return [node];
+  const n = blockWords(node);
+  if(n < 14) return [node];
+
+  let probe = null;
+  const put = k => {
+    const el = sliceBlock(node, 0, k);
+    if(probe) mBody.replaceChild(el, probe); else mBody.appendChild(el);
+    probe = el;
+  };
+  const fits = () => mBody.scrollHeight <= mBody.clientHeight + 1;
+
+  let lo=1, hi=n-1, best=0;
+  while(lo<=hi){ const mid=(lo+hi)>>1; put(mid);
+    if(fits()){ best=mid; lo=mid+1; } else hi=mid-1; }
+
+  // don't leave a single word stranded at the top of the next page — pull a
+  // few more down with it
+  if(best > 8 && n-best < 4) best -= 4;
+
+  let ok = best > 4;
+  if(ok){
+    put(best);
+    // and never end a page on a lone orphan line
+    const lh = parseFloat(getComputedStyle(probe).lineHeight) || 20;
+    ok = probe.offsetHeight >= lh*1.6 && fits();
+  }
+  if(probe) mBody.removeChild(probe);
+  if(!ok || best >= n) return [node];
+
+  const head = sliceBlock(node, 0, best);
+  const tail = sliceBlock(node, best, n);
+  if(tail.dataset) tail.dataset.cont = "1";
+  return [head, tail];
 }
 
 /* ── the illuminated opening: drop cap plus a small-capped first word ── */
@@ -1603,7 +1685,7 @@ async function mountEssay(){
   const book = $("#book");
   book.classList.toggle("single", single);
   pagesEl.style.setProperty("--pw", pw+"px");
-  pagesEl.style.setProperty("--ps", (pw/470*readerSize).toFixed(3));   // everything on a page scales from this
+  pagesEl.style.setProperty("--ps", psFor(pw));   // everything on a page scales from this
   pagesEl.style.setProperty("--paper-tex", `url("${ART.paper}")`);
   pagesEl.style.width  = (single ? pw : pw*2) + "px";
   pagesEl.style.height = ph + "px";
@@ -1612,7 +1694,7 @@ async function mountEssay(){
   const meas = document.createElement("div");
   meas.className = "side f";
   meas.style.cssText = `position:absolute;left:-99999px;top:0;width:${pw}px;height:${ph}px;visibility:hidden`;
-  meas.style.setProperty("--ps", (pw/470*readerSize).toFixed(3));
+  meas.style.setProperty("--ps", psFor(pw));
   meas.innerHTML = `<div class="pg paper"><div class="pg-body"></div></div>`;
   pagesEl.appendChild(meas);
   const mBody = meas.querySelector(".pg-body");
