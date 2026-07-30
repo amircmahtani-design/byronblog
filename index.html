@@ -41,11 +41,10 @@ window.SITE_CONFIG = {
     crest:   "assets/crest.png",       // the crowned shield
     paper:   "assets/paper.jpg",       // seamless page fibre
     archive: "assets/archive-bg.jpg",  // the castle plate behind the archive heading
-    orn:     "assets/orn1.png",        // the long divider
-    ornInk:  "assets/orn1-ink.png",    // the same, in ink, for the parchment pages
-    ornLBInk:"assets/orn3-ink.png",
-    ornLB:   "assets/orn3.png",        // the divider carrying the monogram
-    ornCrown:"assets/orn4.png"         // the divider carrying the crown
+    // The divider ornament. Swap these two files to change every ornament
+    // on the site at once — nothing else needs editing.
+    orn:     "assets/divider.png",     // gold, for the dark pages
+    ornInk:  "assets/divider-ink.png"  // the same in ink, for the parchment pages
   }
 };
 </script>
@@ -312,7 +311,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-foot.one{justify-content:space-between}
 .pg-foot::before{content:"";position:absolute;left:0;right:0;top:calc(-.9rem*var(--ps,1));
   height:1px;background:linear-gradient(to right,transparent,rgba(120,94,52,.35),transparent)}
-.pg-foot .foot-orn{height:calc(1.6rem*var(--ps,1));width:auto;opacity:.85}
+.pg-foot .foot-orn{height:calc(1.05rem*var(--ps,1));width:auto;opacity:.8}
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
 .pg-foot button:hover:not(:disabled){color:var(--crimson)}
@@ -326,7 +325,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-title{font-family:var(--display);font-weight:500;color:#241E15;
   font-size:calc(2.05rem*var(--ps,1));line-height:1.08;text-align:center;
   margin:0 0 calc(.7rem*var(--ps,1));text-wrap:balance;letter-spacing:.005em}
-.pg-fl{width:62%;margin:0 auto calc(.9rem*var(--ps,1));opacity:.92}
+.pg-fl{width:72%;margin:0 auto calc(.95rem*var(--ps,1));opacity:.95}
 .pg-dek{font-family:var(--display);font-style:italic;text-align:center;color:#54493A;
   font-size:calc(1.02rem*var(--ps,1));margin:0 0 calc(.5rem*var(--ps,1))}
 .pg-by{font-family:var(--body);font-weight:600;font-size:calc(.74rem*var(--ps,1));letter-spacing:.16em;
@@ -395,7 +394,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   filter:drop-shadow(0 3px 26px rgba(6,6,8,.95)) drop-shadow(0 0 60px rgba(6,6,8,.75))}
 .hero-name{font-family:var(--body);font-weight:600;font-size:clamp(.8rem,1.25vw,.95rem);
   letter-spacing:.26em;text-transform:uppercase;color:var(--gold-text);margin:0}
-.hero-orn{width:min(19rem,58vw);margin:clamp(1.1rem,3vh,1.9rem) auto clamp(1.4rem,3.5vh,2.2rem)}
+.hero-orn{width:min(26rem,66vw);margin:clamp(1.2rem,3vh,2rem) auto clamp(1.5rem,3.6vh,2.3rem)}
 
 .sec-head{display:flex;align-items:center;gap:1.5rem;margin-bottom:clamp(1.75rem,4vh,3rem)}
 .sec-head .ln{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(200,169,106,.45),transparent)}
@@ -589,7 +588,7 @@ img[data-fallback]{opacity:0}
 .archead .wrap{position:relative;z-index:2}
 .archead h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);
   letter-spacing:.06em;margin:0 0 .5rem}
-.archead-orn{width:min(20rem,60vw);margin:0 auto .9rem}
+.archead-orn{width:min(27rem,68vw);margin:.4rem auto 1rem}
 
 
 .searchbtn{width:2rem;height:2rem;display:grid;place-items:center;margin-left:.6rem;
@@ -1030,8 +1029,7 @@ const FIL = (cls="", which="orn") => {
 const ART = Object.assign({
   hero:"assets/hero-plate.jpg", mark:"assets/crest.png", crest:"assets/crest.png",
   paper:"assets/paper.jpg", archive:"assets/archive-bg.jpg",
-  orn:"assets/orn1.png", ornLB:"assets/orn3.png", ornCrown:"assets/orn4.png",
-  ornInk:"assets/orn1-ink.png", ornLBInk:"assets/orn3-ink.png"
+  orn:"assets/divider.png", ornInk:"assets/divider-ink.png"
 }, CFG.assets||{});
 const CATICON = { reflections:"assets/ico-reflections.png", poems:"assets/ico-poems.png",
   letters:"assets/ico-letters.png", essays:"assets/ico-essays.png", archive:"assets/ico-archive.png" };
@@ -1162,7 +1160,7 @@ function viewArchive(){
   <section class="archead" style="background-image:url('${esc(ART.archive)}')">
     <div class="wrap">
       <h1 class="gold">The Archive</h1>
-      ${FIL("archead-orn","ornLB")}
+      ${FIL("archead-orn")}
       <p class="hero-name">Every writing, in order of arrival</p>
     </div>
   </section>
@@ -1392,7 +1390,7 @@ async function mountEssay(){
   const total = pages.length;
   const foot = (n) => n%2 ? `<div class="pg-foot">
       <button data-turn="prev"><span class="ar-l"></span>Previous</button>
-      <img class="foot-orn" src="${esc(ART.ornLBInk)}" alt="" aria-hidden="true" onerror="this.remove()">
+      <img class="foot-orn" src="${esc(ART.ornInk)}" alt="" aria-hidden="true" onerror="this.remove()">
       <button data-turn="next">Next<span class="ar-r"></span></button>
     </div>` : `<div class="pg-foot one">
       <span class="mid">${esc(store.site.byline)}</span><span>${n} / ${total}</span>
