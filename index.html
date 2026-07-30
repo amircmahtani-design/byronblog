@@ -311,7 +311,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-foot.one{justify-content:space-between}
 .pg-foot::before{content:"";position:absolute;left:0;right:0;top:calc(-.9rem*var(--ps,1));
   height:1px;background:linear-gradient(to right,transparent,rgba(120,94,52,.35),transparent)}
-.pg-foot .foot-orn{height:calc(1.05rem*var(--ps,1));width:auto;opacity:.8}
+.pg-foot .foot-orn{height:calc(.62rem*var(--ps,1));width:auto;opacity:.75}
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
 .pg-foot button:hover:not(:disabled){color:var(--crimson)}
@@ -325,7 +325,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .pg-title{font-family:var(--display);font-weight:500;color:#241E15;
   font-size:calc(2.05rem*var(--ps,1));line-height:1.08;text-align:center;
   margin:0 0 calc(.7rem*var(--ps,1));text-wrap:balance;letter-spacing:.005em}
-.pg-fl{width:72%;margin:0 auto calc(.95rem*var(--ps,1));opacity:.95}
+.pg-fl{width:46%;margin:.1rem auto calc(.9rem*var(--ps,1));opacity:.9}
 .pg-dek{font-family:var(--display);font-style:italic;text-align:center;color:#54493A;
   font-size:calc(1.02rem*var(--ps,1));margin:0 0 calc(.5rem*var(--ps,1))}
 .pg-by{font-family:var(--body);font-weight:600;font-size:calc(.74rem*var(--ps,1));letter-spacing:.16em;
@@ -394,7 +394,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   filter:drop-shadow(0 3px 26px rgba(6,6,8,.95)) drop-shadow(0 0 60px rgba(6,6,8,.75))}
 .hero-name{font-family:var(--body);font-weight:600;font-size:clamp(.8rem,1.25vw,.95rem);
   letter-spacing:.26em;text-transform:uppercase;color:var(--gold-text);margin:0}
-.hero-orn{width:min(26rem,66vw);margin:clamp(1.2rem,3vh,2rem) auto clamp(1.5rem,3.6vh,2.3rem)}
+.hero-orn{width:min(17rem,46vw);margin:clamp(1.1rem,2.6vh,1.7rem) auto clamp(1.4rem,3.2vh,2rem)}
 
 .sec-head{display:flex;align-items:center;gap:1.5rem;margin-bottom:clamp(1.75rem,4vh,3rem)}
 .sec-head .ln{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(200,169,106,.45),transparent)}
@@ -588,7 +588,7 @@ img[data-fallback]{opacity:0}
 .archead .wrap{position:relative;z-index:2}
 .archead h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);
   letter-spacing:.06em;margin:0 0 .5rem}
-.archead-orn{width:min(27rem,68vw);margin:.4rem auto 1rem}
+.archead-orn{width:min(18rem,48vw);margin:.5rem auto 1rem}
 
 
 .searchbtn{width:2rem;height:2rem;display:grid;place-items:center;margin-left:.6rem;
@@ -1212,11 +1212,11 @@ function pagerHTML(cur,pages){
 
 function viewContact(){
   return `<div class="wrap"><section class="contact">
-    <div style="width:min(22rem,72vw);margin:0 auto">${FIL()}</div>
+    <div style="width:min(17rem,46vw);margin:0 auto">${FIL()}</div>
     <h1 class="gold">Write Back</h1>
     <p>Letters, arguments, corrections and recommendations all welcome. Replies are slow but sincere.</p>
     <a class="mail gold" href="mailto:${esc(store.site.email)}">${esc(store.site.email)}</a>
-    <div style="width:min(20rem,70vw);margin:3rem auto 0">${FIL()}</div>
+    <div style="width:min(17rem,46vw);margin:3rem auto 0">${FIL()}</div>
   </section></div>`;
 }
 
