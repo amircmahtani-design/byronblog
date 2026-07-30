@@ -505,8 +505,12 @@ img[data-fallback]{opacity:0}
 .ar-l::before{left:0;transform:rotate(-135deg)}
 .ar-r::before{right:0;transform:rotate(45deg)}
 .reader-close svg,.rnav svg{width:1.05rem;height:1.05rem;fill:currentColor}
-.creed .dia{display:inline-block;width:6px;height:6px;background:var(--gold);
-  transform:rotate(45deg);margin:0 .9rem;opacity:.55;vertical-align:middle}
+/* creed diamonds hang off the END of each phrase, so a wrap can never
+   push a lone diamond to the start of the next line */
+.creed .cl{white-space:nowrap}
+.creed .cl:not(:last-child)::after{content:"";display:inline-block;
+  width:5px;height:5px;background:var(--gold);transform:rotate(45deg);
+  opacity:.5;vertical-align:.15em;margin:0 .1rem 0 .85rem}
 
 /* ══════════════════════ KIT · TAG PILLS ══════════════════════ */
 .tagrow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
@@ -639,8 +643,18 @@ img[data-fallback]{opacity:0}
 .searchbtn:hover{opacity:1;transform:scale(1.1)}
 .creed{text-align:center;padding:0 var(--gut) clamp(1.5rem,3.5vh,2.25rem);
   font-family:var(--body);font-weight:600;font-size:.76rem;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--dim-3)}
-.creed em{font-style:normal;color:var(--gold);opacity:.5;margin:0 .8rem}
+  text-transform:uppercase;color:var(--dim-3);line-height:2.1}
+
+/* phones: one phrase per line, single ornament above, no inline diamonds */
+@media (max-width:700px){
+  .creed{font-size:.62rem;letter-spacing:.13em;line-height:1.55;
+    padding-bottom:clamp(1.75rem,4vh,2.25rem)}
+  .creed .cl{display:block;white-space:normal;margin:0 auto .5rem;max-width:26rem}
+  .creed .cl:last-child{margin-bottom:0}
+  .creed .cl:not(:last-child)::after{display:none}
+  .creed::before{content:"";display:block;width:5px;height:5px;
+    margin:0 auto .9rem;background:var(--gold);transform:rotate(45deg);opacity:.5}
+}
 
 /* ══════════════════════ KIT · READING PROGRESS ══════════════════════ */
 .progress{position:fixed;top:var(--bar);left:0;height:2px;width:0;z-index:65;
@@ -822,7 +836,9 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
       <p class="rights">&copy; <span id="footYear"></span> Bad, Mad &amp; Dangerous<br>By Lord Byron<br>All rights reserved.</p>
     </div>
   </div>
-  <p class="creed">Romance. Rebellion. Genius. <em class="dia"></em> Thoughts that defy the ordinary. <em class="dia"></em> Written in fire. Remembered in legend.</p>
+  <p class="creed"><span class="cl">Romance. Rebellion. Genius.</span>
+    <span class="cl">Thoughts that defy the ordinary.</span>
+    <span class="cl">Written in fire. Remembered in legend.</span></p>
 </footer>
 
 <div class="toast" id="toast"></div>
