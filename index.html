@@ -381,9 +381,11 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .hero-in{position:relative;z-index:2;width:100%;max-width:74rem;margin:0 auto;
   display:flex;flex-direction:column;align-items:center;text-align:center}
 .hero-say{font-family:var(--display);font-weight:400;font-style:italic;
-  font-size:clamp(1.9rem,5vw,4.1rem);line-height:1.22;color:var(--cream);
+  font-size:clamp(1.9rem,5vw,4.1rem);line-height:1.22;
+  background:linear-gradient(168deg,#F5EBD3 0%,#E8D3A4 26%,#C8A96A 58%,#E4CE95 82%,#F2E6C9 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
   margin:0 auto .9rem;max-width:19ch;text-wrap:balance;
-  text-shadow:0 3px 30px rgba(6,6,8,.95),0 0 70px rgba(6,6,8,.7)}
+  filter:drop-shadow(0 3px 26px rgba(6,6,8,.95)) drop-shadow(0 0 60px rgba(6,6,8,.75))}
 .hero-name{font-family:var(--body);font-weight:600;font-size:clamp(.8rem,1.25vw,.95rem);
   letter-spacing:.26em;text-transform:uppercase;color:var(--gold-text);margin:0}
 .hero-orn{width:min(19rem,58vw);margin:clamp(1.1rem,3vh,1.9rem) auto clamp(1.4rem,3.5vh,2.2rem)}
@@ -444,6 +446,19 @@ img[data-fallback]{opacity:0}
 .pager button[aria-current="true"]::after{display:none}
 .pager button:disabled{opacity:.28;cursor:default}
 .pager .dots{color:var(--dim-3);padding:0 .2rem}
+
+/* drawn arrows, so no missing font glyph can leave a box behind */
+.ar-l,.ar-r{display:inline-block;width:1.5rem;height:1px;background:currentColor;
+  position:relative;vertical-align:middle}
+.ar-l{margin-right:.6rem}
+.ar-r{margin-left:.6rem}
+.ar-l::before,.ar-r::before{content:"";position:absolute;top:-3px;width:7px;height:7px;
+  border-top:1px solid currentColor;border-right:1px solid currentColor}
+.ar-l::before{left:0;transform:rotate(-135deg)}
+.ar-r::before{right:0;transform:rotate(45deg)}
+.reader-close svg,.rnav svg{width:1.05rem;height:1.05rem;fill:currentColor}
+.creed .dia{display:inline-block;width:6px;height:6px;background:var(--gold);
+  transform:rotate(45deg);margin:0 .9rem;opacity:.55;vertical-align:middle}
 
 /* ══════════════════════ KIT · TAG PILLS ══════════════════════ */
 .tagrow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;
@@ -712,7 +727,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 
 <header class="bar">
   <a class="brand" href="#/" id="brand">
-    <img class="crest" src="assets/mark.png" alt="" width="118" height="122">
+    <img class="crest" src="assets/mark.png" alt="" onerror="this.remove()">
     <span class="brand-txt"><b>BAD, MAD &amp; DANGEROUS</b><span>BY LORD BYRON</span></span>
   </a>
   <nav class="nav" id="nav"></nav>
@@ -726,21 +741,21 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 <footer class="kfoot">
   <div class="kfoot-in">
     <div class="brandcol">
-      <img src="assets/crest.png" alt="">
+      <img src="assets/crest.png" alt="" onerror="this.remove()">
       <span><b id="footLeft">BAD, MAD &amp; DANGEROUS</b><span id="footBy">BY LORD BYRON</span></span>
     </div>
     <nav id="footNav"></nav>
     <div class="follow">
       <h4>Follow</h4>
       <div class="socials">
-        <a href="#" aria-label="X"><img src="assets/soc-x.png" alt=""></a>
-        <a href="#" aria-label="Instagram"><img src="assets/soc-instagram.png" alt=""></a>
-        <a id="footMail" href="#" aria-label="Email"><img src="assets/soc-mail.png" alt=""></a>
+        <a href="#" aria-label="X"><img src="assets/soc-x.png" alt="" onerror="this.closest('a').remove()"></a>
+        <a href="#" aria-label="Instagram"><img src="assets/soc-instagram.png" alt="" onerror="this.closest('a').remove()"></a>
+        <a id="footMail" href="#" aria-label="Email"><img src="assets/soc-mail.png" alt="" onerror="this.closest('a').remove()"></a>
       </div>
       <p class="rights">&copy; <span id="footYear"></span> Bad, Mad &amp; Dangerous<br>By Lord Byron<br>All rights reserved.</p>
     </div>
   </div>
-  <p class="creed">Romance. Rebellion. Genius. <em>&#9670;</em> Thoughts that defy the ordinary. <em>&#9670;</em> Written in fire. Remembered in legend.</p>
+  <p class="creed">Romance. Rebellion. Genius. <em class="dia"></em> Thoughts that defy the ordinary. <em class="dia"></em> Written in fire. Remembered in legend.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -953,7 +968,46 @@ const shortDate = d => { const t=new Date(d); return isNaN(t)?"":t.toLocaleDateS
 const wordsIn = t => String(t||"").replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
 const readMins = p => Math.max(1, Math.round((p?.words||wordsIn(p?.body))/220));
 const searchText = p => (p.search||(p.title+" "+(p.dek||"")+" "+(p.body||"")+" "+(p.tags||[]).join(" ")+" "+p.publishedAt)).toLowerCase();
-const firstTag = p => ((p.tags||[])[0]||"story").toUpperCase();
+/* ── the label above each story's title ──────────────────────────────
+   No API needed. Each category carries a set of words; the story is
+   scored against them, its title counting triple, and the strongest
+   wins. Anything ambiguous falls back to Reflections, the house
+   default. You can override it per story in the Studio.              */
+const CATEGORIES = [
+  ["Reflections", "think thought mind truth reason consider observe reflect wisdom understand philosophy learn lesson question meaning"],
+  ["Desires",     "love lust desire kiss passion beauty longing crave seduce embrace heart lover romance yearn temptation"],
+  ["Solitude",    "alone solitude silence quiet lonely isolate withdraw retreat hermit apart still empty"],
+  ["Letters",     "dear letter correspond reply post wrote friend yours sincerely"],
+  ["Poems",       "verse rhyme stanza poem song sing muse lyre canto ode ballad"],
+  ["Travels",     "sea ocean voyage travel journey shore sail mountain abroad greece italy wander coast harbour"],
+  ["Society",     "society crowd fashion court reputation gossip manners public opinion company polite applause"],
+  ["Mortality",   "death die grave mortal tomb fate dust ruin perish funeral mourning bury"],
+  ["Rebellion",   "freedom rebel tyrant revolt chain liberty defy war resist fight uprising"],
+  ["Memory",      "memory remember past childhood forgot nostalgia recall"]
+].map(([name,words])=>({ name, words:words.split(" ") }));
+
+const catCache = new Map();
+function categoryFor(p){
+  if(!p) return "Reflections";
+  if(p.category) return p.category;
+  if(catCache.has(p.id)) return catCache.get(p.id);
+  const title = String(p.title||"").toLowerCase();
+  const rest  = String(p.search||p.body||p.dek||"").toLowerCase().replace(/<[^>]+>/g," ").slice(0,1500);
+  let best="Reflections", top=0;
+  for(const c of CATEGORIES){
+    let score=0;
+    for(const w of c.words){
+      if(title.includes(w)) score += 3;
+      let i = rest.indexOf(w);
+      while(i !== -1 && score < 40){ score += 1; i = rest.indexOf(w, i+w.length); }
+    }
+    if(score > top){ top = score; best = c.name; }
+  }
+  const out = top >= 2 ? best : "Reflections";
+  catCache.set(p.id, out);
+  return out;
+}
+const firstTag = p => categoryFor(p).toUpperCase();
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 let toastTimer;
@@ -961,7 +1015,12 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2800); }
 
 /* the brand's filigree, redrawn as SVG */
-const FIL = (cls="", which="orn") => `<img class="fil ${cls}" src="${esc(ART[which])}" alt="" aria-hidden="true">`;
+const FIL = (cls="", which="orn") => {
+  const src = ART[which] || ART.orn || "";
+  // inline onerror, not a document listener: it fires even if the image fails
+  // before any script has run, so a missing file leaves no placeholder box
+  return src ? `<img class="fil ${cls}" src="${esc(src)}" alt="" aria-hidden="true" onerror="this.remove()">` : "";
+};
 
 const QUILL = (cls="qi") => `<svg class="${cls}" viewBox="0 0 24 44" aria-hidden="true">
   <path d="M19 1c1.4 5.6.8 12.2-2 19.2-2.3 5.9-5.6 11.2-9.6 15.4l-2 2.1 1.4-.5c5.8-2 10.9-6 14.4-11.2C24.9 20.6 26.6 14.2 26 8c-.3-2.7-.9-5-1.8-7L22.2.2 19 1z" transform="translate(-3 0)"/>
@@ -1089,7 +1148,7 @@ function wcard(p){
   return `<a class="wcard" href="#/story/${esc(p.slug)}">
     <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
     <span class="txt">
-      <span class="cat">${ico?`<img src="${esc(ico)}" alt="">`:""}${esc(firstTag(p))}</span>
+      <span class="cat">${ico?`<img src="${esc(ico)}" alt="" onerror="this.remove()">`:""}${esc(firstTag(p))}</span>
       <h3>${esc(p.title)}</h3>
       <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
     </span>
@@ -1098,8 +1157,6 @@ function wcard(p){
 
 let arch = { q:"", tag:"", page:1, per:12 };
 function viewArchive(){
-  const all = published();
-  const tags = [...new Set(all.flatMap(p=>p.tags||[]))].sort();
   return `
   <section class="archead" style="background-image:url('${esc(ART.archive)}')">
     <div class="wrap">
@@ -1113,10 +1170,6 @@ function viewArchive(){
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
       <input id="q" type="search" placeholder="Search writings…" value="${esc(arch.q)}" autocomplete="off">
     </div>
-    ${tags.length?`<div class="tagrow">
-      <button class="tag" data-tag="" aria-pressed="${arch.tag===""}">All</button>
-      ${tags.map(t=>`<button class="tag" data-tag="${esc(t)}" aria-pressed="${arch.tag===t}">${esc(t)}</button>`).join("")}
-    </div>`:""}
     <div class="cards" id="rowlist"></div>
     <div id="pagerWrap"></div>
   </section></div>`;
@@ -1152,9 +1205,9 @@ function pagerHTML(cur,pages){
     push(pages);
   }
   return `<div class="pager">
-    <button data-apage="${cur-1}" ${cur===1?"disabled":""}>← Prev</button>
+    <button data-apage="${cur-1}" ${cur===1?"disabled":""}><span class="ar-l"></span>Prev</button>
     ${nums.join("")}
-    <button data-apage="${cur+1}" ${cur===pages?"disabled":""}>Next →</button>
+    <button data-apage="${cur+1}" ${cur===pages?"disabled":""}>Next<span class="ar-r"></span></button>
   </div>`;
 }
 
@@ -1203,7 +1256,7 @@ function pageHead(p, img){
     ${FIL("pg-fl")}
     ${p.dek?`<p class="pg-dek">${esc(p.dek)}</p>`:""}
     <p class="pg-by">By ${esc(store.site.byline)} &nbsp;·&nbsp; ${esc(fmtDate(p.publishedAt))}</p>
-    ${img?`<div class="pg-imgwrap"><img class="pg-img" src="${esc(img)}" alt=""></div>`:""}`;
+    ${img?`<div class="pg-imgwrap"><img class="pg-img" src="${esc(img)}" alt="" onerror="this.closest('.pg-imgwrap').remove()"></div>`:""}`;
 }
 
 /* ── measure the writing into pages that actually fit ── */
@@ -1338,9 +1391,9 @@ async function mountEssay(){
 
   const total = pages.length;
   const foot = (n) => n%2 ? `<div class="pg-foot">
-      <button data-turn="prev">&#8592; Previous</button>
-      <img class="foot-orn" src="${esc(ART.ornLB)}" alt="" aria-hidden="true">
-      <button data-turn="next">Next &#8594;</button>
+      <button data-turn="prev"><span class="ar-l"></span>Previous</button>
+      <img class="foot-orn" src="${esc(ART.ornLB)}" alt="" aria-hidden="true" onerror="this.remove()">
+      <button data-turn="next">Next<span class="ar-r"></span></button>
     </div>` : `<div class="pg-foot one">
       <span class="mid">${esc(store.site.byline)}</span><span>${n} / ${total}</span>
     </div>`;
@@ -1491,9 +1544,13 @@ async function openReader(slug){
   el.setAttribute("role","dialog");
   el.setAttribute("aria-label", p.title);
   el.innerHTML = `
-    <button class="reader-close" id="rClose" aria-label="Close">&#10005;</button>
+    <button class="reader-close" id="rClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+    </button>
     <div class="reader-stage">
-      <button class="rnav prev" id="pPrev" aria-label="Previous page">&#8592;</button>
+      <button class="rnav prev" id="pPrev" aria-label="Previous page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 7 13l8.4 8.4 1.4-1.4L9.8 13l7-7z"/></svg>
+      </button>
       <div class="book" id="book">
         <div class="book-shell"></div>
         <div class="pages" id="pages">
@@ -1503,7 +1560,9 @@ async function openReader(slug){
           <div class="spine"></div>
         </div>
       </div>
-      <button class="rnav next" id="pNext" aria-label="Next page">&#8594;</button>
+      <button class="rnav next" id="pNext" aria-label="Next page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 4.6 17 13l-8.4 8.4-1.4-1.4L14.2 13l-7-7z"/></svg>
+      </button>
     </div>
     <div class="reader-bar">
       <div class="grp">
@@ -1541,7 +1600,7 @@ function closeReader(){
    7 · STUDIO
    ══════════════════════════════════════════════════════════════════ */
 let draft = null;
-const blankPost = () => ({ id:null,title:"",slug:"",dek:"",body:"",tags:[],thumb:"",image:"",
+const blankPost = () => ({ id:null,title:"",slug:"",dek:"",body:"",tags:[],thumb:"",image:"",category:"",
   status:"draft",featured:false,publishedAt:new Date().toISOString().slice(0,10) });
 
 function viewStudio(){
@@ -1640,7 +1699,7 @@ function studioList(){
     <table class="wp-table"><thead><tr>
       <th class="cb"><input type="checkbox" id="selAll" aria-label="Select all"></th>
       <th data-sort="title" ${admin.sort==="title"?`aria-sort="${admin.dir}ending"`:""}>Title <span class="arrow">${arrow("title")}</span></th>
-      <th class="th-tags">Tags</th><th>Status</th>
+      <th class="th-tags">Category</th><th>Status</th>
       <th data-sort="date" ${admin.sort==="date"?`aria-sort="${admin.dir}ending"`:""}>Date <span class="arrow">${arrow("date")}</span></th>
     </tr></thead><tbody>
       ${page.length ? page.map(adminRow).join("")
@@ -1656,7 +1715,7 @@ function adminRow(p){
       <div class="row-actions"><button data-edit="${esc(p.id)}">Edit</button> |
         <a href="#/story/${esc(p.slug)}">View</a> |
         <button class="del" data-del="${esc(p.id)}">Delete</button></div></td>
-    <td class="col-tags">${(p.tags||[]).map(esc).join(", ")||"—"}</td>
+    <td class="col-tags">${esc(categoryFor(p))}${(p.tags||[]).length?` · ${(p.tags||[]).map(esc).join(", ")}`:""}</td>
     <td>${p.status==="published"?`<span class="pill live">Published</span>`:`<span class="pill draft">Draft</span>`}${p.featured?`<span class="pill home">Home</span>`:""}</td>
     <td class="col-date"><b>${p.status==="published"?"Published":"Last edited"}</b>${esc(fmtDate(p.publishedAt))}</td>
   </tr>`;
@@ -1706,9 +1765,15 @@ function studioEditor(){
           <h3>Publishing</h3>
           <div class="field"><label for="dateInput">Date</label>
             <input id="dateInput" type="date" value="${esc(String(d.publishedAt).slice(0,10))}"></div>
+          <div class="field"><label for="catInput">Category</label>
+            <select id="catInput">
+              <option value="">Work it out from the writing</option>
+              ${CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${d.category===c.name?"selected":""}>${esc(c.name)}</option>`).join("")}
+            </select>
+            <p class="hint">Shows above the title in the book. Left on auto, it reads the story and picks one.</p></div>
           <div class="field"><label for="tagsInput">Tags</label>
-            <input id="tagsInput" value="${esc((d.tags||[]).join(", "))}" placeholder="reflections, society">
-            <p class="hint">The first tag shows as the category.</p></div>
+            <input id="tagsInput" value="${esc((d.tags||[]).join(", "))}" placeholder="optional, for searching">
+            <p class="hint">Only used by search. Safe to leave empty.</p></div>
           <div class="field"><label for="slugInput">Web address</label>
             <input id="slugInput" value="${esc(d.slug)}" placeholder="the-world-is-a-stage">
             <p class="hint">/#/story/${esc(d.slug||"…")}</p></div>
@@ -1730,6 +1795,7 @@ function collectDraft(){
   draft.tags  = g("tagsInput").value.split(",").map(s=>s.trim()).filter(Boolean);
   draft.slug  = slugify(g("slugInput").value || draft.title);
   draft.featured = g("featuredInput").checked;
+  draft.category = g("catInput") ? g("catInput").value : (draft.category||"");
   return draft;
 }
 async function savePost(status){
@@ -1745,7 +1811,7 @@ async function savePost(status){
     thumb: isURL ? draft.thumb : "",
     hasThumb: !isURL && !!draft.thumb,
     hasCover: !isURL && !!(draft._newFull||draft.hasCover),
-    status, featured:!!draft.featured, publishedAt:draft.publishedAt,
+    category:draft.category||"", status, featured:!!draft.featured, publishedAt:draft.publishedAt,
     updatedAt:new Date().toISOString(), words:wordsIn(draft.body),
     search:(draft.title+" "+draft.dek+" "+draft.tags.join(" ")+" "+draft.publishedAt+" "+
             String(draft.body||"").replace(/<[^>]+>/g," ").slice(0,400)).toLowerCase().slice(0,500)
