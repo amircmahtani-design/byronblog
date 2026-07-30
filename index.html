@@ -26,9 +26,12 @@ window.SITE_CONFIG = {
   },
   editorEmail: "you@example.com",
 
-  // Drop your logo file in the repo and name it here to replace the
-  // typeset monogram. Leave blank to use the built-in LB mark.
-  logo: { src:"", flip:false, height:52, tint:"gold" }
+  // Artwork, uploaded to the repo alongside index.html.
+  assets: {
+    hero:  "assets/hero-plate.jpg",   // Byron left, castle right, dark centre
+    crest: "assets/crest.png",        // the crowned LB shield
+    paper: "assets/paper.jpg"         // seamless page fibre
+  }
 };
 </script>
 
@@ -69,7 +72,7 @@ button{font:inherit;color:inherit}
 ::selection{background:var(--crimson);color:var(--cream)}
 
 /* ══════════════════════ 2 · ATMOSPHERE ══════════════════════ */
-.atmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.atmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.85}
 .fog{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
 .fog.f1{width:70vw;height:60vh;left:-14vw;top:-10vh;
   background:radial-gradient(circle,rgba(139,26,43,.22),transparent 66%);
@@ -110,13 +113,10 @@ button{font:inherit;color:inherit}
 
 /* ══════════════════════ 3 · GOLD & ORNAMENT ══════════════════════ */
 .gold{background:var(--leaf);-webkit-background-clip:text;background-clip:text;color:transparent}
-.fil{display:block;color:var(--gold);opacity:.85}
+.fil{display:block;width:100%;height:auto;opacity:.92;pointer-events:none}
 .qi{color:var(--gold)}
 .qi path{fill:currentColor}
 .contact .qi{width:1.7rem;margin:0 auto}
-.fil .r{stroke:currentColor;stroke-width:1;fill:none;opacity:.55}
-.fil .s{stroke:currentColor;stroke-width:1.15;fill:none;stroke-linecap:round}
-.fil .d{fill:currentColor}
 
 .mono{display:inline-block;font-family:var(--display);font-weight:500;
   line-height:.85;letter-spacing:-.06em}
@@ -137,6 +137,7 @@ button{font:inherit;color:inherit}
   background:linear-gradient(to right,transparent,rgba(201,162,39,.55),transparent)}
 .brand{display:flex;align-items:center;gap:.85rem;text-decoration:none;flex:none}
 .brand .mono{font-size:clamp(1.7rem,3vw,2.3rem)}
+.brand .crest{height:clamp(2.3rem,4vw,3.1rem);width:auto;display:block}
 .brand .fl{width:2.4rem;height:.6rem;margin-top:-.15rem}
 .brand-txt{display:flex;flex-direction:column;gap:.12rem}
 .brand-txt b{font-family:var(--display);font-weight:500;font-size:clamp(.78rem,1.3vw,.98rem);
@@ -165,6 +166,7 @@ button{font:inherit;color:inherit}
 /* ══════════════════════ 5 · SHELL ══════════════════════ */
 main{position:relative;z-index:2;padding-top:var(--bar)}
 .wrap{max-width:78rem;margin:0 auto;padding:0 var(--gut)}
+.wrap.wide{max-width:110rem}
 .eyebrow{font-family:var(--body);font-weight:500;font-size:.76rem;letter-spacing:.34em;
   text-transform:uppercase;color:var(--gold);opacity:.9}
 .centre{text-align:center}
@@ -172,18 +174,31 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 /* ══════════════════════ 6 · HOME ══════════════════════ */
 .hero{position:relative;min-height:calc(100svh - var(--bar));
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(3rem,9vh,6rem)}
+  text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(3rem,9vh,6rem);
+  margin-top:calc(var(--bar) * -1);padding-top:calc(var(--bar) + clamp(2rem,7vh,5rem));
+  isolation:isolate;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:-2;background:var(--void) center/cover no-repeat;
+  animation:heroIn 2.6s var(--ease) both}
+@keyframes heroIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.hero-bg::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(66% 78% at 50% 46%,rgba(9,9,11,.9) 0%,rgba(9,9,11,.55) 42%,transparent 70%),
+             linear-gradient(to bottom,rgba(9,9,11,.72) 0%,transparent 22%,transparent 62%,rgba(9,9,11,.96) 100%),
+             linear-gradient(to right,rgba(9,9,11,.55),transparent 22%,transparent 78%,rgba(9,9,11,.55))}
+.hero-crest{width:clamp(5.5rem,11vw,9.5rem);margin:0 auto clamp(.75rem,2vh,1.4rem);
+  filter:drop-shadow(0 6px 26px rgba(201,162,39,.34))}
+.hero-line{width:min(26rem,72vw);height:1.5rem;margin:clamp(1.4rem,3.5vh,2.2rem) auto}
 .hero-mono{font-size:clamp(3.4rem,9vw,7rem);line-height:.82}
 .hero-fl{width:clamp(5rem,10vw,8rem);height:1.4rem;margin:.5rem auto clamp(1.4rem,4vh,2.4rem)}
 .hero-title{font-family:var(--display);font-weight:600;
-  font-size:clamp(2.6rem,8.4vw,7.4rem);line-height:.95;letter-spacing:.005em;
-  margin:0 0 1.1rem;text-wrap:balance;max-width:14ch}
+  font-size:clamp(2.4rem,7.4vw,6.4rem);line-height:.96;letter-spacing:.012em;
+  margin:0 0 .9rem;text-wrap:balance;max-width:13ch}
 .hero-sub{font-family:var(--body);font-weight:500;font-size:clamp(.74rem,1.5vw,.95rem);
   letter-spacing:.42em;text-transform:uppercase;color:var(--sepia-3);margin:0 0 clamp(2rem,5vh,3rem)}
 .hero-rule{width:min(22rem,60vw);height:1.4rem;margin:0 auto clamp(1.8rem,4.5vh,2.6rem)}
 .hero-say{font-family:var(--display);font-style:italic;font-weight:400;
-  font-size:clamp(1.25rem,3.1vw,2.4rem);line-height:1.42;color:var(--gold-lt);
-  margin:0 auto .9rem;max-width:22ch;text-wrap:balance}
+  font-size:clamp(1.15rem,2.7vw,2.05rem);line-height:1.44;color:var(--gold-lt);
+  margin:0 auto .9rem;max-width:26ch;text-wrap:balance;
+  text-shadow:0 2px 18px rgba(9,9,11,.9)}
 .hero-name{font-family:var(--body);font-weight:500;font-size:clamp(.74rem,1.3vw,.88rem);
   letter-spacing:.34em;text-transform:uppercase;color:var(--sepia-3);margin:0}
 .scrollcue{position:absolute;bottom:clamp(1.25rem,4vh,2.5rem);left:50%;transform:translateX(-50%);
@@ -298,14 +313,14 @@ a.card:hover .readmore .ar{width:3.4rem}
     linear-gradient(176deg,#F3E9D0 0%,#E9DCBD 34%,#DFCFAB 70%,#D3C09A 100%);
 }
 .paper::before{
-  content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.45;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23p)' opacity='.34'/></svg>")}
+  content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.55;
+  background-image:var(--paper-tex,none);background-size:340px 340px;background-repeat:repeat}
 .paper::after{
   content:"";position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(118% 88% at 50% 44%,transparent 46%,rgba(120,94,52,.22) 100%)}
 
 /* ══════════════════════ 8 · THE BOOK ══════════════════════ */
-.stage{position:relative;padding:clamp(1.25rem,3.5vh,3rem) var(--gut) clamp(2rem,5vh,4rem);
+.stage{position:relative;padding:clamp(.5rem,1.5vh,1.5rem) var(--gut) clamp(1.5rem,3.5vh,3rem);
   display:flex;flex-direction:column;align-items:center}
 .book{position:relative;perspective:2800px;perspective-origin:50% 42%;
   transform-style:preserve-3d;transition:transform .6s var(--ease)}
@@ -357,15 +372,17 @@ a.card:hover .readmore .ar{width:3.4rem}
 
 /* page content */
 .pg{position:relative;width:100%;height:100%;overflow:hidden;
-  padding:clamp(1.5rem,3.2vw,3.4rem) clamp(1.5rem,3.4vw,3.6rem) clamp(2.6rem,5vw,4.4rem);
+  padding:calc(2.6rem*var(--ps,1)) calc(2.7rem*var(--ps,1)) calc(3.4rem*var(--ps,1));
   display:flex;flex-direction:column}
-.pg-body{flex:1;min-height:0;overflow:hidden;font-size:clamp(.98rem,1.16vw,1.14rem);line-height:1.66;
+.pg-body{flex:1;min-height:0;overflow:hidden;font-size:calc(1.06rem*var(--ps,1));line-height:1.66;
   text-align:justify;hyphens:auto}
 .pg-body>*:first-child{margin-top:0}
-.pg-foot{position:absolute;left:clamp(1.5rem,3.4vw,3.6rem);right:clamp(1.5rem,3.4vw,3.6rem);
-  bottom:clamp(1rem,2.2vw,1.9rem);display:flex;align-items:center;justify-content:space-between;
-  font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.24em;
-  text-transform:uppercase;color:#8B7A5C}
+.pg-foot{position:absolute;left:calc(2.7rem*var(--ps,1));right:calc(2.7rem*var(--ps,1));
+  bottom:calc(1.5rem*var(--ps,1));display:flex;align-items:baseline;justify-content:space-between;
+  gap:1rem;white-space:nowrap;font-family:var(--body);font-weight:500;
+  font-size:calc(.66rem*var(--ps,1));letter-spacing:.22em;text-transform:uppercase;color:#8B7A5C}
+.pg-foot::before{content:"";position:absolute;left:0;right:0;top:calc(-.9rem*var(--ps,1));
+  height:1px;background:linear-gradient(to right,transparent,rgba(120,94,52,.35),transparent)}
 .pg-foot .mid{opacity:.7}
 .pg-foot button{background:none;border:0;cursor:pointer;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.2rem .1rem;transition:color .3s}
@@ -373,17 +390,19 @@ a.card:hover .readmore .ar{width:3.4rem}
 .pg-foot button:disabled{opacity:.28;cursor:default}
 
 /* first page furniture */
-.pg-kick{display:flex;align-items:center;justify-content:center;gap:.9rem;margin-bottom:.9rem}
-.pg-kick .ln{width:2.6rem;height:1px;background:rgba(120,94,52,.5)}
-.pg-kick span{font-family:var(--body);font-weight:500;font-size:.68rem;letter-spacing:.3em;
-  text-transform:uppercase;color:#8B7A5C}
+.pg-kick{display:flex;align-items:center;justify-content:center;gap:calc(.9rem*var(--ps,1));
+  margin-bottom:calc(1rem*var(--ps,1))}
+.pg-kick .ln{width:calc(2.4rem*var(--ps,1));height:1px;background:rgba(120,94,52,.5)}
+.pg-kick span{font-family:var(--body);font-weight:500;font-size:calc(.7rem*var(--ps,1));
+  letter-spacing:.3em;text-transform:uppercase;color:#8B7A5C}
 .pg-title{font-family:var(--display);font-weight:500;color:#241E15;
-  font-size:clamp(1.5rem,3.1vw,2.7rem);line-height:1.1;text-align:center;margin:0 0 .7rem;text-wrap:balance}
-.pg-fl{width:min(11rem,55%);height:1.15rem;margin:0 auto .8rem;color:#8B6F3C}
+  font-size:calc(2.05rem*var(--ps,1));line-height:1.08;text-align:center;
+  margin:0 0 calc(.7rem*var(--ps,1));text-wrap:balance;letter-spacing:.005em}
+.pg-fl{width:58%;margin:0 auto calc(.8rem*var(--ps,1));color:#8B6F3C}
 .pg-dek{font-family:var(--display);font-style:italic;text-align:center;color:#5F5340;
-  font-size:clamp(.95rem,1.3vw,1.12rem);margin:0 0 .5rem}
-.pg-by{font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.26em;
-  text-transform:uppercase;text-align:center;color:#8B7A5C;margin:0 0 1.1rem}
+  font-size:calc(1.02rem*var(--ps,1));margin:0 0 calc(.5rem*var(--ps,1))}
+.pg-by{font-family:var(--body);font-weight:500;font-size:calc(.66rem*var(--ps,1));letter-spacing:.26em;
+  text-transform:uppercase;text-align:center;color:#8B7A5C;margin:0 0 calc(1.2rem*var(--ps,1))}
 .pg-img{width:100%;aspect-ratio:16/9;object-fit:cover;margin:0 0 1.1rem;
   filter:saturate(.66) contrast(1.08) brightness(.94) sepia(.14);
   clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),
@@ -411,40 +430,14 @@ a.card:hover .readmore .ar{width:3.4rem}
 .pg-body hr{border:0;height:18px;margin:1.6em auto;width:8rem;
   background:no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 18'><g fill='none' stroke='%238B6F3C' stroke-width='1.1' stroke-linecap='round'><path d='M8 9h62M130 9h62'/><path d='M86 9c-6 0-9-4-14-4s-7 4-3 6c3 1 6-1 5-3'/><path d='M114 9c6 0 9-4 14-4s7 4 3 6c-3 1-6-1-5-3'/></g><path fill='%238B6F3C' d='M100 4l5 5-5 5-5-5z'/></svg>")}
 .dropcap{float:left;font-family:var(--display);font-weight:500;color:#3A2E1C;
-  font-size:3.5em;line-height:.78;margin:.06em .1em 0 0}
+  font-size:3.4em;line-height:.76;margin:.05em .09em 0 0}
 .dc-word{font-variant:small-caps;letter-spacing:.05em}
-.pg .sig{font-family:var(--sign);font-size:2.6rem;line-height:1;color:#3A2E1C;
+.pg .sig{font-family:var(--sign);font-size:calc(2.6rem*var(--ps,1));line-height:1;color:#3A2E1C;
   text-align:right;margin:.6rem 0 0;text-indent:0}
-
-/* the reading rail beside the book */
-.railwrap{display:grid;grid-template-columns:minmax(0,auto) 9.5rem;gap:clamp(1.5rem,3vw,3rem);
-  align-items:start;justify-content:center;width:100%}
-.rail{position:sticky;top:calc(var(--bar) + 2rem);text-align:center;padding-top:1rem}
-.rail .qi{width:1.1rem;margin:0 auto 1.4rem;opacity:.8}
-.rail .qi path{fill:var(--gold)}
-.rail dt,.rail .lbl{font-family:var(--body);font-weight:500;font-size:.63rem;letter-spacing:.26em;
-  text-transform:uppercase;color:var(--sepia-3);margin:0 0 .3rem}
-.rail dd{font-family:var(--body);font-size:.86rem;letter-spacing:.12em;color:var(--parch-2);
-  margin:0 0 1.25rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(201,162,39,.16)}
-.rail dd.tags{font-family:var(--display);font-style:italic;letter-spacing:0;font-size:.92rem;line-height:1.35}
-.rail .share{display:flex;gap:.9rem;justify-content:center;margin-top:.2rem}
-.rail .share button{width:1.9rem;height:1.9rem;border:0;background:none;cursor:pointer;
-  color:var(--sepia-3);transition:color .3s,transform .3s}
-.rail .share button:hover{color:var(--gold);transform:translateY(-2px)}
-.rail .share svg{width:100%;height:100%;fill:currentColor}
-.rail .byron{font-family:var(--sign);font-size:2.4rem;color:var(--gold);opacity:.75;margin-top:1.8rem;line-height:1}
-@media (max-width:1180px){
-  .railwrap{grid-template-columns:minmax(0,1fr)}
-  .rail{position:static;display:flex;flex-wrap:wrap;justify-content:center;gap:1.5rem;
-    padding-top:2rem;text-align:center}
-  .rail .qi,.rail .byron{display:none}
-  .rail dl{display:flex;flex-wrap:wrap;gap:1.4rem;justify-content:center;margin:0}
-  .rail dd{border:0;padding:0;margin:0}
-}
 
 /* turn controls under the book */
 .turnbar{display:flex;align-items:center;justify-content:center;gap:clamp(1rem,3vw,2.5rem);
-  margin-top:clamp(1.25rem,3vh,2rem)}
+  margin-top:clamp(.9rem,2vh,1.4rem)}
 .turnbtn{width:2.9rem;height:2.9rem;border:1px solid rgba(201,162,39,.35);background:none;
   color:var(--gold);cursor:pointer;border-radius:50%;display:grid;place-items:center;
   transition:.35s;font-size:1rem}
@@ -452,21 +445,8 @@ a.card:hover .readmore .ar{width:3.4rem}
 .turnbtn:disabled{opacity:.25;cursor:default}
 .turnbar .count{font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:.28em;
   text-transform:uppercase;color:var(--sepia-3);min-width:9rem;text-align:center}
-.turnhint{text-align:center;margin-top:.9rem;font-family:var(--body);font-size:.72rem;
+.turnhint{text-align:center;margin-top:.6rem;font-family:var(--body);font-size:.72rem;
   letter-spacing:.2em;text-transform:uppercase;color:#6A6252;opacity:.75}
-
-/* ══════════════════════ 9 · SINGLE-PAGE READING ══════════════════════ */
-.sheetwrap{filter:drop-shadow(0 30px 60px rgba(0,0,0,.7));margin:0 auto;max-width:54rem}
-.sheet{clip-path:var(--clip);padding:clamp(2rem,5vw,4.5rem) clamp(1.75rem,5vw,5rem) clamp(3rem,6vw,5rem)}
-.sheet .pg-body,#previewPane{overflow:visible;flex:none;height:auto}
-.sheet .pg-body{font-size:clamp(1rem,1.25vw,1.16rem)}
-.modeswitch{display:flex;justify-content:center;gap:.5rem;margin:0 0 clamp(1.25rem,3vh,2rem)}
-.modeswitch button{font-family:var(--body);font-weight:500;font-size:.68rem;letter-spacing:.24em;
-  text-transform:uppercase;padding:.5rem 1.15rem;border:1px solid rgba(201,162,39,.28);
-  background:none;color:var(--sepia-3);cursor:pointer;transition:.3s}
-.modeswitch button:hover{color:var(--gold-lt);border-color:rgba(201,162,39,.55)}
-.modeswitch button[aria-pressed="true"]{background:rgba(201,162,39,.16);color:var(--gold-pale);
-  border-color:rgba(201,162,39,.6)}
 
 /* ══════════════════════ 10 · ARCHIVE ══════════════════════ */
 .arch{border:1px solid rgba(201,162,39,.26);padding:clamp(1.5rem,4vw,3.25rem);
@@ -491,7 +471,7 @@ a.card:hover .readmore .ar{width:3.4rem}
 .tag[aria-pressed="true"]{background:var(--crimson);border-color:var(--crimson);color:var(--cream)}
 
 .rowlist{display:flex;flex-direction:column;gap:clamp(.85rem,2vw,1.35rem)}
-.row{display:grid;grid-template-columns:13.5rem minmax(0,1fr);gap:0;text-decoration:none;
+.row{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0;text-decoration:none;
   border:1px solid rgba(201,162,39,.2);overflow:hidden;
   transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .4s}
 .row:hover{transform:translateY(-3px);border-color:rgba(201,162,39,.5);
@@ -501,17 +481,24 @@ a.card:hover .readmore .ar{width:3.4rem}
   filter:saturate(.62) contrast(1.14) brightness(.78);transition:transform 1.2s var(--ease),filter .6s}
 .row:hover .shot img{transform:scale(1.07);filter:saturate(.8) contrast(1.14) brightness(.92)}
 .row .shot::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 60%,rgba(9,9,11,.5))}
-.row .body{position:relative;padding:clamp(1rem,2.4vw,1.6rem) clamp(1.15rem,2.8vw,2rem);
-  display:flex;flex-direction:column;justify-content:center;gap:.35rem}
-.row .body h3{font-family:var(--display);font-weight:500;color:var(--cream);
-  font-size:clamp(1.1rem,2.2vw,1.55rem);line-height:1.16;margin:0;transition:color .35s}
-.row:hover .body h3{color:var(--gold-lt)}
-.row .body .meta{margin:.1rem 0 .2rem}
-.row .body p{font-family:var(--display);font-style:italic;color:#948A76;font-size:.98rem;
+  background:linear-gradient(90deg,transparent 55%,rgba(9,9,11,.45))}
+.row .body{position:relative;padding:clamp(1rem,2.4vw,1.7rem) clamp(1.15rem,2.8vw,2.1rem);
+  display:flex;flex-direction:column;justify-content:center;gap:.3rem;
+  color:var(--sepia);
+  background:linear-gradient(172deg,#F1E6CC 0%,#E6D8B7 46%,#D9C8A2 100%)}
+.row .body::before{content:"";position:absolute;inset:0;pointer-events:none;
+  mix-blend-mode:multiply;opacity:.5;background:var(--paper-tex,none) repeat;background-size:340px 340px}
+.row .body::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 40%,transparent 52%,rgba(120,94,52,.2) 100%)}
+.row .body>*{position:relative;z-index:2}
+.row .body h3{font-family:var(--display);font-weight:600;color:#241E15;
+  font-size:clamp(1.1rem,2.2vw,1.6rem);line-height:1.14;margin:0;transition:color .35s}
+.row:hover .body h3{color:var(--crimson)}
+.row .body .meta{margin:.15rem 0 .25rem;color:#8B7A5C}
+.row .body p{font-family:var(--display);font-style:italic;color:#5F5340;font-size:1rem;
   line-height:1.4;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.row .arrow{position:absolute;right:1.25rem;bottom:1.1rem;color:var(--gold);opacity:.5;
-  font-size:1.15rem;transition:transform .5s var(--ease),opacity .35s}
+.row .arrow{position:absolute;right:1.25rem;bottom:1rem;color:var(--crimson);opacity:.6;
+  font-size:1.2rem;z-index:3;transition:transform .5s var(--ease),opacity .35s}
 .row:hover .arrow{transform:translateX(7px);opacity:1}
 @media (max-width:640px){
   .row{grid-template-columns:6.5rem minmax(0,1fr)}
@@ -551,6 +538,202 @@ footer.foot{position:relative;z-index:2;border-top:1px solid rgba(201,162,39,.16
   font-family:var(--body);font-weight:500;font-size:.68rem;letter-spacing:.32em;
   text-transform:uppercase;color:#4E4838}
 .creed em{font-style:normal;color:var(--gold);opacity:.55;margin:0 .9rem}
+
+
+/* ══════════════════════ KIT · BUTTONS ══════════════════════ */
+.kb{display:inline-flex;align-items:center;gap:1.1rem;text-decoration:none;cursor:pointer;
+  font-family:var(--body);font-weight:500;font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;
+  padding:.95rem 1.9rem;border:1px solid var(--gold);color:var(--gold-pale);background:none;
+  position:relative;overflow:hidden;transition:color .4s}
+.kb .ar{width:1.6rem;height:1px;background:currentColor;position:relative;transition:width .45s var(--ease)}
+.kb .ar::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;
+  border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+.kb:hover .ar{width:2.4rem}
+.kb::before{content:"";position:absolute;inset:0;background:var(--gold);
+  transform:translateY(101%);transition:transform .45s var(--swing)}
+.kb>*{position:relative;z-index:2}
+.kb:hover{color:#17110A}
+.kb:hover::before{transform:none}
+.kb.fill{background:var(--gold);color:#17110A;border-color:var(--gold)}
+.kb.fill::before{background:var(--gold-pale)}
+.kb.crim{background:var(--crimson);border-color:var(--crimson);color:var(--cream)}
+.kb.crim::before{background:var(--crimson-lt)}
+.kb.crim:hover{color:#fff}
+.kb.plain{border:0;padding:.5rem 0;color:var(--gold)}
+.kb.plain::before{display:none}
+.kb.plain:hover{color:var(--gold-pale)}
+
+/* ══════════════════════ KIT · HOME ══════════════════════ */
+.hero-in{position:relative;z-index:2;width:100%;max-width:74rem;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;text-align:center}
+.hero-say{font-family:var(--display);font-weight:400;font-style:italic;
+  font-size:clamp(1.9rem,5vw,4.1rem);line-height:1.22;color:var(--cream);
+  margin:0 auto .9rem;max-width:19ch;text-wrap:balance;
+  text-shadow:0 3px 30px rgba(6,6,8,.95),0 0 70px rgba(6,6,8,.7)}
+.hero-name{font-family:var(--body);font-weight:500;font-size:clamp(.68rem,1.15vw,.82rem);
+  letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin:0;opacity:.95}
+.hero-orn{width:min(19rem,58vw);margin:clamp(1.1rem,3vh,1.9rem) auto clamp(1.4rem,3.5vh,2.2rem)}
+
+.sec-head{display:flex;align-items:center;gap:1.5rem;margin-bottom:clamp(1.75rem,4vh,3rem)}
+.sec-head .ln{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(200,169,106,.45),transparent)}
+.sec-head h2{font-family:var(--body);font-weight:500;font-size:clamp(.82rem,1.5vw,.98rem);
+  letter-spacing:.36em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:clamp(1rem,2vw,1.6rem)}
+.wcard{display:block;text-decoration:none;border:1px solid rgba(200,169,106,.22);
+  background:linear-gradient(168deg,rgba(28,28,28,.9),rgba(13,13,13,.95));
+  transition:transform .5s var(--ease),border-color .4s,box-shadow .5s var(--ease)}
+.wcard:hover{transform:translateY(-5px);border-color:rgba(200,169,106,.6);
+  box-shadow:0 20px 44px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,106,.12)}
+.wcard .shot{position:relative;overflow:hidden;background:var(--coal);margin:.6rem .6rem 0}
+.wcard .shot img{width:100%;aspect-ratio:16/10;object-fit:cover;
+  filter:saturate(.62) contrast(1.16) brightness(.8);transition:transform 1.2s var(--ease),filter .6s}
+.wcard:hover .shot img{transform:scale(1.07);filter:saturate(.8) contrast(1.16) brightness(.94)}
+.wcard .shot::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(13,13,13,.65),transparent 55%)}
+.wcard .txt{padding:1rem 1.05rem 1.25rem}
+.wcard .cat{display:flex;align-items:center;gap:.45rem;font-family:var(--body);font-weight:500;
+  font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.wcard .cat img{width:.9rem;height:.9rem;object-fit:contain;opacity:.9}
+.wcard h3{font-family:var(--display);font-weight:500;color:var(--cream);
+  font-size:1.16rem;line-height:1.22;margin:0 0 .65rem;transition:color .35s}
+.wcard:hover h3{color:var(--gold-lt)}
+.wcard .meta{font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.2em;
+  text-transform:uppercase;color:#8A7F68}
+
+/* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
+.kfind{display:flex;align-items:center;gap:.9rem;max-width:34rem;margin:0 auto clamp(1.5rem,3.5vh,2.25rem);
+  border:1px solid rgba(200,169,106,.35);padding:.7rem 1.15rem;background:rgba(13,13,13,.6)}
+.kfind input{flex:1;min-width:0;background:none;border:0;color:var(--parch);
+  font-family:var(--body);font-size:1rem;letter-spacing:.04em;padding:.15rem 0}
+.kfind input::placeholder{color:#7A7059}
+.kfind input:focus{outline:none}
+.kfind svg{width:1rem;height:1rem;fill:var(--gold);opacity:.8;flex:none}
+.pager{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:clamp(2rem,5vh,3rem);
+  font-family:var(--body);font-weight:500;font-size:.85rem;letter-spacing:.1em}
+.pager button{min-width:2.3rem;height:2.3rem;padding:0 .55rem;border:1px solid transparent;
+  background:none;cursor:pointer;color:#8A7F68;transition:.3s}
+.pager button:hover:not(:disabled){color:var(--gold-pale)}
+.pager button[aria-current="true"]{color:var(--gold-pale);border-color:var(--gold)}
+.pager button[aria-current="true"]::after{display:none}
+.pager button:disabled{opacity:.28;cursor:default}
+.pager .dots{color:#5B5344;padding:0 .2rem}
+
+/* ══════════════════════ KIT · FOOTER ══════════════════════ */
+.kfoot{position:relative;z-index:2;border-top:1px solid rgba(200,169,106,.18);
+  background:linear-gradient(to bottom,rgba(13,13,13,.4),rgba(9,9,9,.9))}
+.kfoot-in{max-width:78rem;margin:0 auto;padding:clamp(2.5rem,6vh,4rem) var(--gut);
+  display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(1.75rem,4vw,3.5rem);align-items:start}
+.kfoot .brandcol{display:flex;align-items:center;gap:1rem}
+.kfoot .brandcol img{height:4.2rem;width:auto}
+.kfoot .brandcol b{display:block;font-family:var(--display);font-weight:500;
+  font-size:clamp(1rem,1.8vw,1.32rem);letter-spacing:.1em;color:var(--gold-lt);line-height:1.2}
+.kfoot .brandcol span{font-family:var(--body);font-size:.68rem;letter-spacing:.28em;
+  text-transform:uppercase;color:#7A7059}
+.kfoot nav{display:flex;flex-direction:column;gap:.55rem}
+.kfoot nav a{font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:.24em;
+  text-transform:uppercase;color:#8A7F68;text-decoration:none;transition:color .3s}
+.kfoot nav a:hover{color:var(--gold-lt)}
+.kfoot .follow h4{font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--gold);margin:0 0 1rem}
+.kfoot .socials{display:flex;gap:1rem;margin-bottom:1.4rem}
+.kfoot .socials a{width:1.6rem;height:1.6rem;opacity:.75;transition:opacity .3s,transform .3s}
+.kfoot .socials a:hover{opacity:1;transform:translateY(-2px)}
+.kfoot .socials img{width:100%;height:100%;object-fit:contain}
+.kfoot .rights{font-family:var(--body);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  color:#5F5646;line-height:1.9;margin:0}
+@media (max-width:820px){.kfoot-in{grid-template-columns:1fr;gap:2rem}}
+
+
+/* ══════════════════════ KIT · THE STORY READER ══════════════════════
+   A full-screen book that opens over the site: leather boards, a ribbon
+   at the spine, the story paginated across real leaves.
+   ═══════════════════════════════════════════════════════════════════ */
+.reader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:clamp(.75rem,2vh,1.75rem);
+  background:radial-gradient(120% 90% at 50% 40%,rgba(22,18,14,.95),rgba(6,6,7,.985));
+  backdrop-filter:blur(10px);animation:readerIn .55s var(--ease) both}
+@keyframes readerIn{from{opacity:0}to{opacity:1}}
+.reader-stage{position:relative;display:flex;align-items:center;justify-content:center;
+  gap:clamp(.75rem,2.5vw,2.5rem);width:100%;flex:1;min-height:0;
+  animation:bookIn .8s var(--swing) both .1s}
+@keyframes bookIn{from{opacity:0;transform:translateY(26px) scale(.965)}to{opacity:1;transform:none}}
+
+.reader-close{position:absolute;top:clamp(.5rem,2vh,1.4rem);right:clamp(.5rem,2vw,1.6rem);
+  width:2.8rem;height:2.8rem;border:1px solid rgba(200,169,106,.35);background:rgba(13,13,13,.7);
+  color:var(--gold);cursor:pointer;z-index:12;display:grid;place-items:center;font-size:1.1rem;
+  transition:.3s;border-radius:2px}
+.reader-close:hover{background:var(--gold);color:#17110A;border-color:var(--gold)}
+.rnav{width:clamp(2.6rem,4vw,3.4rem);height:clamp(2.6rem,4vw,3.4rem);flex:none;border-radius:50%;
+  border:1px solid rgba(200,169,106,.45);background:rgba(13,13,13,.55);color:var(--gold);
+  cursor:pointer;display:grid;place-items:center;font-size:1.1rem;transition:.3s}
+.rnav:hover:not(:disabled){background:var(--gold);color:#17110A;transform:scale(1.08)}
+.rnav:disabled{opacity:.22;cursor:default}
+
+.reader .book-shell{background:linear-gradient(158deg,#4A3520 0%,#2E2114 40%,#171009 100%);
+  box-shadow:0 50px 110px rgba(0,0,0,.85),0 10px 26px rgba(0,0,0,.7),
+             inset 0 0 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(200,169,106,.22)}
+.ribbon{position:absolute;left:50%;top:0;width:16px;margin-left:-8px;z-index:45;pointer-events:none;
+  height:calc(100% + 3.2rem);
+  background:linear-gradient(90deg,#3D080D,#7C1620 40%,#5B0E14 70%,#2E060A)}
+.ribbon::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.1rem;
+  background:inherit;clip-path:polygon(0 0,100% 0,100% 100%,50% 62%,0 100%)}
+
+.reader-bar{display:flex;align-items:center;justify-content:space-between;gap:1.25rem;
+  width:min(100%,62rem);margin-top:clamp(.6rem,1.5vh,1.1rem);padding:0 .5rem;
+  font-family:var(--body);font-weight:500;font-size:.72rem;letter-spacing:.22em;
+  text-transform:uppercase;color:#8A7F68;animation:readerIn .6s var(--ease) both .35s}
+.reader-bar .grp{display:flex;align-items:center;gap:.9rem}
+.reader-bar button{background:none;border:0;color:inherit;cursor:pointer;font:inherit;
+  letter-spacing:inherit;padding:.35rem;transition:color .3s;display:inline-flex;align-items:center;gap:.4rem}
+.reader-bar button:hover{color:var(--gold-lt)}
+.reader-bar .sz1{font-size:.82rem;font-family:var(--display)}
+.reader-bar .sz2{font-size:1.15rem;font-family:var(--display)}
+.reader-bar .count{color:var(--gold);letter-spacing:.24em}
+.reader-bar svg{width:1rem;height:1rem;fill:currentColor}
+.reader-prog{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(200,169,106,.14)}
+.reader-prog i{display:block;height:100%;background:var(--gold);transition:width .5s var(--ease)}
+
+/* sepia / candle mode */
+.reader.candle{background:radial-gradient(120% 90% at 50% 40%,rgba(34,24,12,.96),rgba(9,7,5,.99))}
+.reader.candle .pg{filter:sepia(.28) saturate(1.08) brightness(.93)}
+
+@media (max-width:900px){
+  .reader-stage{gap:.4rem}
+  .rnav{position:absolute;bottom:-.2rem;z-index:11}
+  .rnav.prev{left:1rem}.rnav.next{right:1rem}
+  .reader-bar{font-size:.62rem;letter-spacing:.14em}
+}
+
+
+.pg-foot{gap:.9rem}
+.pg-foot.one{justify-content:space-between}
+.pg-foot .foot-orn{height:calc(1.5rem*var(--ps,1));width:auto;opacity:.75}
+.archead{position:relative;min-height:clamp(15rem,32vh,24rem);display:flex;align-items:center;
+  text-align:center;background:var(--void) center/cover no-repeat;
+  margin-top:calc(var(--bar) * -1);padding:calc(var(--bar) + 2rem) 0 2rem}
+.archead::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(13,13,13,.85),rgba(13,13,13,.55) 45%,var(--void)),
+             radial-gradient(80% 70% at 50% 50%,transparent,rgba(13,13,13,.7))}
+.archead .wrap{position:relative;z-index:2}
+.archead h1{font-family:var(--display);font-weight:600;font-size:clamp(2.2rem,6vw,4.2rem);
+  letter-spacing:.06em;margin:0 0 .5rem}
+.archead-orn{width:min(20rem,60vw);margin:0 auto .9rem}
+
+
+.searchbtn{width:2rem;height:2rem;display:grid;place-items:center;margin-left:.6rem;
+  color:var(--gold);opacity:.8;transition:opacity .3s,transform .3s;flex:none}
+.searchbtn svg{width:1.05rem;height:1.05rem;fill:currentColor}
+.searchbtn:hover{opacity:1;transform:scale(1.1)}
+.creed{text-align:center;padding:0 var(--gut) clamp(1.5rem,3.5vh,2.25rem);
+  font-family:var(--body);font-weight:500;font-size:.64rem;letter-spacing:.3em;
+  text-transform:uppercase;color:#524B3C}
+.creed em{font-style:normal;color:var(--gold);opacity:.5;margin:0 .8rem}
+
+/* ══════════════════════ KIT · READING PROGRESS ══════════════════════ */
+.progress{position:fixed;top:var(--bar);left:0;height:2px;width:0;z-index:65;
+  background:linear-gradient(to right,rgba(200,169,106,.2),var(--gold));transition:width .12s linear}
 
 /* ══════════════════════ 12 · MOTION ══════════════════════ */
 .rise{opacity:0;transform:translateY(26px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
@@ -683,36 +866,35 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 
 <header class="bar">
   <a class="brand" href="#/" id="brand">
-    <span class="mono-wrap">
-      <span class="mono gold">L<i>B</i></span>
-      <svg class="fl fil" viewBox="0 0 60 10" aria-hidden="true">
-        <g class="s"><path d="M22 5c-4 0-6-3-10-3s-5 3-2 4c2 1 4-1 3-2"/>
-        <path d="M38 5c4 0 6-3 10-3s5 3 2 4c-2 1-4-1-3-2"/></g>
-        <path class="d" d="M30 1.5l3.2 3.5L30 8.5 26.8 5z"/>
-      </svg>
-    </span>
+    <img class="crest" src="assets/mark.png" alt="" width="118" height="122">
     <span class="brand-txt"><b>BAD, MAD &amp; DANGEROUS</b><span>BY LORD BYRON</span></span>
   </a>
-  <nav class="nav" id="nav">
-    <a href="#/">Home</a>
-    <a href="#/archive">Archive</a>
-    <a href="#/contact">Contact</a>
-  </nav>
-  <span class="quill"></span>
-  <svg class="qi" viewBox="0 0 24 44" aria-hidden="true">
-    <path d="M19 1c1.4 5.6.8 12.2-2 19.2-2.3 5.9-5.6 11.2-9.6 15.4l-2 2.1 1.4-.5c5.8-2 10.9-6 14.4-11.2C24.9 20.6 26.6 14.2 26 8c-.3-2.7-.9-5-1.8-7L22.2.2 19 1z" transform="translate(-3 0)"/>
-    <path d="M7.4 37.6c1.8-3.5 4.4-7.3 7.5-10.6l-.9-.9c-3.5 3.5-6.4 7.5-8.4 11.3l1.8.2z"/>
-  </svg>
+  <nav class="nav" id="nav"></nav>
+  <a class="searchbtn" href="#/archive" aria-label="Search writings">
+    <svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+  </a>
 </header>
 
 <main id="app"></main>
 
-<footer class="foot">
-  <div class="foot-in">
-    <p id="footLeft">Bad, Mad &amp; Dangerous</p>
-    <p><a href="#/archive">Archive</a> &nbsp;·&nbsp; <a href="#/contact">Contact</a> &nbsp;·&nbsp; <a href="#/studio">Studio</a></p>
+<footer class="kfoot">
+  <div class="kfoot-in">
+    <div class="brandcol">
+      <img src="assets/crest.png" alt="">
+      <span><b id="footLeft">BAD, MAD &amp; DANGEROUS</b><span id="footBy">BY LORD BYRON</span></span>
+    </div>
+    <nav id="footNav"></nav>
+    <div class="follow">
+      <h4>Follow</h4>
+      <div class="socials">
+        <a href="#" aria-label="X"><img src="assets/soc-x.png" alt=""></a>
+        <a href="#" aria-label="Instagram"><img src="assets/soc-instagram.png" alt=""></a>
+        <a id="footMail" href="#" aria-label="Email"><img src="assets/soc-mail.png" alt=""></a>
+      </div>
+      <p class="rights">&copy; <span id="footYear"></span> Bad, Mad &amp; Dangerous<br>By Lord Byron<br>All rights reserved.</p>
+    </div>
   </div>
-  <p class="creed">Romance. Rebellion. Genius. <em>◆</em> Thoughts that defy the ordinary. <em>◆</em> Written in fire. Remembered in legend.</p>
+  <p class="creed">Romance. Rebellion. Genius. <em>&#9670;</em> Thoughts that defy the ordinary. <em>&#9670;</em> Written in fire. Remembered in legend.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -740,45 +922,13 @@ if(LIVE){
   }catch(e){ console.error("Firebase failed to load",e); }
 }
 
-/* painterly stand-ins for the sample stories — replaced the moment you import */
-function tableau(seed,a,b,c,d){
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" preserveAspectRatio="xMidYMid slice">
-<defs>
-<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-<stop offset="0%" stop-color="${a}"/><stop offset="52%" stop-color="${b}"/><stop offset="100%" stop-color="${c}"/></linearGradient>
-<radialGradient id="sun" cx="62%" cy="34%" r="34%">
-<stop offset="0%" stop-color="${d}" stop-opacity=".95"/><stop offset="60%" stop-color="${d}" stop-opacity=".22"/>
-<stop offset="100%" stop-color="${d}" stop-opacity="0"/></radialGradient>
-<filter id="cl" x="-20%" y="-20%" width="140%" height="140%">
-<feTurbulence type="fractalNoise" baseFrequency="0.0022 0.0055" numOctaves="6" seed="${seed}" result="n"/>
-<feDisplacementMap in="SourceGraphic" in2="n" scale="240" xChannelSelector="R" yChannelSelector="G"/>
-<feGaussianBlur stdDeviation="6"/></filter>
-<filter id="hz"><feTurbulence type="fractalNoise" baseFrequency="0.004 0.02" numOctaves="4" seed="${seed+3}" result="m"/>
-<feDisplacementMap in="SourceGraphic" in2="m" scale="34"/></filter>
-</defs>
-<rect width="1200" height="750" fill="url(#sky)"/>
-<g filter="url(#cl)" opacity=".85">
-<ellipse cx="380" cy="180" rx="540" ry="130" fill="${a}"/>
-<ellipse cx="880" cy="120" rx="460" ry="105" fill="${c}" opacity=".7"/>
-<ellipse cx="620" cy="300" rx="620" ry="115" fill="${b}"/>
-<ellipse cx="240" cy="250" rx="400" ry="80" fill="${c}" opacity=".55"/>
-</g>
-<rect width="1200" height="750" fill="url(#sun)"/>
-<g filter="url(#hz)">
-<path d="M0 560 Q300 520 620 552 T1200 540 L1200 750 L0 750z" fill="${c}" opacity=".92"/>
-<path d="M0 640 Q340 600 700 632 T1200 620 L1200 750 L0 750z" fill="#000" opacity=".55"/>
-</g>
-<rect width="1200" height="750" fill="none"/>
-</svg>`;
-  return "data:image/svg+xml;utf8,"+encodeURIComponent(svg);
-}
 
 const SAMPLES=[
   { id:"s1", slug:"the-world-is-a-stage", status:"published", featured:false,
     publishedAt:"2026-07-18", tags:["reflections","society"],
     title:"The World Is a Stage, But the Play Is Poorly Cast",
     dek:"On truth, pretense, and the endless performance of men.",
-    thumb:tableau(7,"#141018","#3A2A1E","#0C0A0C","#E9C878"),
+    thumb:"assets/cover1.jpg",
     body:`The world is a stage, and yet how wretched the actors. Each struts and frets his hour upon it, believes himself profound, while uttering only rehearsed nothings. They wear their masks so long, they come to fancy them their faces.
 
 I have conversed with emperors and beggars, and in both I have found the same disease — an infinite concern for what others think, and a most lamentable neglect of what is.
@@ -805,7 +955,7 @@ Strip away the costume and there is either a person underneath or there is not. 
     publishedAt:"2026-06-02", tags:["essays","solitude"],
     title:"Solitude Is the Nurse of Genius",
     dek:"In the crowd, we wear masks; in solitude, we remove them.",
-    thumb:tableau(19,"#101418","#28323A","#080A0C","#C8D8E8"),
+    thumb:"assets/cover2.jpg",
     body:`In the crowd we are agreeable, and therefore we are nothing. Agreement is the tax the timid pay for company.
 
 I have never had a thought worth keeping in a room of more than three people. The mind, like the eye, requires distance to see anything whole.
@@ -822,7 +972,7 @@ Solitude is not loneliness. Loneliness is the wish for company; solitude is the 
     publishedAt:"2026-04-21", tags:["poems","sea"],
     title:"Roll On, Thou Deep and Dark Blue Ocean",
     dek:"Written to the eternal restless soul of the sea.",
-    thumb:tableau(33,"#0A1016","#1C2C38","#050708","#9FC0DC"),
+    thumb:"assets/cover3.jpg",
     body:`The sea has no memory and no manners, and I have loved it for both.
 
 Ten thousand fleets sweep over it in vain. Man marks the earth with ruin — his control stops with the shore. Whatever we build, the water is patient, and patience is the only undefeated argument.
@@ -837,7 +987,7 @@ I have swum further than was sensible, more than once, for no reason I could def
     publishedAt:"2026-02-17", tags:["reflections","history"],
     title:"Of Empires and Their Inevitable Fall",
     dek:"Power dazzles, but time devours all thrones.",
-    thumb:tableau(44,"#16120E","#42341F","#0A0806","#F0D08A"),
+    thumb:"assets/cover4.jpg",
     body:`There is a particular silence in ruins that no cathedral has ever achieved.
 
 Every empire believes itself the exception. Every empire has believed itself the exception. The column that lies in the grass was raised by men absolutely certain it would not lie in the grass.
@@ -854,7 +1004,7 @@ Give any institution two hundred years and it will have forgotten why it exists,
     publishedAt:"2026-01-28", tags:["letters","friendship"],
     title:"A Letter to a Friend",
     dek:"On loyalty, betrayal, and the rarest virtue of all — friendship.",
-    thumb:tableau(51,"#181410","#3E3324","#0B0907","#E4C88A"),
+    thumb:"assets/cover5.jpg",
     body:`You ask whether I am well. I am not, and I am delighted to tell you so, because you are the only person who would rather have the truth than the pleasantry.
 
 Friendship is the one attachment that survives being told the truth. That is its entire distinction, and it is enough.
@@ -869,7 +1019,7 @@ I have been betrayed by people who were fond of me, and defended by people who c
     publishedAt:"2025-11-09", tags:["essays","solitude"],
     title:"The Loneliness of Genius",
     dek:"To see further is to stand further off.",
-    thumb:tableau(66,"#12101A","#2E2438","#070609","#D8B8E8"),
+    thumb:"assets/cover6.jpg",
     body:`To see further is, unavoidably, to stand further off. Nobody warns you about that part.
 
 The gift and the exile arrive in the same envelope, and there is no arrangement by which you may keep the one and decline the other.
@@ -965,22 +1115,14 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2800); }
 
 /* the brand's filigree, redrawn as SVG */
-const FIL = (cls="") => `<svg class="fil ${cls}" viewBox="0 0 300 22" aria-hidden="true">
-  <g class="r"><path d="M2 11h98M200 11h98"/></g>
-  <g class="s">
-    <path d="M104 11c8 0 12-5 19.5-5 8.5 0 11.5 5.5 6 8.5-4.5 2.5-8.5-1-6.5-4.5"/>
-    <path d="M196 11c-8 0-12-5-19.5-5-8.5 0-11.5 5.5-6 8.5 4.5 2.5 8.5-1 6.5-4.5"/>
-    <path d="M124 11c5.5-3.5 11-3.5 16.5 0M176 11c-5.5-3.5-11-3.5-16.5 0"/>
-  </g>
-  <path class="d" d="M150 4.6l6.4 6.4-6.4 6.4-6.4-6.4z"/>
-  <circle class="d" cx="112" cy="11" r="1.7"/><circle class="d" cx="188" cy="11" r="1.7"/>
-</svg>`;
+const FIL = (cls="", which="orn") => `<img class="fil ${cls}" src="${esc(ART[which])}" alt="" aria-hidden="true">`;
 
 const QUILL = (cls="qi") => `<svg class="${cls}" viewBox="0 0 24 44" aria-hidden="true">
   <path d="M19 1c1.4 5.6.8 12.2-2 19.2-2.3 5.9-5.6 11.2-9.6 15.4l-2 2.1 1.4-.5c5.8-2 10.9-6 14.4-11.2C24.9 20.6 26.6 14.2 26 8c-.3-2.7-.9-5-1.8-7L22.2.2 19 1z" transform="translate(-3 0)"/>
   <path d="M7.4 37.6c1.8-3.5 4.4-7.3 7.5-10.6l-.9-.9c-3.5 3.5-6.4 7.5-8.4 11.3l1.8.2z"/></svg>`;
 
 /* your logo, if you've supplied one */
+const ART = Object.assign({hero:"assets/hero-plate.jpg",crest:"assets/crest.png",paper:"assets/paper.jpg"}, CFG.assets||{});
 const LOGO = CFG.logo || {};
 const logoHTML = h => !LOGO.src ? "" : (LOGO.tint==="none"
   ? `<img class="logo-img" src="${esc(LOGO.src)}" alt="" style="height:${h||LOGO.height||52}px">`
@@ -1065,74 +1207,68 @@ function viewHome(){
   const list = published();
   if(!list.length) return `<div class="empty">Nothing published yet. Open the <a href="#/studio">Studio</a> and write the first one.</div>`;
   const [lead,...rest] = list;
-  const next = rest.slice(0,4);
+  const latest = [lead,...rest].slice(0,4);
 
   return `
   <section class="hero">
-    ${LOGO.src ? `<div class="logo-big ${LOGO.flip?"flip":""}">${logoHTML(120)}</div>`
-               : `<div class="hero-mono mono gold">L<i>B</i></div>`}
-    ${FIL("hero-fl")}
-    <h1 class="hero-title gold">${esc(store.site.title)}</h1>
-    <p class="hero-sub">By ${esc(store.site.byline)}</p>
-    ${FIL("hero-rule")}
-    <p class="hero-say">${esc(store.site.bio)}</p>
-    <p class="hero-name">My name is ${esc(store.site.byline)}</p>
-    <a class="scrollcue" href="#latest"><span>The Latest</span><span class="ln"></span></a>
+    <div class="hero-bg" style="background-image:url('${esc(ART.hero)}')" aria-hidden="true"></div>
+    <div class="hero-in">
+      <p class="hero-say">${esc(store.site.bio)}</p>
+      <p class="hero-name">My name is ${esc(store.site.byline)}</p>
+      ${FIL("hero-orn")}
+      <a class="kb" href="#/essay/${esc(lead.slug)}"><span>Read the latest essay</span><span class="ar"></span></a>
+    </div>
+    <a class="scrollcue" href="#latest"><span>Latest Writings</span><span class="ln"></span></a>
   </section>
 
   <div class="wrap" id="latest">
     <section class="sec">
-      <div class="sec-head rise"><span class="ln"></span><h2>The Latest Story</h2><span class="ln"></span></div>
-      <a class="card feature rise" href="#/essay/${esc(lead.slug)}">
-        <div class="plate"><img src="${BLANK}" data-post="${esc(lead.id)}" alt="" fetchpriority="high"><span class="plate-fr"></span></div>
-        <div class="feature-txt">
-          <span class="meta">${esc(firstTag(lead))} &nbsp;·&nbsp; ${esc(shortDate(lead.publishedAt))} &nbsp;·&nbsp; ${readMins(lead)} min</span>
-          <h3>${esc(lead.title)}</h3>
-          ${lead.dek?`<p>${esc(lead.dek)}</p>`:""}
-          <span class="readmore">Read the story <span class="ar"></span></span>
-        </div>
-      </a>
-    </section>
-
-    ${next.length?`
-    <section class="sec" style="padding-top:0">
-      <div class="sec-head rise"><span class="ln"></span><h2>More Stories</h2><span class="ln"></span></div>
-      <div class="strip rise">
-        ${next.map(p=>`<a class="st card" href="#/essay/${esc(p.slug)}">
-          <div class="plate"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"><span class="plate-fr"></span></div>
-          <div class="st-txt">
-            <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${esc(firstTag(p))}</span>
-            <h3>${esc(p.title)}</h3>
-            ${p.dek?`<p>${esc(p.dek)}</p>`:""}
-          </div>
-          <span class="go">→</span>
-        </a>`).join("")}
+      <div class="sec-head rise"><span class="ln"></span><h2>Latest Writings</h2><span class="ln"></span></div>
+      <div class="cards rise">${latest.map(wcard).join("")}</div>
+      <div style="display:flex;justify-content:center;margin-top:clamp(2rem,5vh,3.25rem)">
+        <a class="kb plain rise" href="#/archive"><span>View the archive</span><span class="ar"></span></a>
       </div>
-      <a class="allbtn rise" href="#/archive"><span>All ${list.length} stories</span></a>
-    </section>`:""}
+    </section>
   </div>`;
 }
 
-let arch = { q:"", tag:"", page:1, per:8 };
+function wcard(p){
+  const cat = ((p.tags||[])[0]||"").toLowerCase();
+  const ico = CATICON[cat];
+  return `<a class="wcard" href="#/essay/${esc(p.slug)}">
+    <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
+    <span class="txt">
+      <span class="cat">${ico?`<img src="${esc(ico)}" alt="">`:""}${esc(firstTag(p))}</span>
+      <h3>${esc(p.title)}</h3>
+      <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
+    </span>
+  </a>`;
+}
+
+let arch = { q:"", tag:"", page:1, per:12 };
 function viewArchive(){
   const all = published();
   const tags = [...new Set(all.flatMap(p=>p.tags||[]))].sort();
   return `
-  <div class="wrap"><section class="sec">
-    <div class="arch">
-      <h1 class="gold">Archived Stories</h1>
-      ${FIL("arch-fl")}
-      <div class="finder">
-        <input id="q" type="search" placeholder="Search the archive…" value="${esc(arch.q)}" autocomplete="off">
-        <span class="count" id="count"></span>
-      </div>
-      ${tags.length?`<div class="tagrow">
-        <button class="tag" data-tag="" aria-pressed="${arch.tag===""}">All</button>
-        ${tags.map(t=>`<button class="tag" data-tag="${esc(t)}" aria-pressed="${arch.tag===t}">${esc(t)}</button>`).join("")}
-      </div>`:""}
-      <div class="rowlist" id="rowlist"></div>
-      <div id="pagerWrap"></div>
+  <section class="archead" style="background-image:url('${esc(ART.archive)}')">
+    <div class="wrap">
+      <h1 class="gold">The Archive</h1>
+      ${FIL("archead-orn","ornLB")}
+      <p class="hero-name">Every writing, in order of arrival</p>
     </div>
+  </section>
+  <div class="wrap"><section class="sec" style="padding-top:clamp(2rem,5vh,3.5rem)">
+    <div class="kfind">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+      <input id="q" type="search" placeholder="Search writings…" value="${esc(arch.q)}" autocomplete="off">
+      <span class="count" id="count"></span>
+    </div>
+    ${tags.length?`<div class="tagrow">
+      <button class="tag" data-tag="" aria-pressed="${arch.tag===""}">All</button>
+      ${tags.map(t=>`<button class="tag" data-tag="${esc(t)}" aria-pressed="${arch.tag===t}">${esc(t)}</button>`).join("")}
+    </div>`:""}
+    <div class="cards" id="rowlist"></div>
+    <div id="pagerWrap"></div>
   </section></div>`;
 }
 
@@ -1147,22 +1283,12 @@ function renderArchive(){
   const pages = Math.max(1, Math.ceil(items.length/arch.per));
   arch.page = Math.min(arch.page, pages);
   const slice = items.slice((arch.page-1)*arch.per, arch.page*arch.per);
-
-  list.innerHTML = slice.length ? slice.map(p=>`
-    <a class="row" href="#/essay/${esc(p.slug)}">
-      <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
-      <span class="body">
-        <h3>${esc(p.title)}</h3>
-        <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${esc(firstTag(p))}</span>
-        ${p.dek?`<p>${esc(p.dek)}</p>`:""}
-        <span class="arrow">→</span>
-      </span>
-    </a>`).join("")
-    : `<p class="empty">Nothing matches that. Try a shorter word.</p>`;
-
-  $("#count").textContent = `${items.length} ${items.length===1?"story":"stories"}`;
+  list.innerHTML = slice.length ? slice.map(wcard).join("")
+    : `<p class="empty" style="grid-column:1/-1">Nothing matches that. Try a shorter word.</p>`;
+  $("#count").textContent = `${items.length}`;
   $("#pagerWrap").innerHTML = pages>1 ? pagerHTML(arch.page,pages) : "";
   hydrateThumbs(list);
+  observeRises();
 }
 
 function pagerHTML(cur,pages){
@@ -1202,7 +1328,8 @@ function viewContact(){
    paper darkens toward the fold and catches a highlight mid-turn.
    ══════════════════════════════════════════════════════════════════ */
 const BOOK = { pages:[], leaves:[], turned:0, n:0, single:false, busy:false, post:null, ctx:null };
-let readMode = "book";          // or "page"
+let readerCandle = false;
+let readerSize = 1;
 let pendingEssay = null;
 
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
@@ -1318,35 +1445,26 @@ function illuminate(html){
 async function mountEssay(){
   if(!pendingEssay) return;
   const { post, body, img } = pendingEssay;
-  const stage = $("#stage");
+  const stage = document.querySelector(".reader-stage");
   if(!stage) return;
-
-  if(readMode === "page"){
-    const sheet = $("#sheet");
-    if(sheet){
-      sheet.style.setProperty("--clip", deckle(seedOf(post.id)));
-      sheet.querySelector(".pg-body").innerHTML = illuminate(md(body));
-      hydrateThumbs(sheet);
-    }
-    observeRises();
-    return;
-  }
 
   try{ await document.fonts.ready; }catch(e){}
 
   const pagesEl = $("#pages");
   const single = window.innerWidth < 900;
-  const wrapW = stage.clientWidth || 900;
-  const barPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar")) || 72;
-  const maxH = Math.max(420, window.innerHeight - barPx - 210);
-  let pw = single ? Math.min(wrapW, 470) : Math.min(wrapW/2, 480);
-  let ph = pw * 1.40;
-  if(ph > maxH){ ph = maxH; pw = ph/1.40; }
-  pw = Math.max(230, Math.round(pw)); ph = Math.round(ph);
+  const navW = single ? 0 : 2 * (Math.min(54, window.innerWidth*0.04) + 40);
+  const wrapW = Math.max(280, (stage.clientWidth || window.innerWidth) - navW);
+  const maxH = Math.max(420, window.innerHeight - 132);
+  let pw = single ? Math.min(wrapW, 620) : Math.min(wrapW/2, 700);
+  let ph = pw * 1.36;
+  if(ph > maxH){ ph = maxH; pw = Math.min(pw, ph/1.12); }
+  pw = Math.max(240, Math.round(pw)); ph = Math.round(ph);
 
   const book = $("#book");
   book.classList.toggle("single", single);
   pagesEl.style.setProperty("--pw", pw+"px");
+  pagesEl.style.setProperty("--ps", (pw/470*readerSize).toFixed(3));   // everything on a page scales from this
+  pagesEl.style.setProperty("--paper-tex", `url("${ART.paper}")`);
   pagesEl.style.width  = (single ? pw : pw*2) + "px";
   pagesEl.style.height = ph + "px";
 
@@ -1354,6 +1472,7 @@ async function mountEssay(){
   const meas = document.createElement("div");
   meas.className = "side f";
   meas.style.cssText = `position:absolute;left:-99999px;top:0;width:${pw}px;height:${ph}px;visibility:hidden`;
+  meas.style.setProperty("--ps", (pw/470*readerSize).toFixed(3));
   meas.innerHTML = `<div class="pg paper"><div class="pg-body"></div></div>`;
   pagesEl.appendChild(meas);
   const mBody = meas.querySelector(".pg-body");
@@ -1363,19 +1482,26 @@ async function mountEssay(){
   if(pages.length % 2) pages.push("");           // books have even leaves
 
   BOOK.pages = pages;
-  BOOK.n = pages.length/2;
+  BOOK.n = Math.max(1, Math.ceil((pages.length-1)/2));
   BOOK.turned = 0;
   BOOK.single = single;
   BOOK.post = post;
 
   const total = pages.length;
-  const foot = (n) => `<div class="pg-foot">
-      <span>${n<=total?`Page ${n} of ${total}`:""}</span>
-      <span class="mid">${esc(store.site.byline)}</span>
+  const foot = (n) => n%2 ? `<div class="pg-foot">
+      <button data-turn="prev">&#8592; Previous</button>
+      <img class="foot-orn" src="${esc(ART.ornLB)}" alt="" aria-hidden="true">
+      <button data-turn="next">Next &#8594;</button>
+    </div>` : `<div class="pg-foot one">
+      <span class="mid">${esc(store.site.byline)}</span><span>${n} / ${total}</span>
     </div>`;
   const face = (n) => n>total || pages[n-1]===undefined ? "" :
     `<div class="pg paper"><div class="pg-body">${pages[n-1]}</div>${foot(n)}</div>`;
 
+  // page 1 sits on the left of the opening spread, as a printed book does:
+  // the static left page carries it, and leaf i carries pages 2i+2 / 2i+3.
+  const lBase = pagesEl.querySelector(".base.l .pg");
+  if(lBase) lBase.innerHTML = `<div class="pg-body">${pages[0]||""}</div>${foot(1)}`;
   pagesEl.querySelectorAll(".leaf").forEach(l=>l.remove());
   const frag = document.createDocumentFragment();
   BOOK.leaves = [];
@@ -1384,8 +1510,8 @@ async function mountEssay(){
     leaf.className = "leaf";
     leaf.dataset.i = i;
     leaf.innerHTML =
-      `<div class="side f">${face(2*i+1)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
-       <div class="side b">${face(2*i+2)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
+      `<div class="side f">${face(2*i+2)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
+       <div class="side b">${face(2*i+3)}<div class="edge"></div><div class="sheen"></div><div class="gloss"></div></div>
        <div class="peel" title="Drag to turn the page"></div>`;
     frag.appendChild(leaf);
     BOOK.leaves.push(leaf);
@@ -1408,12 +1534,13 @@ function zorder(){
   });
 }
 function updateBookUI(){
-  const shown = BOOK.single ? 1 : 2;
   const first = BOOK.turned*2 + 1;
   const c = $("#pcount");
   if(c) c.textContent = BOOK.single
-    ? `Page ${Math.min(first,BOOK.pages.length)} of ${BOOK.pages.length}`
-    : `Pages ${first}–${Math.min(first+1,BOOK.pages.length)} of ${BOOK.pages.length}`;
+    ? `${Math.min(first,BOOK.pages.length)} / ${BOOK.pages.length}`
+    : `${first}–${Math.min(first+1,BOOK.pages.length)} / ${BOOK.pages.length}`;
+  const pr = $("#rProg");
+  if(pr) pr.style.width = ((BOOK.turned/Math.max(1,BOOK.n))*100).toFixed(1)+"%";
   const pv=$("#pPrev"), nx=$("#pNext");
   if(pv) pv.disabled = BOOK.turned<=0;
   if(nx) nx.disabled = BOOK.turned>=BOOK.n;
@@ -1501,81 +1628,64 @@ function wireTurning(pagesEl, pw){
 /* ══════════════════════════════════════════════════════════════════
    6 · ESSAY VIEW
    ══════════════════════════════════════════════════════════════════ */
-async function viewEssay(slug){
+async function openReader(slug){
   const all = published();
   const p = all.find(x=>x.slug===slug) || (store.user && store.posts.find(x=>x.slug===slug));
-  if(!p) return `<div class="empty">That story isn't here. Try the <a href="#/archive">archive</a>.</div>`;
+  if(!p){ toast("That story isn't here"); return; }
   const [img, body] = await Promise.all([getCover(p), getBody(p)]);
   const i = all.findIndex(x=>x.id===p.id);
   pendingEssay = { post:p, body, img, prev:all[i-1], next:all[i+1] };
 
-  const rail = `<aside class="rail">
-      ${QUILL("qi")}
-      <dl>
-        <div><dt>Reading time</dt><dd>${readMins(p)} minutes</dd></div>
-        <div><dt>Category</dt><dd>${esc(firstTag(p))}</dd></div>
-        ${(p.tags||[]).length?`<div><dt>Tags</dt><dd class="tags">${(p.tags||[]).map(esc).join(", ")}</dd></div>`:""}
-      </dl>
-      <p class="lbl">Share</p>
-      <div class="share">
-        <button data-share="x" title="Share on X"><svg viewBox="0 0 24 24"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.6l-5.2-6.7L5.3 22H2.2l7.8-8.9L1.6 2h6.8l4.7 6.2L18.9 2zm-1.1 18h1.7L7.3 3.8H5.5L17.8 20z"/></svg></button>
-        <button data-share="fb" title="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z"/></svg></button>
-        <button data-share="mail" title="Share by email"><svg viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.6L4.6 7H19.4L12 12.6zM4 8.9V17h16V8.9l-8 6-8-6z"/></svg></button>
-      </div>
-      <p class="byron">Byron</p>
-    </aside>`;
-
-  const bookShell = `
-    <div class="stage" id="stage">
+  document.querySelector(".reader")?.remove();
+  const el = document.createElement("div");
+  el.className = "reader" + (readerCandle ? " candle" : "");
+  el.setAttribute("role","dialog");
+  el.setAttribute("aria-label", p.title);
+  el.innerHTML = `
+    <button class="reader-close" id="rClose" aria-label="Close">&#10005;</button>
+    <div class="reader-stage">
+      <button class="rnav prev" id="pPrev" aria-label="Previous page">&#8592;</button>
       <div class="book" id="book">
         <div class="book-shell"></div>
         <div class="pages" id="pages">
           <div class="base l"><div class="pg paper"></div></div>
           <div class="base r"><div class="pg paper"></div></div>
+          <div class="ribbon" aria-hidden="true"></div>
           <div class="spine"></div>
         </div>
       </div>
-      <div class="turnbar">
-        <button class="turnbtn" id="pPrev" aria-label="Previous page">‹</button>
-        <span class="count" id="pcount"></span>
-        <button class="turnbtn" id="pNext" aria-label="Next page">›</button>
-      </div>
-      <p class="turnhint">Drag the corner, swipe, or use ← →</p>
-    </div>`;
-
-  const sheetShell = `
-    <div class="stage" id="stage">
-      <div class="sheetwrap"><article class="sheet paper" id="sheet">
-        ${pageHead(p, img)}
-        <div class="pg-body"></div>
-        <p class="sig">Byron</p>
-      </article></div>
-    </div>`;
-
-  return `<div class="wrap">
-    <div class="modeswitch" style="padding-top:clamp(1rem,3vh,2rem)">
-      <button data-mode="book" aria-pressed="${readMode==="book"}">Read as a book</button>
-      <button data-mode="page" aria-pressed="${readMode==="page"}">Single page</button>
+      <button class="rnav next" id="pNext" aria-label="Next page">&#8594;</button>
     </div>
-    <div class="railwrap">
-      ${readMode==="book" ? bookShell : sheetShell}
-      ${rail}
-    </div>
-    <section class="sec">
-      <div class="sec-head"><span class="ln"></span><h2>Continue</h2><span class="ln"></span></div>
-      <div class="strip">
-        ${[pendingEssay.prev, pendingEssay.next].filter(Boolean).map((s,k)=>`
-          <a class="st card" href="#/essay/${esc(s.slug)}">
-            <div class="plate"><img src="${BLANK}" data-post="${esc(s.id)}" alt="" loading="lazy"><span class="plate-fr"></span></div>
-            <div class="st-txt">
-              <span class="meta">${k===0&&pendingEssay.prev?"← Previous story":"Next story →"}</span>
-              <h3>${esc(s.title)}</h3>
-              ${s.dek?`<p>${esc(s.dek)}</p>`:""}
-            </div><span class="go">→</span>
-          </a>`).join("")}
+    <div class="reader-bar">
+      <div class="grp">
+        <button data-size="-1" aria-label="Smaller text"><span class="sz1">A</span></button>
+        <button data-size="1" aria-label="Larger text"><span class="sz2">A</span></button>
+        <button id="rCandle" aria-label="Candlelight">
+          <svg viewBox="0 0 24 24"><path d="M12.7 2a1 1 0 0 0-1.2 1.3 7 7 0 0 1-8.2 9 1 1 0 0 0-1.2 1.4A10 10 0 1 0 12.7 2z"/></svg>
+        </button>
       </div>
-    </section>
-  </div>`;
+      <span class="count" id="pcount"></span>
+      <div class="grp">
+        <button data-share="x" aria-label="Share">Share
+          <svg viewBox="0 0 24 24"><path d="M12 2 8 6h3v9h2V6h3l-4-4zM5 10v10h14V10h-2v8H7v-8H5z"/></svg>
+        </button>
+      </div>
+      <div class="reader-prog"><i id="rProg"></i></div>
+    </div>`;
+  document.body.appendChild(el);
+  document.body.style.overflow = "hidden";
+  await mountEssay();
+}
+
+function closeReader(){
+  const el = document.querySelector(".reader");
+  if(!el) return;
+  el.remove();
+  document.body.style.overflow = "";
+  pendingEssay = null;
+  if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx = null; }
+  BOOK.leaves = [];
+  if(route().name==="essay") history.back();
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1972,6 +2082,27 @@ async function takeImage(f){
 /* ══════════════════════════════════════════════════════════════════
    8 · ROUTER
    ══════════════════════════════════════════════════════════════════ */
+/* the nav mirrors the mockup: a few categories, then Archive and Contact.
+   Categories come from your own tags, commonest first. */
+function buildNav(r){
+  const counts = {};
+  for(const p of published()) for(const t of (p.tags||[])) counts[t] = (counts[t]||0)+1;
+  const cats = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>x[0]);
+  const cur = r.name==="archive" ? (r.arg||"") : null;
+  const nav = $("#nav");
+  nav.innerHTML =
+    `<a href="#/"${r.name==="home"?' aria-current="page"':""}>Home</a>` +
+    cats.map(t=>`<a href="#/archive/${encodeURIComponent(t)}"${cur===t?' aria-current="page"':""}>${esc(t)}</a>`).join("") +
+    `<a href="#/archive"${r.name==="archive"&&!cur?' aria-current="page"':""}>Archive</a>` +
+    `<a href="#/contact"${r.name==="contact"?' aria-current="page"':""}>Contact</a>`;
+}
+
+function closeQuietly(){
+  const el = document.querySelector(".reader");
+  if(el){ el.remove(); document.body.style.overflow=""; }
+  if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx=null; }
+  BOOK.leaves = [];
+}
 function route(){
   const parts = (location.hash.replace(/^#/,"")||"/").split("/").filter(Boolean);
   return { name: parts[0]||"home", arg: parts[1]||"" };
@@ -1982,24 +2113,34 @@ async function render(){
   if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx = null; }
   if(!store.loaded) await loadPosts();
 
-  if(r.name==="archive")      app.innerHTML = viewArchive();
-  else if(r.name==="essay")   app.innerHTML = await viewEssay(r.arg);
+  if(r.name==="archive"){
+    const want = r.arg ? decodeURIComponent(r.arg) : "";
+    if(want !== arch.tag){ arch.tag = want; arch.page = 1; }
+    app.innerHTML = viewArchive();
+  }
+  else if(r.name==="essay")   app.innerHTML = viewHome();
   else if(r.name==="contact") app.innerHTML = viewContact();
   else if(r.name==="studio")  app.innerHTML = viewStudio();
   else                        app.innerHTML = viewHome();
 
-  $("#footLeft").textContent = store.site.title;
+  $("#footLeft").textContent = store.site.title.toUpperCase();
+  $("#footBy").textContent = "BY " + store.site.byline.toUpperCase();
+  $("#footYear").textContent = new Date().getFullYear();
+  $("#footMail").href = "mailto:" + store.site.email;
+  const counts = {};
+  for(const q of published()) for(const tg of (q.tags||[])) counts[tg]=(counts[tg]||0)+1;
+  $("#footNav").innerHTML =
+    Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4)
+      .map(([t])=>`<a href="#/archive/${encodeURIComponent(t)}">${esc(t)}</a>`).join("") +
+    `<a href="#/archive">Archive</a><a href="#/contact">About</a>`;
   document.title = r.name==="essay"
     ? `${(store.posts.find(p=>p.slug===r.arg)||{}).title||"Story"} — ${store.site.title}`
     : store.site.title;
-  document.querySelectorAll("#nav a").forEach(a=>{
-    const t = a.getAttribute("href").replace("#/","")||"home";
-    if(t===r.name) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
-  });
+  buildNav(r);
 
   if(r.name==="archive") renderArchive();
   if(r.name==="studio" && draft) bindEditor();
-  if(r.name==="essay") await mountEssay();
+  if(r.name==="essay") await openReader(r.arg); else closeQuietly();
   hydrateThumbs(); observeRises(); seedMotes();
   window.scrollTo({top:0,behavior:"instant"});
 }
@@ -2013,9 +2154,16 @@ document.addEventListener("click", async e=>{
   if(t.tagName==="TH" || t.closest(".wp-counts")) e.preventDefault();
 
   // reading
+  if(t.dataset.turn){ t.dataset.turn==="next" ? goNext() : goPrev(); return; }
   if(t.id==="pNext") goNext();
   if(t.id==="pPrev") goPrev();
-  if(t.dataset.mode){ readMode = t.dataset.mode; render(); return; }
+  if(t.id==="rClose"){ closeReader(); return; }
+  if(t.id==="rCandle"){ readerCandle=!readerCandle; document.querySelector(".reader")?.classList.toggle("candle",readerCandle); return; }
+  if(t.dataset.size){
+    readerSize = Math.min(1.28, Math.max(.82, readerSize + (+t.dataset.size)*0.09));
+    if(pendingEssay) mountEssay();
+    return;
+  }
   if(t.dataset.share){
     const url = location.href, title = document.title;
     const to = { x:`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
@@ -2029,6 +2177,7 @@ document.addEventListener("click", async e=>{
     document.querySelector(".arch")?.scrollIntoView({behavior:"smooth",block:"start"}); }
   if(t.classList.contains("tag")){
     arch.tag = t.dataset.tag; arch.page = 1;
+    history.replaceState(null,"", arch.tag ? `#/archive/${encodeURIComponent(arch.tag)}` : "#/archive");
     document.querySelectorAll(".tag").forEach(x=>x.setAttribute("aria-pressed", x.dataset.tag===arch.tag));
     renderArchive();
   }
@@ -2096,10 +2245,11 @@ document.addEventListener("input", e=>{
 });
 
 document.addEventListener("keydown", e=>{
+  if(e.key==="Escape" && document.querySelector(".reader")){ closeReader(); return; }
   if((e.metaKey||e.ctrlKey) && e.key==="s" && draft){ e.preventDefault(); savePost(draft.status||"draft"); return; }
   if(e.target.id==="pageBox" && e.key==="Enter"){ admin.page = Math.max(1,parseInt(e.target.value,10)||1); render(); return; }
   if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
-  if(route().name==="essay" && readMode==="book" && BOOK.leaves.length){
+  if(document.querySelector(".reader") && BOOK.leaves.length){
     if(e.key==="ArrowRight"){ e.preventDefault(); goNext(); }
     if(e.key==="ArrowLeft"){ e.preventDefault(); goPrev(); }
   }
@@ -2107,7 +2257,7 @@ document.addEventListener("keydown", e=>{
 
 let resizeTimer;
 window.addEventListener("resize", ()=>{
-  if(route().name!=="essay" || readMode!=="book") return;
+  if(!pendingEssay) return;
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(()=>{ if(pendingEssay) mountEssay(); }, 260);
 });
