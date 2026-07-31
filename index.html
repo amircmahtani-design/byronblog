@@ -85,7 +85,7 @@ window.SITE_CONFIG = {
 <style>
 /* ══════════════════════════ 1 · TOKENS ══════════════════════════ */
 :root{
-  --void:#0D0D0D; --coal:#1C1C1C; --ink:#141414; --slate:#26232A;
+  --void:#141416; --coal:#232326; --ink:#1A1A1C; --slate:#2E2A33;
   --crimson:#5B0E14; --crimson-lt:#7C1620; --crimson-deep:#3D080D;
 
   --gold:#C8A96A; --gold-lt:#E8D3A4; --gold-pale:#F5EBD3; --gold-deep:#6E5216;
@@ -94,6 +94,16 @@ window.SITE_CONFIG = {
      This pulls it back onto #C8A96A. Raise saturate toward 1 for more yellow,
      lower it for more bronze. */
   --orn-grade:saturate(.5) brightness(.9) contrast(1.02);
+
+  /* ── The house grade for cover plates ──────────────────────────────
+     Every cover on the site passes through these. The stored images are
+     never touched, so this is free to change and free to change back —
+     set any of them to `none` to see the plates raw.
+     brightness: 1 is the picture as painted. contrast: 1 likewise.
+     saturate: 1 is full colour, lower pulls toward the house sepia.    */
+  --img-grade:saturate(.82) contrast(1.10) brightness(.94);
+  --img-grade-hover:saturate(1) contrast(1.08) brightness(1.02);
+  --img-grade-page:saturate(.85) contrast(1.04) brightness(1) sepia(.06);
   --leaf:linear-gradient(147deg,#7A5C20 0%,#C8A96A 20%,#F2E6C9 40%,#BE9E5C 56%,#E8D3A0 74%,#8A6A28 100%);
 
   --parch:#EFE6D2; --parch-2:#D9C9A3; --parch-3:#C7B489; --cream:#F5EDDA;
@@ -130,7 +140,7 @@ button{font:inherit;color:inherit}
 ::selection{background:var(--crimson);color:var(--cream)}
 
 /* ══════════════════════ 2 · ATMOSPHERE ══════════════════════ */
-.atmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.85}
+.atmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.7}
 .fog{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
 .fog.f1{width:70vw;height:60vh;left:-14vw;top:-10vh;
   background:radial-gradient(circle,rgba(139,26,43,.22),transparent 66%);
@@ -161,7 +171,7 @@ button{font:inherit;color:inherit}
   100%{opacity:0;transform:translate3d(var(--mx,30px),-108vh,0)}
 }
 .vign{position:absolute;inset:0;
-  background:radial-gradient(128% 92% at 50% 38%,transparent 34%,rgba(6,6,8,.6) 76%,#050506 100%)}
+  background:radial-gradient(128% 92% at 50% 38%,transparent 40%,rgba(6,6,8,.4) 78%,rgba(5,5,6,.82) 100%)}
 .noise{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:.4;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.32'/></svg>")}
 @media (prefers-reduced-motion:reduce){
@@ -404,7 +414,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   text-transform:uppercase;text-align:center;color:#5C4E37;margin:0 0 calc(1.2rem*var(--ps,1))}
 .pg-imgwrap{position:relative;margin-bottom:calc(1.1rem*var(--ps,1))}
 .pg-body .pg-img,.pg-img{width:100%;aspect-ratio:16/9;object-fit:cover;margin:0;
-  filter:saturate(.66) contrast(1.08) brightness(.94) sepia(.14);
+  filter:var(--img-grade-page);
   clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),
     calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)}
 .pg-imgwrap::after{content:"";position:absolute;inset:7px;pointer-events:none;
@@ -492,7 +502,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .wcard:hover{transform:translateY(-5px);border-color:rgba(200,169,106,.6);
   box-shadow:0 20px 44px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,106,.12)}
 .wcard .shot{display:block;position:relative;overflow:hidden;background:var(--coal);margin:.75rem .75rem 0}
-.wcard .shot{background:linear-gradient(150deg,#241C10,#0F0D0B)}
+.wcard .shot{background:linear-gradient(150deg,#2C2316,#171412)}
 /* The house grade. Whatever an image arrived as — a pencil sketch from the old
    blog, a stock photograph, an AI render — it leaves looking like it belongs:
    desaturated, warmed toward the brand's gold and crimson, and sunk at the edges. */
@@ -505,9 +515,9 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .wcard .shot{isolation:isolate}
 .wcard .shot{aspect-ratio:16/10}
 .wcard .shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:saturate(.62) contrast(1.16) brightness(.8);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
+  filter:var(--img-grade);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
 img[data-fallback]{opacity:0}
-.wcard:hover .shot img{transform:scale(1.07);filter:saturate(.8) contrast(1.16) brightness(.94)}
+.wcard:hover .shot img{transform:scale(1.07);filter:var(--img-grade-hover)}
 
 .wcard .txt{display:block;padding:1.3rem 1.4rem 1.6rem}
 .wcard .cat{display:flex;align-items:center;gap:.5rem;font-family:var(--body);font-weight:600;
