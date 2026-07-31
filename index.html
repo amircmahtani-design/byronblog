@@ -221,7 +221,10 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(1.5rem,4vh,3rem);
   margin-top:calc(var(--bar) * -1);padding-top:calc(var(--bar) + clamp(2rem,7vh,5rem));
   isolation:isolate;overflow:hidden}
-.hero-bg{position:absolute;inset:0;z-index:-2;background:var(--void) var(--hero) center 62% / cover no-repeat;
+/* the artwork starts below the masthead, not under it, so his head is never
+   hidden by the bar; anchored to the top so any crop is taken off the bottom */
+.hero-bg{position:absolute;inset:var(--bar) 0 0 0;z-index:-2;
+  background:var(--void) var(--hero) center top / cover no-repeat;
   animation:heroIn 2.6s var(--ease) both}
 @keyframes heroIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
 .hero-bg::after{content:"";position:absolute;inset:0;
