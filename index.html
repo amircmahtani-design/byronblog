@@ -544,16 +544,15 @@ img[data-fallback]{opacity:0}
 .kfind svg{width:1rem;height:1rem;fill:var(--gold);opacity:.8;flex:none}
 /* the category strip sits under the search box and borrows the pager's
    language — dim until hovered, a thin gold rule around the one in force */
-.ktabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.3rem .45rem;
-  max-width:52rem;margin:0 auto clamp(1.75rem,4vh,2.5rem);
-  font-family:var(--body);font-weight:600;font-size:.84rem;letter-spacing:.11em;text-transform:uppercase}
+.ktabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.45rem .3rem;
+  max-width:64rem;margin:0 auto clamp(1.75rem,4vh,2.5rem);
+  font-family:var(--body);font-weight:600;font-size:clamp(.92rem,1.25vw,1.06rem);
+  letter-spacing:.1em;text-transform:uppercase}
 .ktabs button{background:none;border:1px solid transparent;cursor:pointer;line-height:1;
-  color:var(--dim-2);padding:.45rem .8rem;transition:.3s}
+  color:var(--dim-2);padding:.66rem 1.1rem;transition:.3s}
 .ktabs button:hover:not(:disabled){color:var(--gold-pale)}
 .ktabs button[aria-current="true"]{color:var(--gold-pale);border-color:var(--gold)}
 .ktabs button:disabled{opacity:.26;cursor:default}
-.ktabs .n{margin-left:.45rem;font-size:.78em;letter-spacing:.05em;color:var(--dim-3)}
-.ktabs button[aria-current="true"] .n{color:var(--gold)}
 .pager{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:clamp(2rem,5vh,3rem);
   font-family:var(--body);font-weight:600;font-size:1.02rem;letter-spacing:.1em}
 .pager button{min-width:2.5rem;height:2.5rem;padding:0 .6rem;border:1px solid transparent;
@@ -1648,9 +1647,11 @@ function viewArchive(){
    and show ones whose card reads TRAVELS, which would look plainly broken.
    Only categories that hold something get a tab; an empty tab is furniture. */
 function tabsHTML(counts, total){
+  // the tally still decides which tabs are live under the current search —
+  // it just isn't printed any more
   const one = (val,label,n) =>
     `<button data-acat="${esc(val)}" aria-current="${arch.cat===val}"${
-      n===0 && arch.cat!==val ? " disabled" : ""}>${esc(label)}<span class="n">${n}</span></button>`;
+      n===0 && arch.cat!==val ? " disabled" : ""}>${esc(label)}</button>`;
   const rows = counts.slice();
   // keep the chosen tab on screen even when a search empties it, or the
   // selection would vanish while still filtering the list
