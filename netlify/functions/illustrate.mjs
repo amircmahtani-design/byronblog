@@ -205,10 +205,11 @@ export const handler = async (event) => {
             model:   req.imageModel || FALLBACK.image,
             size:    req.size    || FALLBACK.size,
             quality: req.quality || FALLBACK.quality,
-            output_format: "png",
-            // "low" asks it to take the style from the references without
-            // dragging their subjects across. "high" would clone faces.
-            ...(refs.length ? { input_fidelity: "low" } : {})
+            output_format: "png"
+            // No `input_fidelity` here — that was a gpt-image-1.5 parameter and
+            // gpt-image-2 rejects it. The reference plates still go in as input
+            // images; the instruction above is what tells it to take their
+            // handling and leave their subjects alone.
           }],
           tool_choice: { type: "image_generation" }
         })
