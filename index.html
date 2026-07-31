@@ -198,6 +198,11 @@ button{font:inherit;color:inherit}
   .hero{min-height:calc(94svh - var(--bar))}
   .hero-say{font-size:clamp(1.45rem,7vw,2.2rem);max-width:15ch;
     text-shadow:0 2px 24px rgba(6,6,8,.96),0 0 60px rgba(6,6,8,.9)}
+  /* the CTA shrinks to hug its label rather than sprawling across the screen */
+  .kb{font-size:.74rem;letter-spacing:.11em;padding:.8rem 1.15rem;gap:.7rem;white-space:nowrap}
+  .kb .ar{width:1.25rem}
+  .kb:hover .ar,.kb:active .ar,.kb:focus-visible .ar{width:1.9rem}
+  .kb.plain{padding:.5rem 0}
   .archead{min-height:12rem}
   .kfoot .brandcol{flex-direction:column;align-items:flex-start;gap:.75rem}
 }
@@ -401,27 +406,30 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   margin:calc(.9rem*var(--ps,1)) 0 0}
 
 /* ══════════════════════ KIT · BUTTONS ══════════════════════ */
-.kb{display:inline-flex;align-items:center;gap:1.1rem;text-decoration:none;cursor:pointer;
+.kb{display:inline-flex;align-items:center;justify-content:center;gap:1.1rem;
+  text-decoration:none;cursor:pointer;text-align:center;line-height:1.35;
+  max-width:100%;-webkit-tap-highlight-color:transparent;
   font-family:var(--body);font-weight:600;font-size:.88rem;letter-spacing:.17em;text-transform:uppercase;
   padding:.95rem 1.9rem;border:1px solid var(--gold);color:var(--gold-pale);background:none;
   position:relative;overflow:hidden;transition:color .4s}
+.kb .ar{flex:none}
 .kb .ar{width:1.6rem;height:1px;background:currentColor;position:relative;transition:width .45s var(--ease)}
 .kb .ar::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;
   border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
-.kb:hover .ar{width:2.4rem}
+.kb:hover .ar,.kb:active .ar,.kb:focus-visible .ar{width:2.4rem}
 .kb::before{content:"";position:absolute;inset:0;background:var(--gold);
-  transform:translateY(101%);transition:transform .45s var(--swing)}
+  transform:translateX(-101%);transition:transform .45s var(--swing)}
 .kb>*{position:relative;z-index:2}
-.kb:hover{color:#17110A}
-.kb:hover::before{transform:none}
+.kb:hover,.kb:active,.kb:focus-visible{color:#17110A}
+.kb:hover::before,.kb:active::before,.kb:focus-visible::before{transform:none}
 .kb.fill{background:var(--gold);color:#17110A;border-color:var(--gold)}
 .kb.fill::before{background:var(--gold-pale)}
 .kb.crim{background:var(--crimson);border-color:var(--crimson);color:var(--cream)}
 .kb.crim::before{background:var(--crimson-lt)}
-.kb.crim:hover{color:#fff}
+.kb.crim:hover,.kb.crim:active,.kb.crim:focus-visible{color:#fff}
 .kb.plain{border:0;padding:.5rem 0;color:var(--gold)}
 .kb.plain::before{display:none}
-.kb.plain:hover{color:var(--gold-pale)}
+.kb.plain:hover,.kb.plain:active,.kb.plain:focus-visible{color:var(--gold-pale)}
 
 /* ══════════════════════ KIT · HOME ══════════════════════ */
 .hero-in{position:relative;z-index:2;width:100%;max-width:74rem;margin:0 auto;
