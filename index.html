@@ -68,7 +68,11 @@ window.SITE_CONFIG = {
     imageModel: "gpt-image-2",
     size:       "1536x864",
     quality:    "high",
-    textModel:  "gpt-4.1-mini",
+    // `textModel` writes the art direction. `hostModel` is the model that
+    // holds the image tool. Both live here so a model retirement is a
+    // one-file change and never touches the Netlify function.
+    textModel:  "gpt-5.4-mini",
+    hostModel:  "gpt-5.4-mini",
 
     // Three approved plates, committed to the repo beside index.html.
     // The model is shown these so it can see the house look rather than
@@ -2603,7 +2607,7 @@ async function illOne(p){
   ILL.note = "drawing";  illDraw();
   const { id } = await illPost({ op:"start", prompt, refs: await illLoadRefs(),
                                  imageModel: ILLC.imageModel, size: ILLC.size,
-                                 quality: ILLC.quality });
+                                 quality: ILLC.quality, hostModel: ILLC.hostModel });
 
   // Generation runs on OpenAI's side; we just ask, every few seconds,
   // whether it's finished. Nothing here can time out a function.
