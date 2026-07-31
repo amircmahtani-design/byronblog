@@ -720,9 +720,12 @@ img[data-fallback]{opacity:0}
 .archead{position:relative;min-height:clamp(17rem,40vh,28rem);display:flex;align-items:center;
   text-align:center;background:var(--void) center 42% / cover no-repeat;
   margin-top:calc(var(--bar) * -1);padding:calc(var(--bar) + 2.5rem) 0 2.5rem}
+/* Two stacked scrims over the plate: a vertical one that carries the band
+   down into the page, and a vignette that keeps the heading legible. The
+   numbers are opacities of the ink — lower means more picture. */
 .archead::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(20,20,22,.93),rgba(20,20,22,.76) 45%,var(--void)),
-             radial-gradient(80% 70% at 50% 50%,rgba(20,20,22,.25),rgba(20,20,22,.86))}
+  background:linear-gradient(to bottom,rgba(20,20,22,.74),rgba(20,20,22,.46) 45%,var(--void)),
+             radial-gradient(80% 70% at 50% 50%,rgba(20,20,22,.06),rgba(20,20,22,.62))}
 .archead .wrap{position:relative;z-index:2}
 .archead h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);
   letter-spacing:.06em;margin:0 0 .5rem}
