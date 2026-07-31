@@ -101,9 +101,9 @@ window.SITE_CONFIG = {
      set any of them to `none` to see the plates raw.
      brightness: 1 is the picture as painted. contrast: 1 likewise.
      saturate: 1 is full colour, lower pulls toward the house sepia.    */
-  --img-grade:saturate(.82) contrast(1.10) brightness(.94);
-  --img-grade-hover:saturate(1) contrast(1.08) brightness(1.02);
-  --img-grade-page:saturate(.85) contrast(1.04) brightness(1) sepia(.06);
+  --img-grade:saturate(.92) contrast(1.06) brightness(1.06);
+  --img-grade-hover:saturate(1.04) contrast(1.04) brightness(1.14);
+  --img-grade-page:saturate(.94) contrast(1.02) brightness(1.08) sepia(.04);
   --leaf:linear-gradient(147deg,#7A5C20 0%,#C8A96A 20%,#F2E6C9 40%,#BE9E5C 56%,#E8D3A0 74%,#8A6A28 100%);
 
   --parch:#EFE6D2; --parch-2:#D9C9A3; --parch-3:#C7B489; --cream:#F5EDDA;
@@ -681,8 +681,8 @@ img[data-fallback]{opacity:0}
   text-align:center;background:var(--void) center 42% / cover no-repeat;
   margin-top:calc(var(--bar) * -1);padding:calc(var(--bar) + 2.5rem) 0 2.5rem}
 .archead::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(13,13,13,.85),rgba(13,13,13,.55) 45%,var(--void)),
-             radial-gradient(80% 70% at 50% 50%,transparent,rgba(13,13,13,.7))}
+  background:linear-gradient(to bottom,rgba(20,20,22,.93),rgba(20,20,22,.76) 45%,var(--void)),
+             radial-gradient(80% 70% at 50% 50%,rgba(20,20,22,.25),rgba(20,20,22,.86))}
 .archead .wrap{position:relative;z-index:2}
 .archead h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);
   letter-spacing:.06em;margin:0 0 .5rem}
