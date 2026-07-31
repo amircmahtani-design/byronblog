@@ -1584,6 +1584,31 @@ function wcard(p){
 }
 
 let arch = { q:"", tag:"", page:1, per:12 };
+
+/* Write the archive's state back into the address bar, so a refresh, a
+   bookmark or a shared link reopens the same page of the same search.
+   replaceState is used rather than assigning location.hash: it never fires
+   hashchange, so the list is not torn down and rebuilt underneath the reader,
+   and typing in the search box doesn't fill the Back button with rubbish.
+   Debounced, because the search fires on every keystroke and Safari rations
+   history writes. */
+function archHash(){
+  const base = arch.tag ? `#/archive/${encodeURIComponent(arch.tag)}` : "#/archive";
+  const qs = new URLSearchParams();
+  if(arch.q.trim()) qs.set("q", arch.q.trim());
+  if(arch.page > 1) qs.set("p", arch.page);
+  const s = qs.toString();
+  return s ? `${base}?${s}` : base;
+}
+let archSyncT = 0;
+function syncArchHash(){
+  clearTimeout(archSyncT);
+  archSyncT = setTimeout(()=>{
+    if(route().name !== "archive") return;      // reader opened mid-keystroke
+    const want = archHash();
+    if(location.hash !== want) history.replaceState(null, "", want);
+  }, 220);
+}
 function viewArchive(){
   return `
   <section class="archead" style="background-image:url('${esc(ART.archive)}')">
@@ -1619,6 +1644,7 @@ function renderArchive(){
   $("#pagerWrap").innerHTML = pages>1 ? pagerHTML(arch.page,pages) : "";
   hydrateThumbs(list);
   observeRises();
+  syncArchHash();   // after the clamp above, so the URL can never outrun the list
 }
 
 function pagerHTML(cur,pages){
@@ -2761,9 +2787,16 @@ function closeQuietly(){
   if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx=null; }
   BOOK.leaves = [];
 }
+/* The hash may carry a query string after the path — #/archive/tag?q=…&p=3.
+   Everything before the ? is the route; everything after is view state, so a
+   reload or a Back lands exactly where the reader was rather than at page one. */
 function route(){
-  const parts = (location.hash.replace(/^#/,"")||"/").split("/").filter(Boolean);
-  return { name: parts[0]||"home", arg: parts[1]||"" };
+  const raw  = location.hash.replace(/^#/,"") || "/";
+  const cut  = raw.indexOf("?");
+  const path = cut < 0 ? raw : raw.slice(0, cut);
+  const qs   = new URLSearchParams(cut < 0 ? "" : raw.slice(cut+1));
+  const parts = path.split("/").filter(Boolean);
+  return { name: parts[0]||"home", arg: parts[1]||"", qs };
 }
 async function render(){
   const r = route(), app = $("#app");
@@ -2772,8 +2805,11 @@ async function render(){
   if(!store.loaded) await loadPosts();
 
   if(r.name==="archive"){
-    const want = r.arg ? decodeURIComponent(r.arg) : "";
-    if(want !== arch.tag){ arch.tag = want; arch.page = 1; }
+    /* The URL is the single source of truth for the archive's state. A plain
+       #/archive opens clean; #/archive?q=rome&p=3 comes back exactly as left. */
+    arch.tag  = r.arg ? decodeURIComponent(r.arg) : "";
+    arch.q    = r.qs.get("q") || "";
+    arch.page = Math.max(1, parseInt(r.qs.get("p"),10) || 1);
     app.innerHTML = viewArchive();
   }
   else if(r.name==="story")   app.innerHTML = viewHome();
@@ -2797,6 +2833,9 @@ async function render(){
   if(r.name==="story") await openReader(r.arg); else closeQuietly();
   hydrateThumbs(); observeRises(); seedMotes();
   window.scrollTo({top:0,behavior:"instant"});
+  /* Coming back to a deep page of the archive, the castle plate is not what
+     was wanted — put the reader back at the list they were reading. */
+  if(r.name==="archive" && arch.page>1) $(".kfind")?.scrollIntoView({block:"start"});
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -2828,10 +2867,9 @@ document.addEventListener("click", async e=>{
 
   // archive
   if(t.dataset.apage!==undefined){ arch.page = Math.max(1,+t.dataset.apage); renderArchive();
-    document.querySelector(".arch")?.scrollIntoView({behavior:"smooth",block:"start"}); }
+    $(".kfind")?.scrollIntoView({behavior:"smooth",block:"start"}); }
   if(t.classList.contains("tag")){
     arch.tag = t.dataset.tag; arch.page = 1;
-    history.replaceState(null,"", arch.tag ? `#/archive/${encodeURIComponent(arch.tag)}` : "#/archive");
     document.querySelectorAll(".tag").forEach(x=>x.setAttribute("aria-pressed", x.dataset.tag===arch.tag));
     renderArchive();
   }
