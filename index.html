@@ -78,6 +78,28 @@ window.SITE_CONFIG = {
     // The model is shown these so it can see the house look rather than
     // only read a description of it. Set to [] to go on words alone.
     refs: ["assets/ref/ref-1.webp", "assets/ref/ref-2.webp", "assets/ref/ref-3.webp"]
+  },
+
+  /* ── The Standfirst writer ────────────────────────────────────────
+     Reads the whole story — not the opening, the whole thing — and
+     writes the line that sits under the title. Same shape as the
+     Illustrator: a version stamp decides the queue, so raising the
+     number below sends it back over the entire archive, and leaving it
+     alone means a run only picks up what has never been written.
+
+     The examples are the house voice. The model is shown them rather
+     than told about them, which holds the register far better than any
+     adjective would.                                                  */
+  standfirst: {
+    endpoint: "/.netlify/functions/standfirst",
+    version:  1,
+    model:    "gpt-5.4-mini",
+    examples: [
+      "On truth, pretense, and the endless performance of men.",
+      "In the crowd, we wear masks; in solitude, we remove them.",
+      "Power dazzles, but time devours all thrones.",
+      "To see further is to stand further off."
+    ]
   }
 };
 </script>
@@ -874,7 +896,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 
 /* ══════════════════════ STUDIO · THE ILLUSTRATOR ══════════════════════
    Floats above the site so the run keeps going while you read. */
-#illPanel{position:fixed;right:1.1rem;bottom:1.1rem;z-index:120;width:min(23rem,calc(100vw - 2.2rem));
+#illPanel,#stPanel{position:fixed;right:1.1rem;bottom:1.1rem;z-index:120;width:min(23rem,calc(100vw - 2.2rem));
   background:rgba(16,14,12,.96);border:1px solid var(--gold-dk);border-radius:.5rem;
   padding:.9rem 1rem 1rem;font-family:var(--ui);color:var(--parch);
   box-shadow:0 1.2rem 3rem rgba(0,0,0,.6);backdrop-filter:blur(6px)}
@@ -888,7 +910,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
   overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .ill-now em{color:var(--sepia-3);font-style:normal}
 .ill-skip{font-size:.76rem;color:#C2596A;margin-top:.3rem}
-#illPanel .btn{margin-top:.75rem;width:100%;text-align:center;font-size:.8rem;padding:.42rem .6rem}
+#illPanel .btn,#stPanel .btn{margin-top:.75rem;width:100%;text-align:center;font-size:.8rem;padding:.42rem .6rem}
 @media (max-width:560px){ #illPanel{left:1.1rem;right:1.1rem;width:auto} }
 </style>
 </head>
@@ -2298,6 +2320,7 @@ function studioList(){
       <span style="flex:1"></span>
       <div class="btnrow">
         <button class="btn ghost" id="illBtn">Illustrate${(()=>{const n=illQueue().length;return n?` <span style="color:var(--gold-lt)">(${n})</span>`:"";})()}</button>
+        <button class="btn ghost" id="stBtn">Standfirsts${(()=>{const n=stQueue().length;return n?` <span style="color:var(--gold-lt)">(${n})</span>`:"";})()}</button>
         <button class="btn ghost" id="importBtn">Import</button>
         <button class="btn ghost" id="exportBtn">Export</button>
         <button class="btn ghost" id="settingsBtn">Site details</button>
@@ -2741,6 +2764,7 @@ async function illOne(p){
 
 async function illRun(){
   if(ILL.on) return;
+  if(ST.on){ toast("The standfirst writer is running — let it finish first"); return; }
   if(!db){ toast("Not connected to Firestore"); return; }
   const queue = illQueue();
   if(!queue.length){ toast("Every story already carries a current cover"); return; }
@@ -2784,6 +2808,8 @@ async function illRun(){
 document.addEventListener("visibilitychange", async ()=>{
   if(ILL.on && !ILL.lock && document.visibilityState === "visible")
     try{ ILL.lock = await navigator.wakeLock.request("screen"); }catch(e){}
+  if(ST.on && !ST.lock && document.visibilityState === "visible")
+    try{ ST.lock = await navigator.wakeLock.request("screen"); }catch(e){}
 });
 
 /* The panel floats above everything and outlives re-renders, so the run
@@ -2803,6 +2829,118 @@ function illDraw(){
      <div class="ill-now">${esc(ILL.now)}${ILL.note?` <em>· ${esc(ILL.note)}</em>`:""}</div>
      ${ILL.fail?`<div class="ill-skip">${ILL.fail} skipped</div>`:""}
      <button class="btn ghost" id="illStop">${ILL.stop?"Finishing…":"Stop after this one"}</button>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   7b · THE STANDFIRST WRITER
+   The same machine as the Illustrator, pointed at prose instead of
+   pictures. The whole story goes to the model — the point of the
+   exercise is that a standfirst drawn from the opening paragraph just
+   says the first line twice, which is what the WordPress import left
+   behind in every one of these.
+   ══════════════════════════════════════════════════════════════════ */
+const STC = (CFG.standfirst || {});
+const ST  = { on:false, stop:false, done:0, fail:0, total:0, now:"", note:"", lock:null };
+
+/* Everything whose standfirst wasn't written by the current recipe. */
+function stQueue(){
+  const v = STC.version || 1;
+  return store.posts.filter(p => !(p.stand && p.stand.v === v));
+}
+
+async function stPost(payload){
+  const r = await fetch(STC.endpoint, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json().catch(()=>({ error:"The function returned something that wasn't JSON." }));
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+
+async function stOne(p){
+  const raw = await getBody(p);
+  const plain = String(raw||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+  if(plain.length < 200) throw new Error("Too little writing to read");
+
+  ST.note = "reading"; stDraw();
+  const { dek } = await stPost({ title:p.title, body:plain.slice(0,24000),
+                                 examples: STC.examples || [], model: STC.model });
+  const clean = String(dek||"").replace(/\s+/g," ").trim().replace(/^["'“”«»]+|["'“”«»]+$/g,"");
+  if(!clean) throw new Error("The model returned nothing");
+
+  ST.note = "saving"; stDraw();
+  const stamp = { v: STC.version || 1, at:new Date().toISOString(), model: STC.model || "" };
+  /* The stored search blob carries a copy of the old standfirst, so it is
+     rebuilt here with the new one — otherwise the archive would go on
+     matching a line that no longer appears anywhere on the site. */
+  const search = (p.title+" "+clean+" "+(p.tags||[]).join(" ")+" "+p.publishedAt+" "+
+                  plain.slice(0,400)).toLowerCase().slice(0,500);
+  await fb.setDoc(fb.doc(db,"posts",p.id),
+    { dek:clean, stand:stamp, search, updatedAt:new Date().toISOString() }, { merge:true });
+
+  Object.assign(p, { dek:clean, stand:stamp, search });
+  catCache.delete(p.id);   // the category is scored off `search`, which just moved
+}
+
+async function stRun(){
+  if(ST.on) return;
+  if(ILL.on){ toast("The illustrator is running — let it finish first"); return; }
+  if(!db){ toast("Not connected to Firestore"); return; }
+  const queue = stQueue();
+  if(!queue.length){ toast("Every story already carries a current standfirst"); return; }
+  if(!confirm(
+      `Write standfirsts for ${queue.length} ${queue.length===1?"story":"stories"}?\n\n`+
+      `Each story is read in full and given one new line under its title — `+
+      `a few seconds apiece.\n\n`+
+      `Existing standfirsts on these stories will be replaced, including any `+
+      `you wrote by hand. You can stop at any point and start again later `+
+      `without losing what's finished.`)) return;
+
+  ST.on=true; ST.stop=false; ST.done=0; ST.fail=0; ST.total=queue.length;
+  try{ ST.lock = await navigator.wakeLock.request("screen"); }catch(e){}
+  stDraw();
+
+  for(const p of queue){
+    if(ST.stop) break;
+    ST.now = p.title || "(untitled)"; ST.note = ""; stDraw();
+    let ok = false;
+    for(let attempt=0; attempt<2 && !ok; attempt++){
+      try{ await stOne(p); ok = true; }
+      catch(e){
+        if(ST.stop || /Stopped/.test(e.message)) break;
+        if(attempt) { ST.fail++; console.warn("Standfirst skipped:", p.title, e.message); }
+        else await new Promise(r=>setTimeout(r, 3000));   // one quiet retry
+      }
+    }
+    if(ok) ST.done++;
+    stDraw();
+    await new Promise(r=>setTimeout(r, 600));             // be polite to the API
+  }
+
+  try{ await ST.lock?.release(); }catch(e){}
+  ST.lock=null; ST.on=false; ST.now=""; ST.note="";
+  stDraw();
+  toast(ST.stop ? `Stopped · ${ST.done} done`
+                : `Finished · ${ST.done} written${ST.fail?`, ${ST.fail} skipped`:""}`);
+  await loadPosts(); render();
+}
+
+function stDraw(){
+  let el = document.getElementById("stPanel");
+  if(!ST.on){ el?.remove(); return; }
+  if(!el){
+    el = document.createElement("div");
+    el.id = "stPanel";
+    document.body.appendChild(el);
+  }
+  const pct = ST.total ? Math.round((ST.done+ST.fail)/ST.total*100) : 0;
+  el.innerHTML =
+    `<div class="ill-top"><b>Standfirsts</b><span>${ST.done + ST.fail} of ${ST.total}</span></div>
+     <div class="ill-bar"><i style="width:${pct}%"></i></div>
+     <div class="ill-now">${esc(ST.now)}${ST.note?` <em>· ${esc(ST.note)}</em>`:""}</div>
+     ${ST.fail?`<div class="ill-skip">${ST.fail} skipped</div>`:""}
+     <button class="btn ghost" id="stStop">${ST.stop?"Finishing…":"Stop after this one"}</button>`;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -2932,7 +3070,9 @@ document.addEventListener("click", async e=>{
   if(t.id==="unpublishBtn") savePost("draft");
   if(t.id==="exportBtn") exportJSON();
   if(t.id==="illBtn") illRun();
+  if(t.id==="stBtn") stRun();
   if(t.id==="illStop"){ ILL.stop = true; illDraw(); }
+  if(t.id==="stStop"){ ST.stop = true; stDraw(); }
   if(t.id==="importBtn") document.getElementById("importFile").click();
   if(t.id==="settingsBtn") saveSettings();
   if(t.id==="applyBulk") bulkApply();
