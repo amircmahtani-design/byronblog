@@ -46,6 +46,34 @@ window.SITE_CONFIG = {
     // on the site at once — nothing else needs editing.
     orn:     "assets/divider.png",     // gold, for the dark pages
     ornInk:  "assets/divider-ink.png"  // the same in ink, for the parchment pages
+  },
+
+  /* ── The Illustrator ──────────────────────────────────────────────
+     Reads each story, has a model write the art direction, generates the
+     plate, frames it and stores it. The key lives in a Netlify
+     environment variable and is never sent to the browser.
+
+     `version` is the whole trick. Every cover the engine makes is stamped
+     with it, and the queue is simply "everything not stamped with the
+     current number". Change the look below, raise the number, and the
+     next run sweeps the entire archive again. Leave it alone and a run
+     only picks up what's new.                                          */
+  illustrate: {
+    endpoint: "/.netlify/functions/illustrate",
+    version:  2,
+
+    // Model names move fast. These are strings, not commitments — if one
+    // is retired, the Studio will show you OpenAI's own error and you
+    // change it here. 1536×864 is exactly 16:9, so nothing is cropped away.
+    imageModel: "gpt-image-2",
+    size:       "1536x864",
+    quality:    "high",
+    textModel:  "gpt-4.1-mini",
+
+    // Three approved plates, committed to the repo beside index.html.
+    // The model is shown these so it can see the house look rather than
+    // only read a description of it. Set to [] to go on words alone.
+    refs: ["assets/ref/ref-1.webp", "assets/ref/ref-2.webp", "assets/ref/ref-3.webp"]
   }
 };
 </script>
@@ -811,6 +839,25 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
   .row-actions{visibility:visible}
   .wp-bar .grow{flex-basis:100%}
 }
+
+/* ══════════════════════ STUDIO · THE ILLUSTRATOR ══════════════════════
+   Floats above the site so the run keeps going while you read. */
+#illPanel{position:fixed;right:1.1rem;bottom:1.1rem;z-index:120;width:min(23rem,calc(100vw - 2.2rem));
+  background:rgba(16,14,12,.96);border:1px solid var(--gold-dk);border-radius:.5rem;
+  padding:.9rem 1rem 1rem;font-family:var(--ui);color:var(--parch);
+  box-shadow:0 1.2rem 3rem rgba(0,0,0,.6);backdrop-filter:blur(6px)}
+.ill-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  font-size:.86rem;letter-spacing:.04em}
+.ill-top b{color:var(--gold-lt);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.74rem}
+.ill-top span{color:var(--sepia-3);font-variant-numeric:tabular-nums}
+.ill-bar{height:3px;background:rgba(255,255,255,.09);border-radius:2px;margin:.6rem 0 .55rem;overflow:hidden}
+.ill-bar i{display:block;height:100%;background:var(--gold);transition:width .4s ease}
+.ill-now{font-size:.84rem;color:var(--parch);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ill-now em{color:var(--sepia-3);font-style:normal}
+.ill-skip{font-size:.76rem;color:#C2596A;margin-top:.3rem}
+#illPanel .btn{margin-top:.75rem;width:100%;text-align:center;font-size:.8rem;padding:.42rem .6rem}
+@media (max-width:560px){ #illPanel{left:1.1rem;right:1.1rem;width:auto} }
 </style>
 </head>
 <body>
@@ -987,7 +1034,7 @@ The gift and the exile arrive in the same envelope, and there is no arrangement 
 const store = {
   posts:[], user:null, loaded:false,
   site:{ title:"Bad, Mad & Dangerous",
-         bio:"I will write about everything and I love books.",
+         bio:"One of the pleasures of reading old letters is the knowledge that they need no answer.",
          byline:"Lord Byron",
          email:"lordbyron@badmaddangerous.com" }
 };
@@ -2145,6 +2192,7 @@ function studioList(){
       <button class="btn primary" id="newBtn">Add New</button>
       <span style="flex:1"></span>
       <div class="btnrow">
+        <button class="btn ghost" id="illBtn">Illustrate${(()=>{const n=illQueue().length;return n?` <span style="color:var(--gold-lt)">(${n})</span>`:"";})()}</button>
         <button class="btn ghost" id="importBtn">Import</button>
         <button class="btn ghost" id="exportBtn">Export</button>
         <button class="btn ghost" id="settingsBtn">Site details</button>
@@ -2493,6 +2541,171 @@ async function frameImage(img, rect){
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   7b · THE ILLUSTRATOR
+   One unattended pass over the archive. For each story: read the
+   writing, have a model turn it into art direction, generate the plate
+   against three approved references, then push it through the very same
+   framing and squeezing the Studio uses by hand.
+
+   It saves after every story, so a closed tab costs you nothing but the
+   one it was working on, and starting again picks up exactly where it
+   stopped. The stamp on each post is what makes that true — no list of
+   what's done is kept anywhere, because the covers themselves are the
+   list.
+   ══════════════════════════════════════════════════════════════════ */
+const ILLC = (CFG.illustrate || {});
+const ILL  = { on:false, stop:false, done:0, fail:0, total:0, now:"", note:"", lock:null };
+
+/* Everything whose cover wasn't made by the current recipe. */
+function illQueue(){
+  const v = ILLC.version || 1;
+  return store.posts.filter(p => !(p.illus && p.illus.v === v));
+}
+
+/* The reference plates, fetched once and held. */
+let illRefs = null;
+async function illLoadRefs(){
+  if(illRefs) return illRefs;
+  const out = [];
+  for(const path of (ILLC.refs || [])){
+    try{
+      const r = await fetch(path);
+      if(!r.ok) throw new Error(r.status);
+      const b = await r.blob();
+      out.push(await new Promise(res=>{ const fr=new FileReader();
+        fr.onload=()=>res(fr.result); fr.readAsDataURL(b); }));
+    }catch(e){ console.warn("Reference plate missing:", path, e); }
+  }
+  illRefs = out;
+  return out;
+}
+
+async function illPost(payload){
+  const r = await fetch(ILLC.endpoint, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json().catch(()=>({ error:"The function returned something that wasn't JSON." }));
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+
+/* One story, start to finish. Throws if it can't be done. */
+async function illOne(p){
+  const body = await getBody(p);
+  if(!body || body.replace(/<[^>]+>/g," ").trim().length < 200)
+    throw new Error("Too little writing to illustrate");
+
+  ILL.note = "reading";  illDraw();
+  const { prompt } = await illPost({ op:"direct", title:p.title, body,
+                                     textModel: ILLC.textModel });
+
+  ILL.note = "drawing";  illDraw();
+  const { id } = await illPost({ op:"start", prompt, refs: await illLoadRefs(),
+                                 imageModel: ILLC.imageModel, size: ILLC.size,
+                                 quality: ILLC.quality });
+
+  // Generation runs on OpenAI's side; we just ask, every few seconds,
+  // whether it's finished. Nothing here can time out a function.
+  let b64 = null;
+  for(let i=0; i<120; i++){                       // ~8 minutes of patience
+    if(ILL.stop) throw new Error("Stopped");
+    await new Promise(r=>setTimeout(r, 4000));
+    const s = await illPost({ op:"poll", id });
+    if(s.status === "completed"){ b64 = s.b64; break; }
+    if(s.status === "failed") throw new Error(s.error || "The image failed");
+    ILL.note = `drawing · ${(i+1)*4}s`; illDraw();
+  }
+  if(!b64) throw new Error("Gave up waiting for the image");
+
+  ILL.note = "framing";  illDraw();
+  const img   = await loadImage("data:image/png;base64,"+b64);
+  const rect  = autoRect(img);
+  const full  = await renderCrop(img, rect, COVER_W);
+  const thumb = await renderCrop(img, rect, THUMB_W);
+
+  ILL.note = "saving";  illDraw();
+  const stamp = { v: ILLC.version || 1, at: new Date().toISOString(),
+                  model: ILLC.imageModel || "", prompt: String(prompt).slice(0,900) };
+  await fb.setDoc(fb.doc(db,"posts",p.id,"media","cover"), { data: full.url });
+  await fb.setDoc(fb.doc(db,"posts",p.id,"media","thumb"), { data: thumb.url });
+  await fb.setDoc(fb.doc(db,"posts",p.id),
+    { thumb:"", hasThumb:true, hasCover:true, illus:stamp,
+      updatedAt:new Date().toISOString() }, { merge:true });
+
+  // keep what's already on screen honest, without a reload
+  mediaCache.set(p.id+":cover", full.url);
+  mediaCache.set(p.id+":thumb", thumb.url);
+  Object.assign(p, { thumb:"", hasThumb:true, hasCover:true, illus:stamp });
+}
+
+async function illRun(){
+  if(ILL.on) return;
+  if(!db){ toast("Not connected to Firestore"); return; }
+  const queue = illQueue();
+  if(!queue.length){ toast("Every story already carries a current cover"); return; }
+  if(!confirm(
+      `Illustrate ${queue.length} ${queue.length===1?"story":"stories"}?\n\n`+
+      `Each one is read, drawn and stored — roughly a minute apiece, so about `+
+      `${Math.max(1,Math.round(queue.length*1.1/60))} hour(s) unattended.\n\n`+
+      `Existing covers on these stories will be replaced. You can stop at any `+
+      `point and start again later without losing what's finished.`)) return;
+
+  ILL.on=true; ILL.stop=false; ILL.done=0; ILL.fail=0; ILL.total=queue.length;
+  try{ ILL.lock = await navigator.wakeLock.request("screen"); }catch(e){}
+  illDraw();
+
+  for(const p of queue){
+    if(ILL.stop) break;
+    ILL.now = p.title || "(untitled)"; ILL.note = ""; illDraw();
+    let ok = false;
+    for(let attempt=0; attempt<2 && !ok; attempt++){
+      try{ await illOne(p); ok = true; }
+      catch(e){
+        if(ILL.stop || /Stopped/.test(e.message)) break;
+        if(attempt) { ILL.fail++; console.warn("Illustrator skipped:", p.title, e.message); }
+        else await new Promise(r=>setTimeout(r, 5000));   // one quiet retry
+      }
+    }
+    if(ok) ILL.done++;
+    illDraw();
+    await new Promise(r=>setTimeout(r, 1200));            // be polite to the API
+  }
+
+  try{ await ILL.lock?.release(); }catch(e){}
+  ILL.lock=null; ILL.on=false; ILL.now=""; ILL.note="";
+  illDraw();
+  toast(ILL.stop ? `Stopped · ${ILL.done} done`
+                 : `Finished · ${ILL.done} illustrated${ILL.fail?`, ${ILL.fail} skipped`:""}`);
+  await loadPosts(); render();
+}
+
+/* Re-take the wake lock if the tab was hidden and came back. */
+document.addEventListener("visibilitychange", async ()=>{
+  if(ILL.on && !ILL.lock && document.visibilityState === "visible")
+    try{ ILL.lock = await navigator.wakeLock.request("screen"); }catch(e){}
+});
+
+/* The panel floats above everything and outlives re-renders, so the run
+   survives you navigating around the site while it works. */
+function illDraw(){
+  let el = document.getElementById("illPanel");
+  if(!ILL.on){ el?.remove(); return; }
+  if(!el){
+    el = document.createElement("div");
+    el.id = "illPanel";
+    document.body.appendChild(el);
+  }
+  const pct = ILL.total ? Math.round((ILL.done+ILL.fail)/ILL.total*100) : 0;
+  el.innerHTML =
+    `<div class="ill-top"><b>Illustrating</b><span>${ILL.done + ILL.fail} of ${ILL.total}</span></div>
+     <div class="ill-bar"><i style="width:${pct}%"></i></div>
+     <div class="ill-now">${esc(ILL.now)}${ILL.note?` <em>· ${esc(ILL.note)}</em>`:""}</div>
+     ${ILL.fail?`<div class="ill-skip">${ILL.fail} skipped</div>`:""}
+     <button class="btn ghost" id="illStop">${ILL.stop?"Finishing…":"Stop after this one"}</button>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
    8 · ROUTER
    ══════════════════════════════════════════════════════════════════ */
 /* the nav mirrors the mockup: a few categories, then Archive and Contact.
@@ -2604,6 +2817,8 @@ document.addEventListener("click", async e=>{
   if(t.id==="publishBtn") savePost("published");
   if(t.id==="unpublishBtn") savePost("draft");
   if(t.id==="exportBtn") exportJSON();
+  if(t.id==="illBtn") illRun();
+  if(t.id==="illStop"){ ILL.stop = true; illDraw(); }
   if(t.id==="importBtn") document.getElementById("importFile").click();
   if(t.id==="settingsBtn") saveSettings();
   if(t.id==="applyBulk") bulkApply();
