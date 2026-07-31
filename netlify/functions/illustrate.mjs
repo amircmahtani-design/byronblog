@@ -82,11 +82,11 @@ Rules:
 Return the paragraph alone. No preamble, no heading, no quotation marks.`;
 
 const FALLBACK = {
-  text:    "gpt-4.1-mini",
+  text:    "gpt-5.4-mini",
   image:   "gpt-image-2",
   size:    "1536x864",
   quality: "high",
-  host:    "gpt-4.1-mini"   // the mainline model that calls the image tool
+  host:    "gpt-5.4-mini"   // the mainline model that calls the image tool
 };
 
 /* ── helpers ──────────────────────────────────────────────────────── */
@@ -165,7 +165,7 @@ export const handler = async (event) => {
           model: req.textModel || FALLBACK.text,
           instructions: DIRECTOR,
           input: `TITLE: ${req.title || "Untitled"}\n\n${story}`,
-          max_output_tokens: 400
+          max_output_tokens: 2000
         })
       });
 
