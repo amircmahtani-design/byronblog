@@ -2486,7 +2486,9 @@ function studioList(){
     <input type="file" id="importFile" accept="application/json,.json,.xml,text/xml" hidden>
     <div class="wp-bar">
       <select id="bulkAction"><option value="">Bulk actions</option><option value="publish">Publish</option>
-        <option value="draft">Move to draft</option><option value="delete">Delete</option></select>
+        <option value="draft">Move to draft</option>
+        <option value="standDone">Standfirst written by hand</option>
+        <option value="delete">Delete</option></select>
       <button class="btn" id="applyBulk">Apply</button>
       <select id="yearFilter"><option value="">All dates</option>
         ${years.map(y=>`<option value="${y}" ${admin.year===y?"selected":""}>${y}</option>`).join("")}</select>
@@ -2643,15 +2645,42 @@ async function bulkApply(){
   const ids = [...admin.sel];
   if(!action || !ids.length){ toast(ids.length?"Pick an action":"Select some stories first"); return; }
   if(action==="delete" && !confirm(`Delete ${ids.length} ${ids.length===1?"story":"stories"}? This can't be undone.`)) return;
+
+  /* ── A line written by hand still counts ──────────────────────────
+     The queue asks whether the current engine wrote the standfirst, not
+     whether one exists — which is what lets a change of recipe sweep the
+     archive. The consequence is that a line written by hand leaves the
+     story queued for ever. This marks it done: the same stamp the writer
+     leaves, with the author named as the hand rather than the model. It
+     writes no text, so whatever is already under the title stays.     */
+  if(action==="standDone"){
+    const missing = ids.filter(id=>{
+      const p = store.posts.find(x=>x.id===id);
+      return !String(p?.dek||"").trim();
+    });
+    if(missing.length && !confirm(
+        `${missing.length} of these ${missing.length===1?"has":"have"} no standfirst yet.\n\n`+
+        `Marking them done will keep them out of the queue while leaving the `+
+        `line under the title empty. Carry on?`)) return;
+  }
+
   try{
     for(const id of ids){
       if(action==="delete"){
         for(const sub of [["media","cover"],["media","thumb"],["content","body"]])
           await fb.deleteDoc(fb.doc(db,"posts",id,sub[0],sub[1])).catch(()=>{});
         await fb.deleteDoc(fb.doc(db,"posts",id));
+      } else if(action==="standDone"){
+        const stamp = { v: (STC.version||1), at:new Date().toISOString(), model:"written by hand" };
+        await fb.setDoc(fb.doc(db,"posts",id),
+          { stand:stamp, updatedAt:new Date().toISOString() }, { merge:true });
+        const p = store.posts.find(x=>x.id===id);
+        if(p) p.stand = stamp;
       } else await fb.setDoc(fb.doc(db,"posts",id),{status:action},{merge:true});
     }
-    admin.sel.clear(); await loadPosts(); toast(`${ids.length} updated`); render();
+    admin.sel.clear(); await loadPosts();
+    toast(action==="standDone" ? `${ids.length} marked as written` : `${ids.length} updated`);
+    render();
   }catch(e){ console.error(e); toast("Couldn't finish that"); }
 }
 async function exportJSON(){
