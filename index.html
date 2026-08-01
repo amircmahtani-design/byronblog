@@ -16,6 +16,19 @@
 <meta name="apple-mobile-web-app-title" content="Bad, Mad &amp; Dangerous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Start the Firebase and Firestore connections during HTML parse rather than
+     waiting for the module script to begin. Saves roughly a second on first paint. -->
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js" crossorigin>
+
+<!-- The hero is painted by JS as a CSS background, so the browser would not
+     otherwise discover it until the script runs. -->
+<link rel="preload" as="image" href="assets/hero-plate.jpg?v=3" media="(min-width:720px)">
+<link rel="preload" as="image" href="assets/crest.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -36,8 +49,8 @@ window.SITE_CONFIG = {
 
   // Artwork, uploaded to the repo alongside index.html.
   assets: {
-    hero:    "assets/hero-plate.jpg?v=2",     // wide, for desktop
-    heroTall:"assets/hero-portrait.jpg?v=2",  // portrait, for phones
+    hero:    "assets/hero-plate.jpg?v=3",     // wide, for desktop
+    heroTall:"assets/hero-portrait.jpg?v=3",  // portrait, for phones
     mark:    "assets/crest.png",       // the crowned shield, used throughout
     crest:   "assets/crest.png",       // the crowned shield
     paper:   "assets/paper.jpg",       // seamless page fibre
@@ -1249,7 +1262,7 @@ const FIL = (cls="", which="orn") => {
 
 /* your logo, if you've supplied one */
 const ART = Object.assign({
-  hero:"assets/hero-plate.jpg?v=2", heroTall:"assets/hero-portrait.jpg?v=2",
+  hero:"assets/hero-plate.jpg?v=3", heroTall:"assets/hero-portrait.jpg?v=3",
   mark:"assets/crest.png", crest:"assets/crest.png",
   paper:"assets/paper.jpg", archive:"assets/archive-bg.jpg",
   orn:"assets/divider.png", ornInk:"assets/divider-ink.png"
