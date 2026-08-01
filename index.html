@@ -1183,16 +1183,61 @@ async function loadPosts(){
 }
 
 const mediaCache = new Map(), bodyCache = new Map();
+
+/* ── Thumbnails kept on the device ──────────────────────────────────
+   Thumbnails live in Firestore as text, which means they are fetched
+   afresh on every visit and never touch the browser's own cache. They
+   are kept here instead, under a modest budget, oldest evicted first. */
+const THUMB_KEY = "bmd.thumbs.v1";
+const THUMB_BUDGET = 3_000_000;   // characters, comfortably inside the quota
+
+const thumbStore = (()=>{
+  let map = new Map();
+  try{
+    const raw = localStorage.getItem(THUMB_KEY);
+    if(raw) map = new Map(Object.entries(JSON.parse(raw)));
+  }catch(e){}
+
+  let pending = null;
+  const flush = ()=>{
+    pending = null;
+    try{
+      let total = 0;
+      const keep = [];
+      // newest first, so the oldest fall off the end when the budget runs out
+      for(const [k,v] of [...map].reverse()){
+        total += v.length;
+        if(total > THUMB_BUDGET) break;
+        keep.push([k,v]);
+      }
+      map = new Map(keep.reverse());
+      localStorage.setItem(THUMB_KEY, JSON.stringify(Object.fromEntries(map)));
+    }catch(e){ try{ localStorage.removeItem(THUMB_KEY); }catch(_){} }
+  };
+
+  return {
+    get: k => map.get(k),
+    set(k,v){
+      if(!v || v.length > 700_000) return;   // an oversized one is not worth keeping
+      map.delete(k); map.set(k,v);           // re-inserting marks it as recently used
+      if(!pending) pending = setTimeout(flush, 400);
+    },
+    clear(){ map = new Map(); try{ localStorage.removeItem(THUMB_KEY); }catch(e){} }
+  };
+})();
 async function getThumb(p){
   if(!p) return "";
   if(p.thumb) return p.thumb;
-  if(!db || !p.hasThumb) return "";
+  if(!p.hasThumb) return "";
   const k = p.id+":thumb";
   if(mediaCache.has(k)) return mediaCache.get(k);
+  const kept = thumbStore.get(k);
+  if(kept){ mediaCache.set(k,kept); return kept; }
+  if(!db) return "";
   try{
     const d = await fb.getDoc(fb.doc(db,"posts",p.id,"media","thumb"));
     const v = d.exists()?d.data().data:"";
-    mediaCache.set(k,v); return v;
+    mediaCache.set(k,v); thumbStore.set(k,v); return v;
   }catch(e){ return ""; }
 }
 async function getCover(p){
@@ -1219,11 +1264,36 @@ async function getBody(p){
     bodyCache.set(p.id,v); return v;
   }catch(e){ return ""; }
 }
+/* ── Thumbnails arrive as they are needed ───────────────────────────
+   Fetching every thumbnail the moment a page renders means the whole
+   archive is pulled down before the first one is seen. Each is now
+   fetched as it nears the view. Ones already on the device are drawn
+   at once, so a return visit shows them without asking Firestore. */
+const thumbWatcher = ("IntersectionObserver" in window)
+  ? new IntersectionObserver((entries,obs)=>{
+      entries.forEach(en=>{
+        if(!en.isIntersecting) return;
+        obs.unobserve(en.target);
+        fillThumb(en.target);
+      });
+    }, { rootMargin: "600px 0px" })
+  : null;
+
+async function fillThumb(img){
+  if(img.dataset.hyd) return;
+  img.dataset.hyd = "1";
+  const src = await getThumb(store.posts.find(x=>x.id===img.dataset.post));
+  if(src) img.src = src;
+}
+
 function hydrateThumbs(root=document){
-  root.querySelectorAll("img[data-post]:not([data-hyd])").forEach(async img=>{
-    img.dataset.hyd = "1";
-    const src = await getThumb(store.posts.find(x=>x.id===img.dataset.post));
-    if(src) img.src = src;
+  root.querySelectorAll("img[data-post]:not([data-hyd])").forEach(img=>{
+    const p = store.posts.find(x=>x.id===img.dataset.post);
+    // already on this device — no reason to make it wait for the observer
+    if(p && (p.thumb || mediaCache.has(p.id+":thumb") || thumbStore.get(p.id+":thumb"))){
+      fillThumb(img); return;
+    }
+    if(thumbWatcher) thumbWatcher.observe(img); else fillThumb(img);
   });
 }
 const published = () => store.posts
@@ -2551,7 +2621,7 @@ async function savePost(status){
     else { const ref = await addDoc(collection(db,"posts"), payload); id = ref.id; draft.id = id; }
     await setDoc(doc(db,"posts",id,"content","body"), { text: draft.body||"" });
     bodyCache.set(id, draft.body||"");
-    if(!isURL && draft.thumb){ await setDoc(doc(db,"posts",id,"media","thumb"),{data:draft.thumb}); mediaCache.set(id+":thumb",draft.thumb); }
+    if(!isURL && draft.thumb){ await setDoc(doc(db,"posts",id,"media","thumb"),{data:draft.thumb}); mediaCache.set(id+":thumb",draft.thumb); thumbStore.set(id+":thumb",draft.thumb); }
     if(draft._newFull){ await setDoc(doc(db,"posts",id,"media","cover"),{data:draft._newFull}); mediaCache.set(id+":cover",draft._newFull); draft._newFull=null; }
     await loadPosts(); toast(status==="published"?"Published":"Draft saved");
     draft = null; render();
@@ -2838,7 +2908,7 @@ async function illOne(p){
 
   // keep what's already on screen honest, without a reload
   mediaCache.set(p.id+":cover", full.url);
-  mediaCache.set(p.id+":thumb", thumb.url);
+  mediaCache.set(p.id+":thumb", thumb.url); thumbStore.set(p.id+":thumb", thumb.url);
   Object.assign(p, { thumb:"", hasThumb:true, hasCover:true, illus:stamp });
 }
 
