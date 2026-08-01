@@ -34,18 +34,33 @@ function db(){
 /* ── Reading the letter ───────────────────────────────────────────────
    Every story so far has carried its title on a line of its own with the
    byline directly beneath it. That is the first thing looked for. Where
-   it is absent the subject stands in, and failing that the opening line. */
-const BYLINE = /^\s*by\s+lord\s+byron\s*$/i;
+   it is absent the subject stands in, and failing that the opening line.
+
+   Gmail converts a formatted message to plain text before handing it
+   over, and bold text comes through fenced in asterisks — a title set in
+   bold arrives as *The Auction of Regrets*. Those fences, along with
+   stray non-breaking and zero-width characters, are stripped before any
+   line is examined, or the byline would never be recognised.           */
+
+function tidy(line){
+  return String(line||"")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")   // zero-width
+    .replace(/\u00a0/g," ")                 // non-breaking space
+    .replace(/^[\s*_~`]+|[\s*_~`]+$/g,"")   // emphasis fences
+    .trim();
+}
+
+const BYLINE = /^by\s+lord\s+byron\s*[.,–—-]?$/i;
 
 function parseStory(text, subject){
   const lines = String(text||"").replace(/\r\n/g,"\n").split("\n");
 
   let titleAt = -1, bylineAt = -1;
   for(let i=0; i<lines.length; i++){
-    if(BYLINE.test(lines[i])){
+    if(BYLINE.test(tidy(lines[i]))){
       bylineAt = i;
       for(let j=i-1; j>=0; j--){
-        if(lines[j].trim()){ titleAt = j; break; }
+        if(tidy(lines[j])){ titleAt = j; break; }
       }
       break;
     }
@@ -53,15 +68,15 @@ function parseStory(text, subject){
 
   let title = "", body = "";
   if(titleAt >= 0){
-    title = lines[titleAt].trim();
+    title = tidy(lines[titleAt]);
     body  = lines.slice(bylineAt+1).join("\n");
   }else{
     // No byline found. Fall back to the subject, then to the opening line.
-    const clean = String(subject||"").replace(/^\s*(re|fwd)\s*:\s*/i,"").trim();
+    const clean = tidy(String(subject||"").replace(/^\s*(re|fwd)\s*:\s*/i,""));
     if(clean){ title = clean; body = lines.join("\n"); }
     else{
-      const first = lines.findIndex(l=>l.trim());
-      title = first >= 0 ? lines[first].trim() : "Untitled";
+      const first = lines.findIndex(l=>tidy(l));
+      title = first >= 0 ? tidy(lines[first]) : "Untitled";
       body  = first >= 0 ? lines.slice(first+1).join("\n") : "";
     }
   }
