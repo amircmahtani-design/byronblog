@@ -1,0 +1,8 @@
+{
+  "name": "badmaddangerous",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "firebase-admin": "^13.0.2"
+  }
+}
