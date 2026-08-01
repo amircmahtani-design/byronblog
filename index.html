@@ -7,11 +7,11 @@
 <meta name="description" content="One of the pleasures of reading old letters is the knowledge that they need no answer. — Lord Byron">
 <meta name="theme-color" content="#0D0D0D">
 
-<link rel="icon" href="/favicon.ico?v=3" sizes="any">
-<link rel="icon" type="image/png" href="/assets/favicon-32.png?v=3" sizes="32x32">
-<link rel="icon" type="image/png" href="/assets/favicon-16.png?v=3" sizes="16x16">
-<link rel="shortcut icon" href="/favicon.ico?v=3">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
+<link rel="icon" href="/favicon.ico?v=4" sizes="any">
+<link rel="icon" type="image/png" href="/assets/favicon-32.png?v=4" sizes="32x32">
+<link rel="icon" type="image/png" href="/assets/favicon-16.png?v=4" sizes="16x16">
+<link rel="shortcut icon" href="/favicon.ico?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=4">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Bad, Mad &amp; Dangerous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
 
 <!-- The hero is painted by JS as a CSS background, so the browser would not
      otherwise discover it until the script runs. -->
-<link rel="preload" as="image" href="assets/hero-plate.jpg?v=3" media="(min-width:720px)">
+<link rel="preload" as="image" href="assets/hero-plate.jpg?v=4" media="(min-width:720px)">
 <link rel="preload" as="image" href="assets/crest.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
 
@@ -49,8 +49,8 @@ window.SITE_CONFIG = {
 
   // Artwork, uploaded to the repo alongside index.html.
   assets: {
-    hero:    "assets/hero-plate.jpg?v=3",     // wide, for desktop
-    heroTall:"assets/hero-portrait.jpg?v=3",  // portrait, for phones
+    hero:    "assets/hero-plate.jpg?v=4",     // wide, for desktop
+    heroTall:"assets/hero-portrait.jpg?v=4",  // portrait, for phones
     mark:    "assets/crest.png",       // the crowned shield, used throughout
     crest:   "assets/crest.png",       // the crowned shield
     paper:   "assets/paper.jpg",       // seamless page fibre
@@ -1005,7 +1005,11 @@ const CFG = window.SITE_CONFIG;
 const LIVE = !CFG.firebase.apiKey.startsWith("PASTE");
 let db=null, auth=null, fb=null;
 
-if(LIVE){
+/* Firebase is fetched in the background rather than awaited here. A top-level
+   await at this point holds up every line below it, so the page could not paint
+   until three files had arrived from Google. Anything that needs the database
+   waits on fbReady instead. */
+const fbReady = !LIVE ? Promise.resolve() : (async ()=>{
   try{
     const [appMod,fsMod,authMod] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"),
@@ -1016,7 +1020,7 @@ if(LIVE){
     db = fsMod.getFirestore(app); auth = authMod.getAuth(app);
     fb = { ...fsMod, ...authMod };
   }catch(e){ console.error("Firebase failed to load",e); }
-}
+})();
 
 
 const SAMPLES=[
@@ -1133,14 +1137,49 @@ const store = {
          byline:"Lord Byron",
          email:"lordbyron@badmaddangerous.com" }
 };
+window.store = store;   // for inspecting the index from the console
+
+/* ── The local copy ───────────────────────────────────────────────
+   Firestore is the truth, but waiting for it means a blank page on
+   every visit. The last index is kept on the device, drawn at once,
+   and quietly replaced when the real answer arrives.                */
+const CACHE_KEY = "bmd.index.v1";
+
+function readCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return false;
+    const c = JSON.parse(raw);
+    if(!c || !Array.isArray(c.posts) || !c.posts.length) return false;
+    store.posts = c.posts;
+    if(c.site) store.site = { ...store.site, ...c.site };
+    store.loaded = true;
+    return true;
+  }catch(e){ return false; }
+}
+
+function writeCache(){
+  try{
+    // Images and bodies are fetched on demand, so the copy holds the index only.
+    const slim = store.posts.map(p=>{
+      const { thumb, image, body, ...rest } = p;
+      return rest;
+    });
+    const payload = JSON.stringify({ posts:slim, site:store.site, at:Date.now() });
+    if(payload.length > 2_000_000) return;   // never crowd out the device
+    localStorage.setItem(CACHE_KEY, payload);
+  }catch(e){ /* private mode, or full — the site works without it */ }
+}
 
 async function loadPosts(){
+  await fbReady;
   if(!db){ store.posts = SAMPLES.slice(); store.loaded = true; return; }
   const { collection, getDocs, query, orderBy, doc, getDoc } = fb;
   const snap = await getDocs(query(collection(db,"posts"), orderBy("publishedAt","desc")));
   store.posts = snap.docs.map(d=>({ id:d.id, ...d.data() }));
   try{ const s = await getDoc(doc(db,"settings","site")); if(s.exists()) store.site={...store.site,...s.data()}; }catch(e){}
   store.loaded = true;
+  writeCache();
 }
 
 const mediaCache = new Map(), bodyCache = new Map();
@@ -1262,7 +1301,7 @@ const FIL = (cls="", which="orn") => {
 
 /* your logo, if you've supplied one */
 const ART = Object.assign({
-  hero:"assets/hero-plate.jpg?v=3", heroTall:"assets/hero-portrait.jpg?v=3",
+  hero:"assets/hero-plate.jpg?v=4", heroTall:"assets/hero-portrait.jpg?v=4",
   mark:"assets/crest.png", crest:"assets/crest.png",
   paper:"assets/paper.jpg", archive:"assets/archive-bg.jpg",
   orn:"assets/divider.png", ornInk:"assets/divider-ink.png"
@@ -3178,10 +3217,14 @@ window.addEventListener("resize", ()=>{
 
 window.addEventListener("hashchange", ()=>{ if(route().name!=="studio") draft = null; render(); });
 
-if(auth) fb.onAuthStateChanged(auth, async u=>{
-  store.user = (u && u.email===CFG.editorEmail) ? u : null;
-  if(u && u.email!==CFG.editorEmail){ await fb.signOut(auth); toast("That account can't edit this site"); }
-  if(route().name==="studio") render();
+/* Firebase now arrives after this line runs, so the listener waits for it. */
+fbReady.then(()=>{
+  if(!auth) return;
+  fb.onAuthStateChanged(auth, async u=>{
+    store.user = (u && u.email===CFG.editorEmail) ? u : null;
+    if(u && u.email!==CFG.editorEmail){ await fb.signOut(auth); toast("That account can't edit this site"); }
+    if(route().name==="studio") render();
+  });
 });
 
 // a decorative file that fails to load hides itself rather than showing
@@ -3195,18 +3238,38 @@ document.addEventListener("error", e=>{
 }, true);
 
 if(!LIVE) SAMPLES.forEach(p=>{ p.words = String(p.body||"").split(/\s+/).filter(Boolean).length; });
-await loadPosts();
 
-if(LOGO.src){
-  const b = document.querySelector("#brand");
-  b.innerHTML = `<span class="${LOGO.flip?"flip":""}">${logoHTML(LOGO.height||52)}</span>` +
-    `<span class="brand-txt"><b>${esc(store.site.title).toUpperCase()}</b><span>BY ${esc(store.site.byline).toUpperCase()}</span></span>`;
-}else{
-  const bt = document.querySelector("#brand .brand-txt");
-  if(bt) bt.innerHTML = `<b>${esc(store.site.title).toUpperCase()}</b><span>BY ${esc(store.site.byline).toUpperCase()}</span>`;
+function paintBrand(){
+  if(LOGO.src){
+    const b = document.querySelector("#brand");
+    if(!b) return;
+    b.innerHTML = `<span class="${LOGO.flip?"flip":""}">${logoHTML(LOGO.height||52)}</span>` +
+      `<span class="brand-txt"><b>${esc(store.site.title).toUpperCase()}</b><span>BY ${esc(store.site.byline).toUpperCase()}</span></span>`;
+  }else{
+    const bt = document.querySelector("#brand .brand-txt");
+    if(bt) bt.innerHTML = `<b>${esc(store.site.title).toUpperCase()}</b><span>BY ${esc(store.site.byline).toUpperCase()}</span>`;
+  }
 }
 
-render();
+/* Draw whatever is already on the device, then go and check. */
+const fromCache = LIVE ? readCache() : false;
+
+if(fromCache){
+  const before = JSON.stringify(store.posts.map(p=>p.id));
+  paintBrand();
+  render();
+  (async ()=>{
+    try{
+      await loadPosts();
+      if(JSON.stringify(store.posts.map(p=>p.id)) !== before){ paintBrand(); render(); }
+      else paintBrand();
+    }catch(e){ console.error("Refresh failed",e); }
+  })();
+}else{
+  await loadPosts();
+  paintBrand();
+  render();
+}
 </script>
 </body>
 </html>
