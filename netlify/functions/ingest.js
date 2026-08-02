@@ -101,20 +101,60 @@ function parseStory(text, subject){
   return { title, body: toHTML(body) };
 }
 
+/* ── Where the story ends ──────────────────────────────────────────────
+   A mail system bolts things on after the last line: the Medium hashtag
+   block, a signature, the confidentiality notice, a "Sent from my…"
+   footer. None of it is the story. We find the first of these and cut
+   there, dropping it and everything below. Then, because a signature
+   usually sits just above the notice rather than below the hashtags, we
+   walk back over any signature lines pressed against the cut so they go
+   with it. The tests run on the tidied line, so the asterisks Gmail
+   leaves behind (*#tag*, *Name* *CEO*) don't hide the pattern. */
+const TRAILER = [
+  /^#\w[\w-]*(\s+#\w[\w-]*)+/,                   // Medium hashtag block
+  /this e-?mail and any files transmitted/i,     // confidentiality notice
+  /confidential and intended solely for/i,       //          "
+  /^this (message|communication) (contains|is)\b/i,
+  /^sent from my\b/i,                            // mobile footer
+  /^(unsubscribe|to unsubscribe)\b/i,
+  /^-{2,}\s*$/                                    // "--" signature rule
+];
+
+/* Strong signature signals only — a job title, an email, a website, a
+   phone number. Deliberately no bare-name rule: a short story line like
+   "The End" must never be mistaken for a sign-off and eaten. */
+const SIGNATURE = [
+  /\b(ceo|cfo|coo|cto|managing director|director|manager|founder|co-?founder|partner|chair(?:man|woman|person)?|president|vice president|vp|head of|proprietor)\b/i,
+  /@[\w.-]+\.\w{2,}/,                            // email address
+  /https?:\/\//i,                                // website
+  /\+?\d[\d ()\-]{7,}\d/                          // phone number
+];
+
+function endOfStory(paras){
+  let cut = paras.length;
+  for(let i=0; i<paras.length; i++){
+    if(TRAILER.some(re => re.test(tidy(paras[i])))){ cut = i; break; }
+  }
+  while(cut > 0 && SIGNATURE.some(re => re.test(tidy(paras[cut-1])))) cut--;
+  // Never let the trailer logic swallow the whole thing.
+  return cut === 0 ? paras.length : cut;
+}
+
 /* Gmail hands over plain text. Blank lines are paragraph breaks; single
    breaks inside a paragraph are the mail client wrapping, not the writer. */
 function toHTML(raw){
   const esc = s => String(s)
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-  return String(raw||"")
+  const paras = String(raw||"")
     .replace(/\r\n/g,"\n")
     .replace(/\n{3,}/g,"\n\n")
     .split(/\n\s*\n/)
     .map(p => p.trim())
-    .filter(Boolean)
-    // a trailing signature or unsubscribe line is not part of the story
-    .filter(p => !/^(sent from my|--\s*$)/i.test(p))
+    .filter(Boolean);
+
+  return paras
+    .slice(0, endOfStory(paras))
     .map(p => `<p>${esc(p).replace(/\n/g," ")}</p>`)
     .join("\n");
 }
