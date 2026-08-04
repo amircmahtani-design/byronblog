@@ -7,40 +7,64 @@
 <meta name="description" content="One of the pleasures of reading old letters is the knowledge that they need no answer. — Lord Byron">
 <meta name="theme-color" content="#0D0D0D">
 <!-- ═══════════════════════════════════════════════════════════════════
-     BLANK-PAGE GUARD  ·  build 2026-08-04 · ipad-compat-1
-     The whole site is one ES module. If a browser cannot parse it, the
-     module dies silently and only the static header and footer paint —
-     which is what an older iPad was showing. This turns that silence
-     into a readable message, and never fires once the page has content.
+     SAFETY NET  ·  build 2026-08-04 · ipad-compat-2
+     Two jobs. If the page never renders, say so instead of showing a void.
+     If the page renders but something throws afterwards — which is how a
+     site ends up looking finished and behaving inertly — put the message
+     on screen, because a tablet has no console to read it in.
      ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var BUILD = "build 2026-08-04 \u00b7 ipad-compat-1";
-  window.BMD_BUILD = BUILD;
-  var shown = false;
-  function panic(msg){
-    if(shown) return;
-    var app = document.getElementById("app");
-    if(!app || app.children.length) return;   // the site rendered — stay out of the way
-    shown = true;
-    var d = document.createElement("div");
-    d.setAttribute("style","max-width:38rem;margin:16vh auto;padding:0 2rem;text-align:center;"
-      + "font-family:Georgia,'Times New Roman',serif;color:#e8e2d4;line-height:1.65");
-    d.innerHTML =
-      '<p style="font-size:1.3rem;margin:0 0 1rem">This browser is a little too old to run the site.</p>'
-      + '<p style="opacity:.7;margin:0 0 2rem">Updating iPadOS, or opening the page in Chrome, should put it right.</p>'
-      + '<p style="opacity:.4;font-size:.75rem;word-break:break-word">' + BUILD + '<br>'
-      + String(msg || "").replace(/[<>]/g,"").slice(0,300) + '</p>';
-    app.appendChild(d);
+  var BUILD = "build 2026-08-04 \u00b7 ipad-compat-2";
+  window.BMD_BUILD  = BUILD;
+  window.BMD_ERRORS = [];
+  var panicked = false, ribbon = null;
+
+  function ribbonSay(msg){
+    if(!document.body) return;
+    if(!ribbon){
+      ribbon = document.createElement("div");
+      ribbon.setAttribute("style",
+        "position:fixed;left:0;right:0;bottom:0;z-index:9999;max-height:40%;overflow:auto;"
+        + "background:#2A0F0F;color:#F3D9D9;border-top:1px solid #7A2E2E;"
+        + "font:12px/1.5 ui-monospace,Menlo,monospace;padding:.7rem .9rem;"
+        + "-webkit-overflow-scrolling:touch");
+      ribbon.addEventListener("click", function(){ ribbon.parentNode.removeChild(ribbon); ribbon = null; });
+      document.body.appendChild(ribbon);
+    }
+    ribbon.textContent = BUILD + "  \u2014  tap to dismiss\n" + window.BMD_ERRORS.join("\n");
+    ribbon.style.whiteSpace = "pre-wrap";
   }
+
+  function report(msg){
+    msg = String(msg == null ? "" : msg).replace(/[<>]/g, "").slice(0, 400);
+    if(!msg) return;
+    if(window.BMD_ERRORS.indexOf(msg) < 0) window.BMD_ERRORS.push(msg);
+    var app = document.getElementById("app");
+    if(!panicked && app && !app.children.length){
+      panicked = true;
+      var d = document.createElement("div");
+      d.setAttribute("style","max-width:38rem;margin:16vh auto;padding:0 2rem;text-align:center;"
+        + "font-family:Georgia,'Times New Roman',serif;color:#e8e2d4;line-height:1.65");
+      d.innerHTML = '<p style="font-size:1.3rem;margin:0 0 1rem">The site could not start in this browser.</p>'
+        + '<p style="opacity:.7;margin:0 0 2rem">Updating iPadOS, or opening the page in Chrome, should put it right.</p>';
+      app.appendChild(d);
+    }
+    ribbonSay(msg);
+  }
+  window.__bmdReport = report;
+
   window.addEventListener("error", function(e){
-    if(e && e.message) panic(e.message + (e.lineno ? "  (line " + e.lineno + ")" : ""));
+    if(e && e.message) report(e.message + (e.lineno ? "  (line " + e.lineno + ")" : ""));
   }, true);
   window.addEventListener("unhandledrejection", function(e){
-    panic(e && e.reason ? String(e.reason) : "A background request failed.");
+    report("unhandled: " + (e && e.reason ? (e.reason.message || e.reason) : "?"));
   });
   window.addEventListener("load", function(){
-    setTimeout(function(){ panic("The page script did not start."); }, 5000);
+    setTimeout(function(){
+      var app = document.getElementById("app");
+      if(app && !app.children.length) report("The page script did not start.");
+    }, 5000);
   });
 })();
 </script>
@@ -218,6 +242,10 @@ img{max-width:100%;display:block}
 a{color:inherit}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+/* iOS will not deliver a tap to a listener on `document` unless the element
+   it landed on counts as clickable. A pointer cursor is what makes it count. */
+a,button,summary,label,[role=button],.tag,.wp-counts a,th[data-sort]{
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 ::selection{background:var(--crimson);color:var(--cream)}
 
 /* ══════════════════════ 2 · ATMOSPHERE ══════════════════════ */
@@ -1744,6 +1772,11 @@ function openCropper(img, rect){
 let io;
 function observeRises(){
   if(io) io.disconnect();
+  if(typeof IntersectionObserver === "undefined"){
+    // Older engine: show everything rather than leaving the page blank-ish.
+    document.querySelectorAll(".rise").forEach(el=>el.classList.add("in"));
+    return;
+  }
   io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),
     {rootMargin:"0px 0px -6% 0px"});
   document.querySelectorAll(".rise").forEach(el=>io.observe(el));
@@ -1832,7 +1865,7 @@ function syncArchHash(){
   archSyncT = setTimeout(()=>{
     if(route().name !== "archive") return;      // reader opened mid-keystroke
     const want = archHash();
-    if(location.hash !== want) history.replaceState(null, "", want);
+    if(location.hash !== want){ history.replaceState(null, "", want); lastHash = location.hash; }
   }, 220);
 }
 function viewArchive(){
@@ -3192,7 +3225,16 @@ function route(){
   const parts = path.split("/").filter(Boolean);
   return { name: parts[0]||"home", arg: parts[1]||"", qs };
 }
+const report = (m)=>{ try{ (window.__bmdReport||console.error)(m); }catch(_){} };
+
+/* One failure inside a render used to take the whole site down with it: the
+   exception escaped, nothing further ran, and every later tap did nothing at
+   all. Now the failure is reported and the next tap still gets a fresh try. */
 async function render(){
+  try{ await renderInner(); }
+  catch(e){ report("render: " + (e && e.message ? e.message : e)); }
+}
+async function renderInner(){
   const r = route(), app = $("#app");
   pendingEssay = null;
   if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx = null; }
@@ -3226,7 +3268,10 @@ async function render(){
   if(r.name==="archive") renderArchive();
   if(r.name==="studio" && draft) bindEditor();
   if(r.name==="story") await openReader(r.arg); else closeQuietly();
-  hydrateThumbs(); observeRises(); seedMotes();
+  /* Decoration only. None of it is worth losing the page over. */
+  try{ hydrateThumbs(); }catch(e){ report("thumbs: " + e.message); }
+  try{ observeRises();  }catch(e){ report("rises: "  + e.message); }
+  try{ seedMotes();     }catch(e){ report("motes: "  + e.message); }
   window.scrollTo(0,0);
   /* Coming back to a deep page of the archive, the castle plate is not what
      was wanted — put the reader back at the list they were reading. */
@@ -3354,7 +3399,32 @@ window.addEventListener("resize", ()=>{
   resizeTimer = setTimeout(()=>{ if(pendingEssay) mountEssay(); }, 260);
 });
 
-window.addEventListener("hashchange", ()=>{ if(route().name!=="studio") draft = null; render(); });
+/* Every link on the site is a hash link, so navigation lives or dies by this.
+   hashchange alone has proved unreliable on older iPadOS, so the hash is also
+   polled. `lastHash` is kept in step whenever the app rewrites the URL itself,
+   so the reader is never torn down underneath the person reading it. */
+let lastHash = location.hash;
+function hashMaybeChanged(){
+  if(location.hash === lastHash) return;
+  lastHash = location.hash;
+  if(route().name !== "studio") draft = null;
+  render();
+}
+window.addEventListener("hashchange", hashMaybeChanged);
+window.addEventListener("popstate",   hashMaybeChanged);
+setInterval(hashMaybeChanged, 250);
+
+/* And a direct handler on the links themselves, because a tap on an anchor is
+   not guaranteed to reach a listener bound to `document` on iOS. */
+document.addEventListener("click", (e)=>{
+  const a = e.target.closest && e.target.closest('a[href^="#"]');
+  if(!a) return;
+  const want = a.getAttribute("href");
+  if(!want || want === "#") return;
+  e.preventDefault();
+  if(location.hash === want){ lastHash = want; render(); }
+  else location.hash = want;
+}, false);
 
 /* Firebase now arrives after this line runs, so the listener waits for it. */
 fbReady.then(()=>{
