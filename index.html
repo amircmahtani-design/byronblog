@@ -6,6 +6,44 @@
 <title>Bad, Mad &amp; Dangerous</title>
 <meta name="description" content="One of the pleasures of reading old letters is the knowledge that they need no answer. — Lord Byron">
 <meta name="theme-color" content="#0D0D0D">
+<!-- ═══════════════════════════════════════════════════════════════════
+     BLANK-PAGE GUARD  ·  build 2026-08-04 · ipad-compat-1
+     The whole site is one ES module. If a browser cannot parse it, the
+     module dies silently and only the static header and footer paint —
+     which is what an older iPad was showing. This turns that silence
+     into a readable message, and never fires once the page has content.
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var BUILD = "build 2026-08-04 \u00b7 ipad-compat-1";
+  window.BMD_BUILD = BUILD;
+  var shown = false;
+  function panic(msg){
+    if(shown) return;
+    var app = document.getElementById("app");
+    if(!app || app.children.length) return;   // the site rendered — stay out of the way
+    shown = true;
+    var d = document.createElement("div");
+    d.setAttribute("style","max-width:38rem;margin:16vh auto;padding:0 2rem;text-align:center;"
+      + "font-family:Georgia,'Times New Roman',serif;color:#e8e2d4;line-height:1.65");
+    d.innerHTML =
+      '<p style="font-size:1.3rem;margin:0 0 1rem">This browser is a little too old to run the site.</p>'
+      + '<p style="opacity:.7;margin:0 0 2rem">Updating iPadOS, or opening the page in Chrome, should put it right.</p>'
+      + '<p style="opacity:.4;font-size:.75rem;word-break:break-word">' + BUILD + '<br>'
+      + String(msg || "").replace(/[<>]/g,"").slice(0,300) + '</p>';
+    app.appendChild(d);
+  }
+  window.addEventListener("error", function(e){
+    if(e && e.message) panic(e.message + (e.lineno ? "  (line " + e.lineno + ")" : ""));
+  }, true);
+  window.addEventListener("unhandledrejection", function(e){
+    panic(e && e.reason ? String(e.reason) : "A background request failed.");
+  });
+  window.addEventListener("load", function(){
+    setTimeout(function(){ panic("The page script did not start."); }, 5000);
+  });
+})();
+</script>
 
 <link rel="icon" href="/favicon.ico?v=4" sizes="any">
 <link rel="icon" type="image/png" href="/assets/favicon-32.png?v=4" sizes="32x32">
@@ -183,7 +221,7 @@ button{font:inherit;color:inherit}
 ::selection{background:var(--crimson);color:var(--cream)}
 
 /* ══════════════════════ 2 · ATMOSPHERE ══════════════════════ */
-.atmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.7}
+.atmos{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:.7}
 .fog{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
 .fog.f1{width:70vw;height:60vh;left:-14vw;top:-10vh;
   background:radial-gradient(circle,rgba(139,26,43,.22),transparent 66%);
@@ -213,9 +251,9 @@ button{font:inherit;color:inherit}
   88%{opacity:.5}
   100%{opacity:0;transform:translate3d(var(--mx,30px),-108vh,0)}
 }
-.vign{position:absolute;inset:0;
+.vign{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;
   background:radial-gradient(128% 92% at 50% 38%,transparent 40%,rgba(6,6,8,.4) 78%,rgba(5,5,6,.82) 100%)}
-.noise{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:.4;mix-blend-mode:overlay;
+.noise{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:6;opacity:.4;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.32'/></svg>")}
 @media (prefers-reduced-motion:reduce){
   .fog,.ray,.mote{animation:none!important}
@@ -238,7 +276,7 @@ button{font:inherit;color:inherit}
   display:flex;align-items:center;gap:clamp(.75rem,2.5vw,2.5rem);
   padding:0 var(--gut);
   background:linear-gradient(to bottom,rgba(9,9,11,.94),rgba(9,9,11,.78));
-  backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);
   border-bottom:1px solid rgba(201,162,39,.22);
   transition:background .5s var(--ease),border-color .5s var(--ease);
 }
@@ -278,13 +316,13 @@ button{font:inherit;color:inherit}
   /* The block is centred in the band rather than pushed to the floor, and the
      top and bottom padding are the same figure so the centre is a real centre
      and not one pulled down by a heavy padding-top. */
-  .hero{min-height:calc(90svh - var(--bar));justify-content:center;
+  .hero{min-height:calc(90vh - var(--bar));min-height:calc(90svh - var(--bar));justify-content:center;
     padding-top:calc(var(--bar) + clamp(1.25rem,4vh,2.75rem));
     padding-bottom:clamp(1.25rem,4vh,2.75rem)}
   .hero-in{max-width:34rem}
 }
 @media (max-width:560px){
-  .hero{min-height:calc(88svh - var(--bar))}
+  .hero{min-height:calc(88vh - var(--bar));min-height:calc(88svh - var(--bar))}
   .hero-say{font-size:clamp(1.45rem,7vw,2.2rem);max-width:15ch;
     text-shadow:0 2px 24px rgba(6,6,8,.96),0 0 60px rgba(6,6,8,.9)}
   /* the CTA shrinks to hug its label rather than sprawling across the screen */
@@ -305,18 +343,18 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .centre{text-align:center}
 
 /* ══════════════════════ 6 · HOME ══════════════════════ */
-.hero{position:relative;min-height:calc(86svh - var(--bar));
+.hero{position:relative;min-height:calc(86vh - var(--bar));min-height:calc(86svh - var(--bar));
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:clamp(2rem,7vh,5rem) var(--gut) clamp(1.5rem,4vh,3rem);
   margin-top:calc(var(--bar) * -1);padding-top:calc(var(--bar) + clamp(2rem,7vh,5rem));
   isolation:isolate;overflow:hidden}
 /* the artwork starts below the masthead, not under it, so his head is never
    hidden by the bar; anchored to the top so any crop is taken off the bottom */
-.hero-bg{position:absolute;inset:var(--bar) 0 0 0;z-index:-2;
+.hero-bg{position:absolute;top:var(--bar);right:0;bottom:0;left:0;inset:var(--bar) 0 0 0;z-index:-2;
   background:var(--void) var(--hero) center top / cover no-repeat;
   animation:heroIn 2.6s var(--ease) both}
 @keyframes heroIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
-.hero-bg::after{content:"";position:absolute;inset:0;
+.hero-bg::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;
   background:linear-gradient(to bottom,rgba(13,13,13,.55) 0%,transparent 16%,transparent 56%,rgba(13,13,13,.86) 88%,#0D0D0D 100%),
              linear-gradient(to right,transparent 44%,rgba(13,13,13,.28) 72%,rgba(13,13,13,.42) 100%)}
 .hero-crest{width:clamp(5.5rem,11vw,9.5rem);margin:0 auto clamp(.75rem,2vh,1.4rem);
@@ -363,20 +401,20 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
     radial-gradient(70% 46% at 50% 104%,rgba(112,86,44,.20),transparent 72%),
     linear-gradient(176deg,#F3E9D0 0%,#E9DCBD 34%,#DFCFAB 70%,#D3C09A 100%);
 }
-.paper::before{content:"";position:absolute;inset:0;pointer-events:none;
+.paper::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;
   mix-blend-mode:multiply;opacity:.55;
   background-image:var(--paper-tex,none);background-size:340px 340px;background-repeat:repeat}
-.paper::after{content:"";position:absolute;inset:0;pointer-events:none;
+.paper::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;
   background:radial-gradient(118% 88% at 50% 44%,transparent 46%,rgba(120,94,52,.22) 100%)}
 
 /* ══════════════════════ THE BOOK ══════════════════════ */
 @property --t{ syntax:'<number>'; inherits:true; initial-value:0; }
 .book{position:relative;perspective:2800px;perspective-origin:50% 42%;transform-style:preserve-3d}
-.book-shell{position:absolute;inset:-14px -18px -20px;border-radius:5px;z-index:0;
+.book-shell{position:absolute;top:-14px;right:-18px;bottom:-20px;left:-18px;inset:-14px -18px -20px;border-radius:5px;z-index:0;
   background:linear-gradient(158deg,#33251A 0%,#241A11 42%,#15100A 100%);
   box-shadow:0 44px 90px rgba(0,0,0,.78),0 6px 20px rgba(0,0,0,.6),
              inset 0 0 46px rgba(0,0,0,.55),inset 0 1px 0 rgba(200,169,106,.16)}
-.book-shell::after{content:"";position:absolute;inset:6px;border:1px solid rgba(200,169,106,.2);border-radius:3px}
+.book-shell::after{content:"";position:absolute;top:6px;right:6px;bottom:6px;left:6px;inset:6px;border:1px solid rgba(200,169,106,.2);border-radius:3px}
 .pages{position:relative;transform-style:preserve-3d}
 .base{position:absolute;top:0;height:100%;width:var(--pw);overflow:hidden;z-index:0}
 .base.l{left:0}.base.r{right:0}
@@ -388,10 +426,10 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .leaf{position:absolute;top:0;right:0;width:var(--pw);height:100%;
   transform-origin:left center;transform-style:preserve-3d;--t:0;will-change:transform}
 .leaf.anim{transition:transform .78s var(--swing), --t .78s var(--swing)}
-.side{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.side{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .side.f{transform:translateZ(.6px)}
 .side.b{transform:rotateY(180deg) translateZ(.6px)}
-.sheen,.gloss{position:absolute;inset:0;pointer-events:none;z-index:8}
+.sheen,.gloss{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:8}
 .side.f .sheen{background:linear-gradient(to left,rgba(24,14,4,.62),transparent 44%);opacity:calc(var(--t) * .95)}
 .side.b .sheen{background:linear-gradient(to right,rgba(24,14,4,.66),transparent 46%);opacity:calc((1 - var(--t)) * .95)}
 .gloss{background:linear-gradient(to left,rgba(255,247,226,.34),transparent 26%);
@@ -400,9 +438,9 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .side.f .edge{left:0;background:linear-gradient(to right,rgba(120,94,52,.34),transparent)}
 .side.b .edge{right:0;background:linear-gradient(to left,rgba(120,94,52,.34),transparent)}
 
-.peel{position:absolute;right:0;bottom:0;width:clamp(3rem,6vw,4.75rem);aspect-ratio:1;
+.peel{position:absolute;right:0;bottom:0;width:clamp(3rem,6vw,4.75rem);height:clamp(3rem,6vw,4.75rem);aspect-ratio:1;
   z-index:12;cursor:grab;touch-action:none}
-.peel::before{content:"";position:absolute;inset:0;
+.peel::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;
   background:linear-gradient(315deg,#CDB98D 0%,#E7DBBE 42%,#A89163 44%,transparent 45%);
   clip-path:polygon(100% 100%,0 100%,100% 0);
   transform:scale(.3);transform-origin:100% 100%;
@@ -469,7 +507,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
   filter:var(--img-grade-page);
   clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),
     calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)}
-.pg-imgwrap::after{content:"";position:absolute;inset:7px;pointer-events:none;
+.pg-imgwrap::after{content:"";position:absolute;top:7px;right:7px;bottom:7px;left:7px;inset:7px;pointer-events:none;
   border:1px solid rgba(90,68,34,.4)}
 
 .pg-body p{margin:0 0 .85em;text-indent:1.3em}
@@ -513,7 +551,7 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .kb .ar::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;
   border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 .kb:hover .ar,.kb:active .ar,.kb:focus-visible .ar{width:2.4rem}
-.kb::before{content:"";position:absolute;inset:0;background:var(--gold);
+.kb::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:var(--gold);
   transform:translateY(-101%);transition:transform .38s var(--swing)}
 .kb>*{position:relative;z-index:2}
 .kb:hover,.kb:active,.kb:focus-visible{color:#17110A}
@@ -558,15 +596,16 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 /* The house grade. Whatever an image arrived as — a pencil sketch from the old
    blog, a stock photograph, an AI render — it leaves looking like it belongs:
    desaturated, warmed toward the brand's gold and crimson, and sunk at the edges. */
-.shot::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+.shot::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:2;
   background:linear-gradient(158deg,rgba(91,14,20,.28) 0%,rgba(28,20,10,.12) 38%,rgba(200,169,106,.22) 100%);
   mix-blend-mode:overlay}
-.shot::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+.shot::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:3;
   background:radial-gradient(115% 95% at 50% 38%,transparent 42%,rgba(13,13,13,.55) 100%),
              linear-gradient(to top,rgba(13,13,13,.78),transparent 58%)}
 .wcard .shot{isolation:isolate}
-.wcard .shot{aspect-ratio:16/10}
-.wcard .shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+.wcard .shot{height:0;padding-bottom:62.5%;aspect-ratio:16/10}
+@supports (aspect-ratio:16/10){.wcard .shot{height:auto;padding-bottom:0}}
+.wcard .shot img{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height:100%;object-fit:cover;
   filter:var(--img-grade);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
 img[data-fallback]{opacity:0}
 .wcard:hover .shot img{transform:scale(1.07);filter:var(--img-grade-hover)}
@@ -692,10 +731,10 @@ img[data-fallback]{opacity:0}
    A full-screen book that opens over the site: leather boards, a ribbon
    at the spine, the story paginated across real leaves.
    ═══════════════════════════════════════════════════════════════════ */
-.reader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+.reader{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:200;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:clamp(.75rem,2vh,1.75rem);
   background:radial-gradient(120% 90% at 50% 40%,rgba(22,18,14,.95),rgba(6,6,7,.985));
-  backdrop-filter:blur(10px);animation:readerIn .55s var(--ease) both}
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:readerIn .55s var(--ease) both}
 @keyframes readerIn{from{opacity:0}to{opacity:1}}
 .reader-stage{position:relative;display:flex;align-items:center;justify-content:center;
   gap:clamp(.75rem,2.5vw,2.5rem);width:100%;flex:1;min-height:0;
@@ -762,7 +801,7 @@ img[data-fallback]{opacity:0}
 /* Two stacked scrims over the plate: a vertical one that carries the band
    down into the page, and a vignette that keeps the heading legible. The
    numbers are opacities of the ink — lower means more picture. */
-.archead::after{content:"";position:absolute;inset:0;
+.archead::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;
   background:linear-gradient(to bottom,rgba(20,20,22,.74),rgba(20,20,22,.46) 45%,var(--void)),
              radial-gradient(80% 70% at 50% 50%,rgba(20,20,22,.06),rgba(20,20,22,.62))}
 .archead .wrap{position:relative;z-index:2}
@@ -860,8 +899,8 @@ img[data-fallback]{opacity:0}
 .drop img{margin:0 auto 1rem;max-height:11rem;width:auto}
 
 /* ── framing tray ── */
-.cropper{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
-  padding:clamp(.75rem,3vw,2rem);background:rgba(6,6,8,.86);backdrop-filter:blur(8px);
+.cropper{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+  padding:clamp(.75rem,3vw,2rem);background:rgba(6,6,8,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   font-family:var(--ui);color:var(--parch)}
 .crop-box{width:min(46rem,100%);max-height:100%;overflow:auto;border-radius:5px;
   border:1px solid rgba(201,162,39,.28);background:linear-gradient(168deg,#191919,#0E0E0E);
@@ -874,7 +913,7 @@ img[data-fallback]{opacity:0}
 .crop-stage img{position:absolute;top:0;left:0;transform-origin:0 0;max-width:none;
   pointer-events:none;-webkit-user-drag:none}
 /* the sides the cards trim away */
-.crop-guide{position:absolute;inset:0 5%;pointer-events:none;
+.crop-guide{position:absolute;top:0;right:5%;bottom:0;left:5%;inset:0 5%;pointer-events:none;
   border-left:1px dashed rgba(240,228,200,.5);border-right:1px dashed rgba(240,228,200,.5)}
 .crop-tools{display:flex;align-items:center;gap:.6rem;margin-top:.9rem;flex-wrap:wrap}
 .crop-tools input[type=range]{flex:1;min-width:9rem;accent-color:var(--gold);
@@ -941,7 +980,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
 #illPanel,#stPanel{position:fixed;right:1.1rem;bottom:1.1rem;z-index:120;width:min(23rem,calc(100vw - 2.2rem));
   background:rgba(16,14,12,.96);border:1px solid var(--gold-dk);border-radius:.5rem;
   padding:.9rem 1rem 1rem;font-family:var(--ui);color:var(--parch);
-  box-shadow:0 1.2rem 3rem rgba(0,0,0,.6);backdrop-filter:blur(6px)}
+  box-shadow:0 1.2rem 3rem rgba(0,0,0,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .ill-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
   font-size:.86rem;letter-spacing:.04em}
 .ill-top b{color:var(--gold-lt);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.74rem}
@@ -1167,7 +1206,7 @@ function writeCache(){
       return rest;
     });
     const payload = JSON.stringify({ posts:slim, site:store.site, at:Date.now() });
-    if(payload.length > 2_000_000) return;   // never crowd out the device
+    if(payload.length > 2000000) return;   // never crowd out the device
     localStorage.setItem(CACHE_KEY, payload);
   }catch(e){ /* private mode, or full — the site works without it */ }
 }
@@ -1190,7 +1229,7 @@ const mediaCache = new Map(), bodyCache = new Map();
    afresh on every visit and never touch the browser's own cache. They
    are kept here instead, under a modest budget, oldest evicted first. */
 const THUMB_KEY = "bmd.thumbs.v1";
-const THUMB_BUDGET = 3_000_000;   // characters, comfortably inside the quota
+const THUMB_BUDGET = 3000000;   // characters, comfortably inside the quota
 
 const thumbStore = (()=>{
   let map = new Map();
@@ -1219,7 +1258,7 @@ const thumbStore = (()=>{
   return {
     get: k => map.get(k),
     set(k,v){
-      if(!v || v.length > 700_000) return;   // an oversized one is not worth keeping
+      if(!v || v.length > 700000) return;   // an oversized one is not worth keeping
       map.delete(k); map.set(k,v);           // re-inserting marks it as recently used
       if(!pending) pending = setTimeout(flush, 400);
     },
@@ -1311,7 +1350,7 @@ const slugify = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\
 const fmtDate = d => { const t=new Date(d); return isNaN(t)?"":t.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}); };
 const shortDate = d => { const t=new Date(d); return isNaN(t)?"":t.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase(); };
 const wordsIn = t => String(t||"").replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
-const readMins = p => Math.max(1, Math.round((p?.words||wordsIn(p?.body))/220));
+const readMins = p => Math.max(1, Math.round(((p&&p.words)||wordsIn(p&&p.body))/220));
 const searchText = p => (p.search||(p.title+" "+(p.dek||"")+" "+(p.body||"")+" "+(p.tags||[]).join(" ")+" "+p.publishedAt)).toLowerCase();
 /* ── the label above each story's title ──────────────────────────────
    No API needed. Each category carries a set of words; the story is
@@ -1704,7 +1743,7 @@ function openCropper(img, rect){
 
 let io;
 function observeRises(){
-  io?.disconnect();
+  if(io) io.disconnect();
   io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),
     {rootMargin:"0px 0px -6% 0px"});
   document.querySelectorAll(".rise").forEach(el=>io.observe(el));
@@ -2335,7 +2374,7 @@ async function openReader(slug){
   const i = all.findIndex(x=>x.id===p.id);
   pendingEssay = { post:p, body, img, prev:all[i-1], next:all[i+1] };
 
-  document.querySelector(".reader")?.remove();
+  var _rd=document.querySelector(".reader"); if(_rd) _rd.remove();
   const el = document.createElement("div");
   el.className = "reader" + (readerCandle ? " candle" : "");
   el.setAttribute("role","dialog");
@@ -2632,7 +2671,7 @@ async function savePost(status){
 }
 async function deletePost(id){
   const p = store.posts.find(x=>x.id===id);
-  if(!confirm(`Delete "${p?.title||"this story"}"? This can't be undone.`)) return;
+  if(!confirm(`Delete "${(p&&p.title)||"this story"}"? This can't be undone.`)) return;
   try{
     for(const sub of [["media","cover"],["media","thumb"],["content","body"]])
       await fb.deleteDoc(fb.doc(db,"posts",id,sub[0],sub[1])).catch(()=>{});
@@ -2656,7 +2695,7 @@ async function bulkApply(){
   if(action==="standDone"){
     const missing = ids.filter(id=>{
       const p = store.posts.find(x=>x.id===id);
-      return !String(p?.dek||"").trim();
+      return !String((p&&p.dek)||"").trim();
     });
     if(missing.length && !confirm(
         `${missing.length} of these ${missing.length===1?"has":"have"} no standfirst yet.\n\n`+
@@ -2740,7 +2779,7 @@ function parseWXR(xml){
   const doc = new DOMParser().parseFromString(xml,"text/xml");
   if(doc.querySelector("parsererror")) throw new Error("bad xml");
   const items = [...doc.querySelectorAll("item")];
-  const get = (el,sel) => el.querySelector(sel)?.textContent?.trim() || "";
+  const get = (el,sel) => { const n = el.querySelector(sel); return (n && n.textContent ? n.textContent.trim() : "") || ""; };
   const wp = (el,tag) => { const n=[...el.children].find(c=>c.nodeName==="wp:"+tag||c.localName===tag);
     return n?n.textContent.trim():""; };
   const media = {};
@@ -2976,7 +3015,7 @@ async function illRun(){
     await new Promise(r=>setTimeout(r, 1200));            // be polite to the API
   }
 
-  try{ await ILL.lock?.release(); }catch(e){}
+  try{ if(ILL.lock) await ILL.lock.release(); }catch(e){}
   ILL.lock=null; ILL.on=false; ILL.now=""; ILL.note="";
   illDraw();
   toast(ILL.stop ? `Stopped · ${ILL.done} done`
@@ -2996,7 +3035,7 @@ document.addEventListener("visibilitychange", async ()=>{
    survives you navigating around the site while it works. */
 function illDraw(){
   let el = document.getElementById("illPanel");
-  if(!ILL.on){ el?.remove(); return; }
+  if(!ILL.on){ if(el) el.remove(); return; }
   if(!el){
     el = document.createElement("div");
     el.id = "illPanel";
@@ -3098,7 +3137,7 @@ async function stRun(){
     await new Promise(r=>setTimeout(r, 600));             // be polite to the API
   }
 
-  try{ await ST.lock?.release(); }catch(e){}
+  try{ if(ST.lock) await ST.lock.release(); }catch(e){}
   ST.lock=null; ST.on=false; ST.now=""; ST.note="";
   stDraw();
   toast(ST.stop ? `Stopped · ${ST.done} done`
@@ -3108,7 +3147,7 @@ async function stRun(){
 
 function stDraw(){
   let el = document.getElementById("stPanel");
-  if(!ST.on){ el?.remove(); return; }
+  if(!ST.on){ if(el) el.remove(); return; }
   if(!el){
     el = document.createElement("div");
     el.id = "stPanel";
@@ -3188,10 +3227,10 @@ async function render(){
   if(r.name==="studio" && draft) bindEditor();
   if(r.name==="story") await openReader(r.arg); else closeQuietly();
   hydrateThumbs(); observeRises(); seedMotes();
-  window.scrollTo({top:0,behavior:"instant"});
+  window.scrollTo(0,0);
   /* Coming back to a deep page of the archive, the castle plate is not what
      was wanted — put the reader back at the list they were reading. */
-  if(r.name==="archive" && arch.page>1) $(".kfind")?.scrollIntoView({block:"start"});
+  if(r.name==="archive" && arch.page>1){ const _k=$(".kfind"); if(_k) _k.scrollIntoView({block:"start"}); }
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -3207,7 +3246,7 @@ document.addEventListener("click", async e=>{
   if(t.id==="pNext") goNext();
   if(t.id==="pPrev") goPrev();
   if(t.id==="rClose"){ closeReader(); return; }
-  if(t.id==="rCandle"){ readerCandle=!readerCandle; document.querySelector(".reader")?.classList.toggle("candle",readerCandle); return; }
+  if(t.id==="rCandle"){ readerCandle=!readerCandle; const _r=document.querySelector(".reader"); if(_r) _r.classList.toggle("candle",readerCandle); return; }
   if(t.dataset.size){
     readerSize = Math.min(1.28, Math.max(.82, readerSize + (+t.dataset.size)*0.09));
     if(pendingEssay) mountEssay();
@@ -3224,7 +3263,7 @@ document.addEventListener("click", async e=>{
   // archive
   if(t.dataset.acat!==undefined){ arch.cat = t.dataset.acat; arch.page = 1; renderArchive(); return; }
   if(t.dataset.apage!==undefined){ arch.page = Math.max(1,+t.dataset.apage); renderArchive();
-    $(".kfind")?.scrollIntoView({behavior:"smooth",block:"start"}); }
+    const _k2=$(".kfind"); if(_k2) _k2.scrollIntoView({behavior:"smooth",block:"start"}); }
   if(t.classList.contains("tag")){
     arch.tag = t.dataset.tag; arch.page = 1;
     document.querySelectorAll(".tag").forEach(x=>x.setAttribute("aria-pressed", x.dataset.tag===arch.tag));
@@ -3366,9 +3405,13 @@ if(fromCache){
     }catch(e){ console.error("Refresh failed",e); }
   })();
 }else{
-  await loadPosts();
-  paintBrand();
-  render();
+  /* No top-level await here: it is a parse error on Safari before 15, which
+     killed the whole module and left the page blank on older iPads. */
+  (async ()=>{
+    try{ await loadPosts(); }catch(e){ console.error("Load failed",e); }
+    paintBrand();
+    render();
+  })();
 }
 </script>
 </body>
