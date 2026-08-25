@@ -352,7 +352,16 @@ exports.handler = async (event) => {
       search:(title+" "+dek+" "+publishedAt+" "+bodyPlain.slice(0,400))
                .toLowerCase().slice(0,500),
       srcId: msg.messageId || "",
-      srcFrom: msg.from || ""
+      srcFrom: msg.from || "",
+
+      /* ── The illustrator's queue ──────────────────────────────────────
+         The scheduled illustrator looks for exactly this flag and nothing
+         else. Stories already in the archive do not carry it and never
+         will, so they cannot be picked up — the archive is excluded by
+         the shape of the data rather than by a date comparison that
+         could be got wrong. Set it to false here to stop new arrivals
+         being illustrated automatically. */
+      needsPlate: true
     };
     if(stand) post.stand = stand;
 
