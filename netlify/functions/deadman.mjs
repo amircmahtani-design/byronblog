@@ -100,16 +100,27 @@ async function viaResend(subject, text){
   return { channel:"resend", sent:true };
 }
 
+/* ntfy can take the title either as an HTTP header or as a field in a JSON
+   body. The header form looks simpler and is a trap: HTTP header values
+   cannot carry characters above 255, and every alarm title here contains
+   an em-dash. Setting the header throws before the request is even made.
+   The JSON form is UTF-8 all the way through, so the punctuation survives. */
 async function viaNtfy(subject, text){
   const topic = process.env.NTFY_TOPIC;
   if(!topic) return { channel:"ntfy", skipped:"not configured" };
 
-  const r = await fetch("https://ntfy.sh/" + encodeURIComponent(topic), {
+  const r = await fetch("https://ntfy.sh", {
     method:"POST",
-    headers:{ "Title": subject, "Priority": "high", "Tags": "warning" },
-    body: text.slice(0, 3500)
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      topic:    topic,
+      title:    subject,
+      message:  text.slice(0, 3500),
+      priority: 4,
+      tags:     ["warning"]
+    })
   });
-  if(!r.ok) return { channel:"ntfy", error:"HTTP "+r.status };
+  if(!r.ok) return { channel:"ntfy", error:"HTTP "+r.status+" "+(await r.text()).slice(0,150) };
   return { channel:"ntfy", sent:true };
 }
 
@@ -117,6 +128,22 @@ async function shout(subject, text){
   const results = await Promise.allSettled([ viaResend(subject, text), viaNtfy(subject, text) ]);
   const out = results.map(r => r.status === "fulfilled" ? r.value : { error:String(r.reason) });
   const delivered = out.some(o => o.sent);
+
+  /* An alarm that fails quietly is worse than no alarm, because it is
+     trusted. If every channel refused, try the plainest possible request
+     that could still work: no title, no tags, ASCII only, everything in
+     the body. It is ugly, and it is better than silence. */
+  if(!delivered && process.env.NTFY_TOPIC){
+    try{
+      const plain = (subject + "\n\n" + text).replace(/[^\x20-\x7E\n]/g, "-");
+      const r = await fetch("https://ntfy.sh/" + encodeURIComponent(process.env.NTFY_TOPIC), {
+        method:"POST", body: plain.slice(0, 3500)
+      });
+      if(r.ok) out.push({ channel:"ntfy-plain", sent:true, note:"fallback" });
+      return { delivered: r.ok, channels: out };
+    }catch(e){ out.push({ channel:"ntfy-plain", error:String(e.message||e) }); }
+  }
+
   if(!delivered) console.error("Nobody was told:", JSON.stringify(out));
   return { delivered, channels: out };
 }
