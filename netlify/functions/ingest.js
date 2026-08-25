@@ -13,9 +13,30 @@
      BYRON_ALLOWED_SENDER    the only address whose stories are accepted
      FIREBASE_SERVICE_ACCOUNT the service account JSON, pasted whole
      SITE_URL                e.g. https://www.badmaddangerous.com
+
+   Optional:
+     BYRON_INGEST_SECRET_PREVIOUS
+       The secret being retired. Set it during a changeover and the old
+       and new values are both accepted, so the two sides need not be
+       updated in the same minute. Delete it a day later — while it is
+       present the retired secret still opens the door.
    ───────────────────────────────────────────────────────────────────── */
 
-const admin = require("firebase-admin");
+const admin  = require("firebase-admin");
+const crypto = require("crypto");
+
+/* ── Comparing the secret ──────────────────────────────────────────────
+   A plain === leaks the answer slowly: it stops at the first wrong
+   character, so a patient caller can measure how long each guess took and
+   read the secret out one letter at a time. timingSafeEqual always takes
+   the same time. It needs equal-length buffers, so both sides are hashed
+   to a fixed 32 bytes first. */
+function sameSecret(a, b){
+  if(!a || !b) return false;
+  const ha = crypto.createHash("sha256").update(String(a)).digest();
+  const hb = crypto.createHash("sha256").update(String(b)).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
 
 /* One initialisation per container, not per request. */
 let dbRef = null;
@@ -203,13 +224,81 @@ exports.handler = async (event) => {
      The secret proves the request came from the script. The sender check
      proves the story came from the right person. A published blog needs
      both: a leaked URL alone should not be enough to put words on it.  */
-  const secret = event.headers["x-byron-secret"] || "";
-  if(!process.env.BYRON_INGEST_SECRET || secret !== process.env.BYRON_INGEST_SECRET)
-    return reply(401, { error:"Not authorised" });
+  const secret   = event.headers["x-byron-secret"] || "";
+  const current  = process.env.BYRON_INGEST_SECRET;
+  const previous = process.env.BYRON_INGEST_SECRET_PREVIOUS;
+
+  if(!current) return reply(500, { error:"BYRON_INGEST_SECRET is not set" });
+
+  const onCurrent  = sameSecret(secret, current);
+  const onPrevious = !onCurrent && sameSecret(secret, previous);
+  if(!onCurrent && !onPrevious) return reply(401, { error:"Not authorised" });
+
+  if(onPrevious) console.warn(
+    "Accepted on the previous secret — the rotation is half done. Set " +
+    "BYRON_INGEST_SECRET to the new value and delete the PREVIOUS one.");
 
   let msg;
   try{ msg = JSON.parse(event.body||"{}"); }
   catch(e){ return reply(400, { error:"Body was not JSON" }); }
+
+  /* ── A knock, not a delivery ─────────────────────────────────────────
+     Two jobs in one request.
+
+     For Apps Script, this answers whether the two sides still agree on
+     the secret — cheap to ask, and it stops a botched rotation from
+     staying invisible until the next story arrives.
+
+     For us, the knock itself is the news. Every one is written down as a
+     heartbeat, and a scheduled function on this side notices when they
+     stop. That is the whole point: the thing watching Apps Script is not
+     running on Apps Script, so whatever kills the script cannot also
+     silence the alarm.                                                  */
+  if(msg.ping === true){
+    let recorded = false, deadman = null;
+    try{
+      const store = db();
+      await store.collection("settings").doc("heartbeat").set({
+        at: Date.now(),
+        iso: new Date().toISOString(),
+        source: String(msg.source || "unknown").slice(0,40),
+        usingPrevious: onPrevious
+      }, { merge:true });
+      recorded = true;
+
+      /* ── The two alarms watch each other ─────────────────────────────
+         Netlify watches Apps Script by way of the heartbeat above. This
+         is the return leg: Apps Script gets told how the Netlify alarm
+         is doing, so a dead-man's switch that has quietly stopped — or
+         that has no way of reaching anybody — is reported by the side
+         that still works. Neither can vouch for itself. */
+      const snap = await store.collection("settings").doc("deadman").get();
+      if(snap.exists){
+        const d = snap.data() || {};
+        deadman = {
+          checkedMinutesAgo: d.lastCheck ? Math.round((Date.now()-d.lastCheck)/60000) : null,
+          alerting: !!d.alerting,
+          lastDeliveryFailed: d.delivered === false
+        };
+      }else{
+        deadman = { neverRun:true };
+      }
+    }catch(e){
+      // A heartbeat we could not write is worth reporting, but it is not
+      // a reason to tell Apps Script the secret is wrong.
+      console.error("Heartbeat not recorded:", e.message);
+    }
+    return reply(200, {
+      ok: true,
+      pong: true,
+      usingPrevious: onPrevious,
+      heartbeatRecorded: recorded,
+      deadman,
+      senderConfigured: !!(process.env.BYRON_ALLOWED_SENDER||"").trim(),
+      siteConfigured:   !!(process.env.SITE_URL||"").trim(),
+      at: new Date().toISOString()
+    });
+  }
 
   const allowed = (process.env.BYRON_ALLOWED_SENDER||"").toLowerCase().trim();
   const from    = String(msg.from||"").toLowerCase();
