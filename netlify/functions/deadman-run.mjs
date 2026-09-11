@@ -45,7 +45,6 @@
 
    Optional:
      DEADMAN_MINUTES     how quiet is too quiet. Default 75.
-     DEADMAN_REPEAT_HRS  how often to repeat the same alarm. Default 6.
      DEADMAN_MIN_GAP_S   two clocks landing together would otherwise
                          both check, and could both shout. A check
                          within this many seconds of the last one is
@@ -170,8 +169,7 @@ async function check(source){
   const hb    = hbSnap.exists ? hbSnap.data() : null;
   const state = stateSnap.exists ? stateSnap.data() : {};
 
-  const limit     = Number(process.env.DEADMAN_MINUTES || 75);
-  const repeatHrs = Number(process.env.DEADMAN_REPEAT_HRS || 6);
+  const limit = Number(process.env.DEADMAN_MINUTES || 75);
 
   /* ── Two clocks landing together ───────────────────────────────────
      Netlify's schedule and the external cron both aim at the same
@@ -212,27 +210,29 @@ async function check(source){
 
   /* ── Healthy ─────────────────────────────────────────────────────── */
   if(healthy){
-    if(state.alerting){
-      await shout("Byron letterbox — beating again",
-        "The pipeline is reporting in again.\n\n" +
-        "Last ping " + gap + " minutes ago, from " + (hb.source||"unknown") + ".\n" +
-        "It had been silent for roughly " + humanGap(state.gapAtAlert || 0) + ".\n\n" +
-        "Nothing further is needed. Worth a look at the Apps Script Executions\n" +
-        "panel to see what it was doing during the gap.");
-    }
+    /* Recovery is deliberately silent. It used to send a "beating again"
+       note, which is an email that reports the absence of a problem —
+       exactly the kind that teaches you to stop opening them. Clearing
+       `alerting` here is what re-arms the alarm, so the next stoppage is
+       a fresh incident and does get an email. The recovery is recorded
+       in Firestore for anyone who goes looking. */
     await stateRef.set({ alerting:false, lastCheck:Date.now(), lastCheckBy:source,
                          clocks, lastGap:gap,
+                         recoveredAt: state.alerting ? Date.now() : (state.recoveredAt || 0),
                          lastError:null, brokenAlertAt:0 }, { merge:true });
     return { ok:true, status:"healthy", gapMinutes:gap, source,
              pingSource:hb.source||null };
   }
 
   /* ── Stale ───────────────────────────────────────────────────────── */
-  const lastAlert = Number(state.lastAlertAt || 0);
-  const tooSoon   = state.alerting && lastAlert &&
-                    (Date.now() - lastAlert) < repeatHrs * 3600000;
-
-  if(tooSoon){
+  /* One email per stoppage. The old behaviour repeated every six hours
+     for as long as the silence lasted, which during a weekend outage is
+     a dozen identical emails saying the thing you were told on Friday.
+     `alerting` stays true until the pipeline recovers, and while it is
+     true nothing more is sent. The state document below goes on being
+     updated every half hour, so the detail is there when wanted — it
+     just arrives by being looked at rather than by being posted. */
+  if(state.alerting){
     await stateRef.set({ lastCheck:Date.now(), lastCheckBy:source, clocks,
                          lastGap:gap }, { merge:true });
     return { ok:false, status:"stale-already-reported", gapMinutes:gap, source };
@@ -256,7 +256,8 @@ async function check(source){
     "  3. If the triggers are gone, run setUp to rebuild them.\n" +
     "  4. Check whether any story arrived during the silence — widen\n" +
     "     lookBack, run checkNow, then put lookBack back to 7d.\n\n" +
-    "You will not be told about this again for " + repeatHrs + " hours.";
+    "This is the only email you will get about this stoppage. The next one\n" +
+    "comes if the pipeline recovers and then stops again.";
 
   const told = await shout("Byron letterbox — silent for " + humanGap(gap), body);
 
@@ -326,9 +327,8 @@ export async function runOnce(source){
       const stateRef   = db().collection("settings").doc("deadman");
       const snap       = await stateRef.get();
       const prev       = snap.exists ? (snap.data() || {}) : {};
-      const repeatHrs  = Number(process.env.DEADMAN_REPEAT_HRS || 6);
       const lastBroken = Number(prev.brokenAlertAt || 0);
-      shouldShout = !lastBroken || (Date.now() - lastBroken) >= repeatHrs * 3600000;
+      shouldShout = !lastBroken;   // once per incident; cleared on recovery
 
       await stateRef.set(Object.assign({
         lastCheck:   Date.now(),
@@ -349,8 +349,7 @@ export async function runOnce(source){
         "The dead-man's switch could not complete its check.\n\n" +
         "Clock: " + src + "\n\n" + detail +
         "\n\nUntil this is fixed, nothing is watching the pipeline.\n" +
-        "You will not be told about this again for " +
-        Number(process.env.DEADMAN_REPEAT_HRS || 6) + " hours."); }catch(_){}
+        "This is the only email you will get about it."); }catch(_){}
     }
 
     return { ok:false, status:"error", source:src,

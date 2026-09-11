@@ -52,6 +52,111 @@ function db(){
   return dbRef;
 }
 
+/* ── Telling you a story did not land ──────────────────────────────────
+   Every other failure in this file is reported by returning a status code
+   to Apps Script, which writes it to a log nobody reads. One failure
+   deserves better: a letter that arrived and did not become a story. It
+   is silent, it is invisible from the website, and — this is the part
+   worth being clear about — the dead-man's switch next door cannot see it
+   either. That watches whether Apps Script is still *running*. A story
+   can fail to publish while every heartbeat is perfectly healthy, which
+   is precisely the case where you find out by noticing a gap in the
+   archive weeks later.
+
+   So this is the only thing on the story path that sends an email, and it
+   sends one only when a story fails. While stories are publishing
+   normally it never fires at all. */
+
+async function viaResend(subject, text){
+  const key = process.env.RESEND_API_KEY;
+  const to  = process.env.ALERT_EMAIL;
+  if(!key || !to) return false;
+  const r = await fetch("https://api.resend.com/emails", {
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+key, "Content-Type":"application/json" },
+    body: JSON.stringify({
+      from: process.env.RESEND_FROM || "onboarding@resend.dev",
+      to:[to], subject, text })
+  });
+  if(!r.ok) console.error("Resend refused:", r.status, (await r.text()).slice(0,200));
+  return r.ok;
+}
+
+/* The title travels in the JSON body rather than an HTTP header. Header
+   values cannot carry characters above 255 and the subject has an em-dash
+   in it, so the header form throws before the request is even made. The
+   same trap is documented at greater length in deadman-run.mjs. */
+async function viaNtfy(subject, text){
+  const topic = process.env.NTFY_TOPIC;
+  if(!topic) return false;
+  const r = await fetch("https://ntfy.sh", {
+    method:"POST", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ topic, title:subject, message:text.slice(0,3500),
+                           priority:4, tags:["warning"] })
+  });
+  if(!r.ok) console.error("ntfy refused:", r.status);
+  return r.ok;
+}
+
+/* At most one of these an hour. A morning of retries against the same
+   broken story is one problem, not six, and six emails about it is how a
+   person learns to archive the sender unread. Everything that happens in
+   the quiet hour is still written to settings/ingest. */
+async function storyFailed(reason, msg, detail){
+  const from    = String((msg && msg.from)    || "").slice(0,120);
+  const subject = String((msg && msg.subject) || "").slice(0,200);
+
+  let quiet = false;
+  try{
+    const ref  = db().collection("settings").doc("ingest");
+    const snap = await ref.get();
+    const last = Number((snap.exists ? (snap.data()||{}) : {}).lastFailAlertAt || 0);
+    quiet = !!last && (Date.now() - last) < 3600000;
+
+    await ref.set(Object.assign({
+      lastFail: reason, lastFailAt: Date.now(),
+      lastFailFrom: from, lastFailSubject: subject
+    }, quiet ? {} : { lastFailAlertAt: Date.now() }), { merge:true });
+  }catch(e){
+    /* Firestore is quite possibly the thing that just broke, so this is
+       expected to fail alongside it. Falling through with quiet still
+       false is the right way round: with no state to throttle against,
+       being told twice beats not being told. */
+    console.error("storyFailed could not reach settings/ingest:", e && e.message);
+  }
+
+  if(quiet){
+    console.warn("Story not published (" + reason + ") — held, one was sent within the hour");
+    return;
+  }
+
+  const text =
+    "A letter reached the site and did not become a story.\n\n" +
+    "Reason:   " + reason + "\n" +
+    "From:     " + (from || "unknown") + "\n" +
+    "Subject:  " + (subject || "(none)") + "\n" +
+    "At:       " + new Date().toISOString() + "\n" +
+    (detail ? "\n" + String(detail).slice(0,600) + "\n" : "") +
+    "\nNothing was published, so the site reads exactly as it did before\n" +
+    "the letter arrived.\n\n" +
+    "If it was a real story, send it again once the cause is fixed. Only\n" +
+    "stories that published have their message id remembered, so a failed\n" +
+    "one is not mistaken for a duplicate second time round.\n\n" +
+    "Any further failures in the next hour are recorded in Firestore under\n" +
+    "settings/ingest, but will not be emailed.";
+
+  try{
+    const out = await Promise.allSettled([
+      viaResend("Byron letterbox — a story did not publish", text),
+      viaNtfy(  "Byron letterbox — a story did not publish", text) ]);
+    if(!out.some(o => o.status === "fulfilled" && o.value))
+      console.error("Nobody was told a story failed:", reason);
+  }catch(e){
+    /* Never let the telling break the handling. */
+    console.error("storyFailed could not send:", e && e.message);
+  }
+}
+
 /* ── Reading the letter ───────────────────────────────────────────────
    The byline is the landmark. Everything before it on its line, or on the
    line above if it stands alone, is the title.
@@ -302,13 +407,29 @@ exports.handler = async (event) => {
 
   const allowed = (process.env.BYRON_ALLOWED_SENDER||"").toLowerCase().trim();
   const from    = String(msg.from||"").toLowerCase();
-  if(!allowed) return reply(500, { error:"BYRON_ALLOWED_SENDER is not set" });
-  if(!from.includes(allowed)) return reply(403, { error:"Sender not on the list" });
+  if(!allowed){
+    await storyFailed("BYRON_ALLOWED_SENDER is not set", msg);
+    return reply(500, { error:"BYRON_ALLOWED_SENDER is not set" });
+  }
+  if(!from.includes(allowed)){
+    /* Worth an email rather than a shrug: if Byron ever writes from a
+       different address, every story he sends is dropped here, quietly
+       and for as long as it takes somebody to notice. */
+    await storyFailed("Sender not on the list", msg,
+      "The list matches on: " + allowed);
+    return reply(403, { error:"Sender not on the list" });
+  }
 
-  if(!String(msg.text||"").trim()) return reply(400, { error:"The letter was empty" });
+  if(!String(msg.text||"").trim()){
+    await storyFailed("The letter was empty", msg);
+    return reply(400, { error:"The letter was empty" });
+  }
 
   const site = (process.env.SITE_URL||"").replace(/\/$/,"");
-  if(!site) return reply(500, { error:"SITE_URL is not set" });
+  if(!site){
+    await storyFailed("SITE_URL is not set", msg);
+    return reply(500, { error:"SITE_URL is not set" });
+  }
 
   try{
     const store = db();
@@ -324,8 +445,12 @@ exports.handler = async (event) => {
     }
 
     const { title, body } = parseStory(msg.text, msg.subject);
-    if(plain(body).length < 200)
+    if(plain(body).length < 200){
+      await storyFailed("Too short to be a story", msg,
+        "It came to " + plain(body).length + " characters once the markup was " +
+        "stripped. The minimum is 200.");
       return reply(400, { error:"Too short to be a story — nothing published" });
+    }
 
     /* Two stories may share a title; they may not share a slug. */
     let slug = slugify(title);
@@ -373,6 +498,8 @@ exports.handler = async (event) => {
 
   }catch(e){
     console.error("Ingest failed:", e);
+    await storyFailed("The publisher threw an error", msg,
+      String(e && e.stack ? e.stack : e));
     return reply(500, { error: e.message || "Something went wrong" });
   }
 };
