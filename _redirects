@@ -1,0 +1,7 @@
+# One address for the whole site, so Google sees a single page, not copies.
+https://byronblog.netlify.app/*        https://www.badmaddangerous.com/:splat  301!
+http://byronblog.netlify.app/*         https://www.badmaddangerous.com/:splat  301!
+https://main--byronblog.netlify.app/*  https://www.badmaddangerous.com/:splat  301!
+http://main--byronblog.netlify.app/*   https://www.badmaddangerous.com/:splat  301!
+/index.html                            /                                       301!
+/index                                 /                                       301!
