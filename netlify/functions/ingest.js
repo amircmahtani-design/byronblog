@@ -268,6 +268,16 @@ function endOfStory(paras){
 
 /* Gmail hands over plain text. Blank lines are paragraph breaks; single
    breaks inside a paragraph are the mail client wrapping, not the writer. */
+/* A paragraph that is nothing but a web address is never prose. Gmail
+   turns a linked heading such as the site's own name into
+   "*BADMADDANGEROUS.COM <http://badmaddangerous.com>*", which was being
+   printed as the first line of a story. Remove every link, bare domain
+   and the brackets around them; if nothing is left, drop the paragraph. */
+const onlyLinks = p => !tidy(p)
+  .replace(/<?\bhttps?:\/\/[^\s>]+>?/gi, "")
+  .replace(/\b(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/\S*)?/gi, "")
+  .replace(/[\s<>()\[\]|.,:;·•–—-]+/g, "");
+
 function toHTML(raw){
   const esc = s => String(s)
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -281,6 +291,7 @@ function toHTML(raw){
 
   return paras
     .slice(0, endOfStory(paras))
+    .filter(p => !onlyLinks(p))
     .map(p => `<p>${esc(p).replace(/\n/g," ")}</p>`)
     .join("\n");
 }
