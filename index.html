@@ -2012,7 +2012,7 @@ function viewContact(){
     <h1 class="gold">Write Back</h1>
     <p>Letters, arguments, corrections and recommendations all welcome. Replies are slow but sincere.</p>
     <a class="mail gold" href="mailto:${esc(store.site.email)}">${esc(store.site.email)}</a>
-    <a class="yt" href="${YT_CHANNEL}" target="_blank" rel="noopener">Or hear the stories read aloud <b>on YouTube</b></a>
+    <a class="yt" href="${YT_CHANNEL}" target="_blank" rel="noopener">Or watch the stories <b>on YouTube</b></a>
     <div style="width:min(17rem,46vw);margin:3rem auto 0">${FIL()}</div>
   </section></div>`;
 }
@@ -2062,7 +2062,7 @@ function deckle(seed){
 const seedOf = id => { let h=0; const t=String(id||"x"); for(let i=0;i<t.length;i++) h=(h*31+t.charCodeAt(i))%9973; return h; };
 
 /* ── header block that opens page one ── */
-/* ── Listen: a story's YouTube reading ──────────────────────────────
+/* ── Watch: a story's YouTube video ──────────────────────────────
    youtube-sync.mjs matches channel uploads to stories by title and writes
    the video's id onto the post as `youtube`. Nothing to do by hand. */
 const YT_CHANNEL = "https://www.youtube.com/@badmaddangerous";
@@ -2071,11 +2071,11 @@ function openListen(p){
   const id = ytId(p); if(!id) return;
   closeListen();
   const el = document.createElement("div");
-  el.className = "listen"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Listen: "+p.title);
+  el.className = "listen"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Watch: "+p.title);
   el.innerHTML = `<button class="listen-x" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg></button>
     <div class="listen-in"><h2>${esc(p.title)}</h2>
       <div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
-      <p class="sub">Read aloud on <a href="${YT_CHANNEL}" target="_blank" rel="noopener">our YouTube channel</a></p></div>`;
+      <p class="sub">More stories on <a href="${YT_CHANNEL}" target="_blank" rel="noopener">our YouTube channel</a></p></div>`;
   el.addEventListener("click", e=>{ if(e.target===el || e.target.closest(".listen-x")) closeListen(); });
   document.body.appendChild(el);
 }
@@ -2094,7 +2094,7 @@ function pageHead(p, img){
     ${FIL("pg-fl","ornInk")}
     ${p.dek?`<p class="pg-dek">${esc(p.dek)}</p>`:""}
     <p class="pg-by">By ${esc(store.site.byline)} &nbsp;·&nbsp; ${esc(fmtDate(p.publishedAt))}</p>
-    ${ytId(p)?`<button class="pg-listen" data-listen><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Listen to this story</button>`:""}
+    ${ytId(p)?`<button class="pg-listen" data-listen><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch the story</button>`:""}
     ${img?`<div class="pg-imgwrap"><img class="pg-img" src="${esc(img)}" alt="" onerror="this.closest('.pg-imgwrap').remove()"></div>`:""}`;
 }
 
