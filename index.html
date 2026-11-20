@@ -737,6 +737,41 @@ img[data-fallback]{opacity:0}
   transition:border-color .4s}
 .contact .mail:hover{border-color:var(--gold)}
 
+/* ══════════════════════ LISTEN · YouTube ══════════════════════ */
+.contact .yt{display:block;margin:2.4rem auto 0;font-family:var(--display);font-style:italic;
+  font-size:clamp(1rem,1.7vw,1.2rem);color:var(--dim-1);text-decoration:none}
+.contact .yt b{font-style:normal;font-weight:500;color:var(--gold);border-bottom:1px solid rgba(200,169,106,.4);
+  padding-bottom:.15em;transition:border-color .35s}
+@media (hover:hover) and (pointer:fine){.contact .yt:hover b{border-color:var(--gold)}}
+.pg-listen{display:flex;align-items:center;justify-content:center;gap:.7em;margin:0 auto calc(1.2rem*var(--ps,1));
+  min-height:44px;padding:.55em 1.3em;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  border:1px solid #8A6A2E;color:#4A3B22;font-family:var(--body);font-weight:700;
+  font-size:calc(.8rem*var(--ps,1));letter-spacing:.16em;text-transform:uppercase;text-indent:0;
+  transition:background-color .35s,color .35s}
+.pg-listen svg{width:1.05em;height:1.05em;fill:currentColor;flex:none}
+@media (hover:hover) and (pointer:fine){.pg-listen:hover{background:#4A3B22;color:var(--gold-pale)}}
+.pg-listen:active{background:#4A3B22;color:var(--gold-pale)}
+.listen{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:16px;
+  background:rgba(8,6,4,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:lsIn .35s ease}
+@keyframes lsIn{from{opacity:0}}
+.listen-in{width:min(100%,1100px);text-align:center}
+.listen h2{font-family:var(--display);font-weight:500;color:var(--gold-pale);
+  font-size:clamp(1.25rem,2.6vw,1.9rem);margin:0 3rem 1rem;line-height:1.25;text-wrap:balance}
+.listen .frame{position:relative;aspect-ratio:16/9;border:1px solid rgba(200,169,106,.55);
+  box-shadow:0 30px 80px -20px #000;background:#000}
+.listen .frame.short{aspect-ratio:9/16;width:min(100%,calc((100svh - 190px)*9/16));margin-inline:auto}
+.listen iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.listen .sub{margin:1rem 0 0;font-family:var(--body);font-size:1.05rem;color:var(--dim-1)}
+.listen .sub a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(200,169,106,.4)}
+.listen-x{position:absolute;top:max(12px,env(safe-area-inset-top));right:12px;width:48px;height:48px;
+  display:grid;place-items:center;background:none;border:0;color:var(--gold-lt);cursor:pointer}
+.listen-x svg{width:24px;height:24px;fill:currentColor}
+.kfoot .ytf{display:inline-flex;align-items:center;gap:.6rem;min-height:44px;margin-bottom:1rem;
+  font-family:var(--body);font-weight:600;font-size:.84rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);text-decoration:none;transition:color .3s}
+.kfoot .ytf svg{width:1.7rem;height:auto;fill:currentColor;flex:none}
+@media (hover:hover) and (pointer:fine){.kfoot .ytf:hover{color:var(--gold-lt)}}
+
 /* ══════════════════════ KIT · FOOTER ══════════════════════ */
 .kfoot{position:relative;z-index:2;border-top:1px solid rgba(200,169,106,.18);
   background:linear-gradient(to bottom,rgba(13,13,13,.4),rgba(9,9,9,.9))}
@@ -1071,6 +1106,7 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
     </div>
     <nav id="footNav"></nav>
     <div class="follow">
+      <a class="ytf" href="https://www.youtube.com/@badmaddangerous" target="_blank" rel="noopener"><svg viewBox="0 0 28 20" aria-hidden="true"><path d="M27.4 3.1A3.5 3.5 0 0 0 25 .6C22.7 0 14 0 14 0S5.3 0 3 .6A3.5 3.5 0 0 0 .6 3.1C0 5.3 0 10 0 10s0 4.7.6 6.9A3.5 3.5 0 0 0 3 19.4c2.3.6 11 .6 11 .6s8.7 0 11-.6a3.5 3.5 0 0 0 2.4-2.5c.6-2.2.6-6.9.6-6.9s0-4.7-.6-6.9zM11.2 14.3V5.7L18.5 10l-7.3 4.3z"/></svg>Watch on YouTube</a>
       <p class="rights">&copy; <span id="footYear"></span> Bad, Mad &amp; Dangerous<br>By Lord Byron<br>All rights reserved.</p>
       <p class="rights built-by">Website made by Zenith Advisory LLC</p>
     </div>
@@ -1977,6 +2013,7 @@ function viewContact(){
     <h1 class="gold">Write Back</h1>
     <p>Letters, arguments, corrections and recommendations all welcome. Replies are slow but sincere.</p>
     <a class="mail gold" href="mailto:${esc(store.site.email)}">${esc(store.site.email)}</a>
+    <a class="yt" href="${YT_CHANNEL}" target="_blank" rel="noopener">Or watch the stories <b>on YouTube</b></a>
     <div style="width:min(17rem,46vw);margin:3rem auto 0">${FIL()}</div>
   </section></div>`;
 }
@@ -2026,12 +2063,41 @@ function deckle(seed){
 const seedOf = id => { let h=0; const t=String(id||"x"); for(let i=0;i<t.length;i++) h=(h*31+t.charCodeAt(i))%9973; return h; };
 
 /* ── header block that opens page one ── */
+/* ── Watch: a story's YouTube video ──────────────────────────────
+   youtube-sync.mjs matches channel uploads to stories by title and writes
+   the video's id onto the post as `youtube`. Nothing to do by hand. */
+const YT_CHANNEL = "https://www.youtube.com/@badmaddangerous";
+const ytId = p => (p && typeof p.youtube==="string" && /^[\w-]{11}$/.test(p.youtube)) ? p.youtube : "";
+function openListen(p){
+  const id = ytId(p); if(!id) return;
+  closeListen();
+  // phones refuse a video that starts itself, so there it waits for one tap
+  const auto = matchMedia("(hover:hover) and (pointer:fine)").matches ? "autoplay=1&" : "";
+  const el = document.createElement("div");
+  el.className = "listen"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Watch: "+p.title);
+  el.innerHTML = `<button class="listen-x" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg></button>
+    <div class="listen-in"><h2>${esc(p.title)}</h2>
+      <div class="frame${p.youtubeShort?" short":""}"><iframe src="https://www.youtube-nocookie.com/embed/${id}?${auto}rel=0&playsinline=1" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <p class="sub">More stories on <a href="${YT_CHANNEL}" target="_blank" rel="noopener">our YouTube channel</a></p></div>`;
+  el.addEventListener("click", e=>{ if(e.target===el || e.target.closest(".listen-x")) closeListen(); });
+  document.body.appendChild(el);
+}
+function closeListen(){ const el=document.querySelector(".listen"); if(el) el.remove(); }
+document.addEventListener("click", e=>{
+  const b = e.target.closest && e.target.closest("[data-listen]");
+  if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  if(BOOK.post) openListen(BOOK.post);
+}, true);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && document.querySelector(".listen")){ e.stopPropagation(); closeListen(); } }, true);
+
 function pageHead(p, img){
   return `<div class="pg-kick"><span class="ln"></span><span>${esc(firstTag(p))}</span><span class="ln"></span></div>
     <h1 class="pg-title">${esc(p.title)}</h1>
     ${FIL("pg-fl","ornInk")}
     ${p.dek?`<p class="pg-dek">${esc(p.dek)}</p>`:""}
     <p class="pg-by">By ${esc(store.site.byline)} &nbsp;·&nbsp; ${esc(fmtDate(p.publishedAt))}</p>
+    ${ytId(p)?`<button class="pg-listen" data-listen><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch the story</button>`:""}
     ${img?`<div class="pg-imgwrap"><img class="pg-img" src="${esc(img)}" alt="" onerror="this.closest('.pg-imgwrap').remove()"></div>`:""}`;
 }
 
@@ -2474,6 +2540,7 @@ async function openReader(slug){
 }
 
 function closeReader(){
+  closeListen();
   const el = document.querySelector(".reader");
   if(!el) return;
   el.remove();
