@@ -343,10 +343,19 @@ a,button,summary,label,[role=button],.tag,.wp-counts a,th[data-sort]{
 @media (max-width:900px){
   .brand-txt{display:none}
   .nav{gap:1.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-    margin-left:auto;padding:0 .25rem;mask-image:linear-gradient(to right,transparent,#000 12px,#000 calc(100% - 18px),transparent)}
+    margin-left:auto;padding:0 .25rem}
   .nav::-webkit-scrollbar{display:none}
   .nav a{letter-spacing:.12em;font-size:.8rem;white-space:nowrap;flex:none}
 }
+/* A phone has room for the three tabs or the magnifier, not both, and the
+   magnifier only opens the Archive, which is already a tab. Dropping it and
+   tightening the tracking lets Contact sit whole instead of fading off. */
+@media (max-width:440px){
+  .bar .searchbtn{display:none}
+  .nav{gap:.9rem;padding:0}
+  .nav a{letter-spacing:.07em;min-height:44px;display:inline-flex;align-items:center}
+}
+@media (max-width:345px){ .nav{gap:.6rem} .nav a{letter-spacing:.04em} }
 @media (max-width:900px){
   /* portrait artwork, and the headline sits under him rather than over him */
   .hero-bg{background-image:var(--hero-tall);background-position:center center}
@@ -2114,6 +2123,13 @@ function buildPages(mBody, bodyHTML, headerHTML){
   const forced = new WeakSet();
 
   mBody.innerHTML = headerHTML;
+  /* A long standfirst plus the Watch button can leave the title page a
+     few pixels too tall for its picture. Rather than let the plate run
+     under the page foot, crop it a little wider until the page fits. */
+  const plate = mBody.querySelector(".pg-img");
+  if(plate && over()){
+    for(const ar of ["2 / 1", "9 / 4", "5 / 2", "3 / 1", "7 / 2"]){ plate.style.aspectRatio = ar; if(!over()) break; }
+  }
   if(over()){ pages.push(mBody.innerHTML); mBody.innerHTML = ""; }
 
   for(let i=0;i<items.length;i++){
@@ -2240,6 +2256,21 @@ function splitNode(node, mBody){
 }
 
 /* ── the illuminated opening: drop cap plus a small-capped first word ── */
+/* A paragraph that is nothing but a web address is never prose. Gmail once
+   turned the site's linked heading into "*badmaddangerous.com
+   <http://badmaddangerous.com>*" and the import printed it as the opening
+   line of a story. ingest.js now drops these on arrival; this hides any
+   that were already stored. Sentences that merely mention a link stay. */
+function dropLinkOnly(html){
+  return String(html||"").replace(/<p\b[^>]*>([\s\S]*?)<\/p>\s*/gi, (whole, inner)=>{
+    const t = inner.replace(/<[^>]+>/g," ").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&")
+      .replace(/<?\bhttps?:\/\/[^\s>]+>?/gi,"")
+      .replace(/\b(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/\S*)?/gi,"")
+      .replace(/[\s<>()\[\]|.,:;*_~`·•–—-]+/g,"");
+    return t ? whole : "";
+  });
+}
+
 function illuminate(html){
   const d = document.createElement("div");
   d.innerHTML = html;
@@ -2304,7 +2335,17 @@ async function mountEssay(){
   pagesEl.appendChild(meas);
   const mBody = meas.querySelector(".pg-body");
 
-  let pages = buildPages(mBody, illuminate(md(body)), pageHead(post, img));
+  /* fonts.ready only covers faces already asked for. The italic standfirst,
+     the drop cap and the button's weight are often first used right here,
+     so the pages were being measured in the fallback face and the first one
+     came out a line too long once the real face arrived. Set the opening
+     into the measuring page, let the browser request those faces, and wait. */
+  mBody.innerHTML = pageHead(post, img) + illuminate(dropLinkOnly(md(body))).slice(0, 4000);
+  void mBody.offsetHeight;
+  try{ await document.fonts.ready; }catch(e){}
+  mBody.innerHTML = "";
+
+  let pages = buildPages(mBody, illuminate(dropLinkOnly(md(body))), pageHead(post, img));
   meas.remove();
 
   BOOK.pages = pages;
@@ -2537,6 +2578,15 @@ async function openReader(slug){
   document.body.appendChild(el);
   document.body.style.overflow = "hidden";
   await mountEssay();
+  /* Safety net: a face that finished loading after the pages were measured
+     can leave one page a line too tall. If any page overflows once things
+     settle, and the reader hasn't turned a page yet, bind the book again. */
+  setTimeout(()=>{
+    if(!pendingEssay || BOOK.turned) return;
+    const spill = [...document.querySelectorAll(".reader .pg-body")]
+      .some(b => b.offsetParent && b.scrollHeight > b.clientHeight + 2);
+    if(spill) mountEssay();
+  }, 1200);
 }
 
 function closeReader(){
