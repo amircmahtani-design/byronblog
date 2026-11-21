@@ -296,6 +296,17 @@ function toHTML(raw){
     .join("\n");
 }
 
+/* Same writing, give or take spacing, punctuation and a stray line: the
+   first eighty words agree almost entirely. */
+function sameWriting(a, b){
+  const words = h => plain(h).toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean).slice(0,80);
+  const x = words(a), y = words(b);
+  if(x.length < 20 || y.length < 20) return false;
+  const ys = new Set(y);
+  return x.filter(w => ys.has(w)).length / x.length >= 0.9 &&
+         x.slice(0,12).join(" ") === y.slice(0,12).join(" ");
+}
+
 const slugify = s => String(s).toLowerCase()
   .replace(/[^\w\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-")
   .replace(/^-|-$/g,"").slice(0,70) || "story-"+Date.now();
@@ -463,10 +474,25 @@ exports.handler = async (event) => {
       return reply(400, { error:"Too short to be a story — nothing published" });
     }
 
-    /* Two stories may share a title; they may not share a slug. */
+    /* The message id above only recognises letters this pipeline has seen.
+       A story already put on the site another way (typed into the Studio,
+       or an older copy of the same email) has no id to match, and on 18
+       August that is how The Museum of Forgotten Things appeared twice. So
+       before publishing, compare with every story of the same title: if
+       the writing is the same, it is already here. Two different stories
+       that happen to share a title are still both published. */
     let slug = slugify(title);
-    const clash = await store.collection("posts").where("slug","==",slug).limit(1).get();
-    if(!clash.empty) slug += "-"+Date.now().toString(36).slice(-4);
+    const twins = await store.collection("posts")
+      .where("slug", ">=", slug).where("slug", "<=", slug + "-\uf8ff").get();
+    for(const d of twins.docs){
+      if(d.id && slugify(d.get("title")||"") !== slug) continue;
+      const theirs = await d.ref.collection("content").doc("body").get();
+      if(sameWriting(body, theirs.exists ? theirs.get("text") : "")){
+        return reply(200, { ok:true, skipped:"already on the site", id:d.id });
+      }
+    }
+    /* Two stories may share a title; they may not share a slug. */
+    if(twins.docs.some(d => d.get("slug") === slug)) slug += "-"+Date.now().toString(36).slice(-4);
 
     const bodyPlain   = plain(body);
     const publishedAt = (msg.date ? new Date(msg.date) : new Date()).toISOString().slice(0,10);
