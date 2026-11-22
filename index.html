@@ -2814,7 +2814,7 @@ function openListen(p){
   el.className = "listen"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Watch: "+p.title);
   el.innerHTML = `<button class="listen-x" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg></button>
     <div class="listen-in"><h2>${esc(p.title)}</h2>
-      <div class="frame${p.youtubeShort?" short":""}"><iframe src="https://www.youtube-nocookie.com/embed/${id}?${auto}rel=0&playsinline=1" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <div class="frame${p.youtubeShort?" short":""}"><iframe src="https://www.youtube-nocookie.com/embed/${id}?${auto}rel=0&playsinline=1&cc_load_policy=0&iv_load_policy=3" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
       <p class="sub">More stories on <a href="${YT_CHANNEL}" target="_blank" rel="noopener">our YouTube channel</a></p></div>`;
   el.addEventListener("click", e=>{ if(e.target===el || e.target.closest(".listen-x")) closeListen(); });
   document.body.appendChild(el);
