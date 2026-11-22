@@ -634,34 +634,47 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .sec-head h2{font-family:var(--body);font-weight:600;font-size:clamp(.92rem,1.6vw,1.08rem);
   letter-spacing:.24em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));
-  gap:clamp(2.2rem,4vw,3.2rem) clamp(1.4rem,2.6vw,2.4rem);align-items:start}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr));
+  gap:clamp(2.6rem,5vw,3.6rem) clamp(1.4rem,3vw,2.6rem);align-items:start}
 .cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}}
 
 /* ══ A story card: the painting whole and bright, the words beneath it ══ */
 .wcard{display:block;text-decoration:none;color:var(--m-ink);-webkit-tap-highlight-color:transparent}
-.wcard .pic{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;border-radius:10px;
-  background:var(--m-ivory-2);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 14px 30px -18px rgba(60,40,20,.45)}
-.wcard .pic img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease),filter .5s}
+.wcard .pic{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;border-radius:4px;background:var(--m-ivory-2)}
+.wcard .pic img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
 .wcard.bare .pic{background:var(--m-ivory-2) url(assets/crest.png) center/22% auto no-repeat}
 .wcard.bare .pic img{display:none}
-.wcard .has-film{position:absolute;right:.7rem;bottom:.7rem;display:inline-flex;align-items:center;gap:.4rem;
-  padding:.3rem .65rem .3rem .55rem;border-radius:999px;background:rgba(26,58,53,.88);color:#F7F2E8;
-  font-family:var(--ui);font-size:.72rem;font-weight:600;letter-spacing:.06em}
+.wcard .has-film{position:absolute;right:.6rem;bottom:.6rem;display:inline-flex;align-items:center;gap:.4rem;
+  padding:.3rem .65rem .3rem .55rem;border-radius:999px;background:rgba(26,58,53,.9);color:#F7F2E8;
+  font-family:var(--body);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .wcard .has-film::before{content:"";width:0;height:0;border-left:.5rem solid currentColor;border-top:.32rem solid transparent;border-bottom:.32rem solid transparent}
-.wcard .cat{display:block;margin:1rem 0 .35rem;font-family:var(--body);font-weight:700;font-size:.8rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--m-burgundy)}
-.wcard h3{font-family:var(--display);font-weight:500;color:var(--m-ink);margin:0;
-  font-size:clamp(1.3rem,1.15rem + .45vw,1.6rem);line-height:1.22;text-wrap:balance;transition:color .3s}
-.wcard .meta{display:block;margin-top:.55rem;font-family:var(--body);font-weight:600;font-size:.84rem;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--m-ink-3)}
+.wcard .wtxt{display:block}
+.wcard .cat{display:block;margin:1rem 0 .4rem;font-family:var(--body);font-weight:700;font-size:.8rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--m-burgundy)}
+.wcard h3{font-family:var(--display);font-weight:500;color:var(--m-ink);margin:0;letter-spacing:-.005em;
+  font-size:clamp(1.35rem,1.2rem + .45vw,1.65rem);line-height:1.2;text-wrap:balance;transition:color .3s}
+.wcard .dek{display:block;margin-top:.5rem;font-family:var(--display);font-style:italic;font-size:1.1rem;line-height:1.45;
+  color:var(--m-ink-2);text-wrap:pretty}
+.wcard .meta{display:block;margin-top:.7rem;font-family:var(--body);font-weight:600;font-size:.82rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--m-ink-3)}
+/* the feature: big picture, big title */
+.wcard.big .pic{aspect-ratio:3/2}
+.wcard.big h3{font-size:clamp(1.9rem,1.4rem + 1.8vw,3rem);line-height:1.08;letter-spacing:-.012em;margin-top:.1rem}
+.wcard.big .dek{font-size:clamp(1.2rem,1.05rem + .5vw,1.45rem);max-width:44ch}
+/* the column: small picture beside the words */
+.wcard.row{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1rem;align-items:start;padding:1rem 0;border-bottom:1px solid var(--m-line)}
+.wcard.row .pic{aspect-ratio:1/1}
+.wcard.row .has-film{display:none}
+.wcard.row .cat{margin-top:0}
+.wcard.row h3{font-size:clamp(1.15rem,1.05rem + .3vw,1.35rem)}
+.wcard.row .meta{margin-top:.4rem}
 @media (hover:hover) and (pointer:fine){
   .wcard:hover .pic img{transform:scale(1.04)}
-  .wcard:hover h3{color:var(--m-green)}
+  .wcard:hover h3{color:var(--m-burgundy)}
 }
 .wcard:focus-visible{outline:none}
-.wcard:focus-visible .pic{outline:2px solid var(--m-gold);outline-offset:4px}
+.wcard:focus-visible h3{text-decoration:underline;text-underline-offset:.2em}
 
 /* ══════════════════════ THE LIGHT HOUSE ══════════════════════
    A luminous literary magazine: ivory ground, the paintings in full colour,
@@ -684,50 +697,78 @@ body:not(.studio) .nav a::after{background:var(--m-gold)}
 body:not(.studio) .searchbtn{color:var(--m-ink-2)}
 body:not(.studio) .searchbtn svg{fill:var(--m-ink-2)}
 
-.mbtn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.6rem;border-radius:999px;
+.kick{margin:0 0 .6rem;font-family:var(--body);font-weight:700;font-size:.8rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--m-burgundy)}
+.kick.c{text-align:center}
+.mbtn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:48px;padding:0 1.6rem;border-radius:999px;
   border:1px solid var(--m-green);background:var(--m-green);color:#F7F2E8;text-decoration:none;cursor:pointer;
-  font-family:var(--body);font-weight:700;font-size:1rem;letter-spacing:.06em;white-space:nowrap;
-  transition:background-color .3s,color .3s,transform .2s}
-.mbtn.ghost{background:transparent;color:var(--m-green)}
-@media (hover:hover) and (pointer:fine){.mbtn:hover{background:var(--m-green-2)}.mbtn.ghost:hover{background:var(--m-green);color:#F7F2E8}}
+  font-family:var(--body);font-weight:700;font-size:1.02rem;letter-spacing:.05em;white-space:nowrap;
+  transition:background-color .3s,color .3s,border-color .3s,transform .2s}
+.mbtn.light{background:#F7F2E8;border-color:#F7F2E8;color:var(--m-ink)}
+.mbtn.ghost-light{background:transparent;border-color:rgba(247,242,232,.75);color:#F7F2E8}
+@media (hover:hover) and (pointer:fine){
+  .mbtn:hover{background:var(--m-green-2)}
+  .mbtn.light:hover{background:#fff}
+  .mbtn.ghost-light:hover{background:rgba(247,242,232,.14);border-color:#F7F2E8}
+}
 .mbtn:active{transform:scale(.97)}
-.mbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem}
+.mbtns{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center}
+.mbtns.left{justify-content:flex-start}
+.mlink{background:none;border:0;padding:0 .15rem;min-height:44px;cursor:pointer;font:inherit;color:var(--m-green);
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.25em}
 
-.mhero{padding-top:clamp(1.25rem,3vw,2.25rem)}
-.mhero-pic{position:relative;display:block;aspect-ratio:16/8;max-height:72vh;width:100%;overflow:hidden;border-radius:14px;
-  background:var(--m-ivory-2);box-shadow:0 24px 50px -30px rgba(60,40,20,.55)}
-.mhero-pic img{width:100%;height:100%;object-fit:cover}
-.mhero-tag{position:absolute;left:clamp(.9rem,2vw,1.5rem);bottom:clamp(.9rem,2vw,1.5rem);max-width:min(80%,30rem);
-  padding:.65rem 1rem .75rem;border-radius:10px;background:rgba(247,242,232,.92);color:var(--m-ink);
-  font-family:var(--display);font-size:clamp(1rem,1.6vw,1.25rem);line-height:1.25;text-decoration:none}
-.mhero-tag span{display:block;font-family:var(--body);font-weight:700;font-size:.74rem;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--m-burgundy);margin-bottom:.15rem}
-@media (max-width:640px){.mhero-pic{aspect-ratio:4/3}.mhero-tag{font-size:1rem;padding:.5rem .8rem .6rem}}
-.mhero-in{text-align:center;max-width:46rem;margin:clamp(1.75rem,4vw,2.75rem) auto 0}
-.mhero-in h1{font-family:var(--display);font-weight:500;color:var(--m-ink);margin:0 0 .7rem;
-  font-size:clamp(1.9rem,1.4rem + 2.4vw,3.2rem);line-height:1.12;text-wrap:balance}
-.mhero-in p{font-family:var(--body);font-size:clamp(1.15rem,1.05rem + .4vw,1.35rem);line-height:1.5;color:var(--m-ink-2);
-  margin:0 auto 1.5rem;max-width:36rem;text-wrap:balance}
+/* ── the masthead ── */
+.mast{text-align:center;padding-top:clamp(1.5rem,4vw,2.75rem);padding-bottom:clamp(1.25rem,3vw,2rem)}
+.mast-date{display:flex;justify-content:space-between;gap:1rem;margin:0 0 clamp(.75rem,2vw,1.25rem);padding-bottom:.6rem;
+  border-bottom:1px solid var(--m-ink);font-family:var(--body);font-weight:600;font-size:.84rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--m-ink-2)}
+.mast-name{margin:0;font-family:var(--display);font-weight:600;color:var(--m-ink);letter-spacing:-.015em;line-height:.95;
+  font-size:clamp(2.6rem,1.2rem + 6.2vw,7.2rem);text-wrap:balance}
+.mast-name i{font-style:italic;font-weight:400;color:var(--m-burgundy)}
+.mast-tag{margin:clamp(.75rem,2vw,1.1rem) 0 0;padding-top:.6rem;border-top:3px double var(--m-ink);
+  font-family:var(--display);font-style:italic;font-size:clamp(1.02rem,.95rem + .4vw,1.3rem);color:var(--m-ink-2)}
 
-.msec{padding:clamp(2.5rem,6vw,4.5rem) var(--gut)}
-.msec.wrap{padding-left:var(--gut);padding-right:var(--gut)}
-.mhead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:clamp(1.4rem,3vw,2rem);
-  border-bottom:1px solid var(--m-line);padding-bottom:.75rem}
-.mhead h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,1.2rem + 1.2vw,2.1rem);margin:0;color:var(--m-ink)}
-.mhead a{font-family:var(--body);font-weight:700;font-size:.95rem;letter-spacing:.06em;color:var(--m-green);
-  text-decoration:none;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center}
-.mhead a::after{content:"  →"}
+/* ── the lead story: the painting across the page, its title over it ── */
+.lead{position:relative;min-height:clamp(30rem,78vh,52rem);display:flex;align-items:flex-end;overflow:hidden;
+  background:#1C1712;margin-top:clamp(.5rem,1.5vw,1rem)}
+.lead-pic{position:absolute;inset:0}
+.lead-pic img{width:100%;height:100%;object-fit:cover;object-position:center 40%;transform:scale(1.02)}
+.lead::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(20,15,10,.86) 0%,rgba(20,15,10,.55) 34%,rgba(20,15,10,0) 66%)}
+.lead-in{position:relative;z-index:2;width:100%;padding-top:4rem;padding-bottom:clamp(2rem,5vw,3.5rem);color:#F7F2E8}
+.lead .kick{color:#E7CF9A}
+.lead h2{margin:0;max-width:20ch;font-family:var(--display);font-weight:500;letter-spacing:-.015em;line-height:1.04;
+  font-size:clamp(2.3rem,1.4rem + 4vw,5rem);text-wrap:balance}
+.lead h2 a{color:inherit;text-decoration:none}
+.lead-dek{margin:.9rem 0 1.5rem;max-width:40ch;font-family:var(--display);font-style:italic;
+  font-size:clamp(1.15rem,1rem + .6vw,1.5rem);line-height:1.4;color:#EDE4D2}
 
-.mgreen{background:var(--m-green);color:#F1EADB}
-.mgreen .mhead{border-color:rgba(201,167,102,.35)}
-.mgreen .mhead h2{color:#F7F2E8}
-.mgreen .mhead a{color:var(--m-gold-lt)}
-.films{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(46%,13.5rem),1fr));gap:clamp(1rem,2.4vw,1.8rem)}
+/* ── the spread: one feature beside a column ── */
+.spread{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:clamp(1.75rem,4vw,3.5rem);
+  padding-top:clamp(3rem,7vw,5.5rem);padding-bottom:clamp(2.5rem,5vw,4rem)}
+.spread-side{border-left:1px solid var(--m-line);padding-left:clamp(1.25rem,3vw,2.5rem)}
+.col-head{margin:0 0 1rem;padding-bottom:.6rem;border-bottom:1px solid var(--m-ink);font-family:var(--body);font-weight:700;
+  font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--m-ink)}
+@media (max-width:900px){.spread{grid-template-columns:1fr}.spread-side{border-left:0;padding-left:0}}
+.msec-tight{padding-bottom:clamp(3rem,7vw,5rem)}
+.more-line{margin:clamp(2rem,4vw,3rem) 0 0;text-align:center;font-family:var(--display);font-style:italic;font-size:1.2rem}
+.more-line a{color:var(--m-green);text-underline-offset:.25em;text-decoration-thickness:1px;display:inline-flex;min-height:44px;align-items:center}
+
+/* ── the cinema ── */
+.cinema{background:var(--m-green);color:#EDE4D2;padding:clamp(3.5rem,8vw,6rem) 0}
+.cinema-head{max-width:40rem;margin-bottom:clamp(1.75rem,4vw,2.75rem)}
+.cinema .kick{color:var(--m-gold-lt)}
+.cinema h2{margin:0 0 .5rem;font-family:var(--display);font-weight:500;color:#F7F2E8;letter-spacing:-.01em;
+  font-size:clamp(2rem,1.5rem + 2vw,3.2rem);line-height:1.08}
+.cinema-head p:last-child{margin:0;font-family:var(--display);font-style:italic;font-size:1.2rem;color:#D9CFBB}
+.cinema .more-line a{color:var(--m-gold-lt)}
+.films{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(46%,13rem),15rem));gap:clamp(1rem,2.4vw,1.8rem)}
 .film{display:block;text-align:left;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
-.film-pic{position:relative;display:block;aspect-ratio:9/16;max-height:30rem;overflow:hidden;border-radius:12px;background:#0F2420}
+.film-pic{position:relative;display:block;aspect-ratio:9/16;overflow:hidden;border-radius:6px;background:#0F2420;
+  box-shadow:0 18px 40px -20px rgba(0,0,0,.7)}
 .film-pic img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .film .play{position:absolute;left:50%;top:50%;width:3.6rem;height:3.6rem;margin:-1.8rem 0 0 -1.8rem;border-radius:50%;
-  background:rgba(247,242,232,.9);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  background:rgba(247,242,232,.92);box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .film .play::after{content:"";position:absolute;left:1.42rem;top:1.08rem;border-left:1.1rem solid var(--m-green);
   border-top:.72rem solid transparent;border-bottom:.72rem solid transparent}
 .film .cat{display:block;margin:.85rem 0 .25rem;font-family:var(--body);font-weight:700;font-size:.78rem;
@@ -736,17 +777,30 @@ body:not(.studio) .searchbtn svg{fill:var(--m-ink-2)}
 body:not(.studio) .mpage .film .cat{color:var(--m-burgundy)}
 body:not(.studio) .mpage .film .t{color:var(--m-ink)}
 @media (hover:hover) and (pointer:fine){.film:hover .film-pic img{transform:scale(1.04)}}
-.film:focus-visible{outline:2px solid var(--m-gold);outline-offset:4px;border-radius:12px}
+.film:focus-visible{outline:2px solid var(--m-gold);outline-offset:4px;border-radius:6px}
 
-.msurprise{text-align:center}
-.msurprise h2{font-family:var(--display);font-weight:500;font-size:clamp(1.4rem,1.2rem + .9vw,1.9rem);margin:0 0 1rem;color:var(--m-ink)}
+/* ── the index ── */
+.index{padding-top:clamp(3.5rem,8vw,6rem);padding-bottom:clamp(3.5rem,8vw,6rem)}
+.index-head{text-align:center;margin-bottom:clamp(1.5rem,3vw,2.25rem)}
+.index-head h2{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(2rem,1.5rem + 2vw,3.2rem);color:var(--m-ink)}
+.index-list{list-style:none;margin:0 auto;padding:0;max-width:56rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:clamp(1.5rem,5vw,4rem);border-top:1px solid var(--m-ink)}
+.index-list a{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;min-height:56px;padding:.7rem 0;
+  border-bottom:1px solid var(--m-line);text-decoration:none;color:var(--m-ink);font-family:var(--display);
+  font-size:clamp(1.3rem,1.1rem + .7vw,1.75rem);transition:color .3s,padding-left .3s var(--ease)}
+.index-list i{font-family:var(--body);font-style:normal;font-weight:600;font-size:.95rem;color:var(--m-ink-3)}
+@media (hover:hover) and (pointer:fine){.index-list a:hover{color:var(--m-burgundy);padding-left:.4rem}}
+@media (max-width:560px){.index-list{grid-template-columns:1fr}}
+.index-surprise{margin:clamp(1.75rem,4vw,2.5rem) 0 0;text-align:center;font-family:var(--display);font-style:italic;
+  font-size:1.2rem;color:var(--m-ink-2)}
 
-.mpage h1{font-family:var(--display);font-weight:500;text-align:center;margin:0 0 .4rem;color:var(--m-ink);
-  font-size:clamp(2.1rem,1.6rem + 2.2vw,3.2rem)}
-.mlede{text-align:center;font-family:var(--body);font-size:1.2rem;color:var(--m-ink-2);margin:0 auto 1.75rem;max-width:36rem}
+/* ── pages ── */
+.mpage h1{font-family:var(--display);font-weight:500;text-align:center;margin:0 0 .4rem;color:var(--m-ink);letter-spacing:-.01em;
+  font-size:clamp(2.1rem,1.5rem + 2.6vw,3.6rem);text-wrap:balance}
+.mlede{text-align:center;font-family:var(--display);font-style:italic;font-size:1.2rem;color:var(--m-ink-2);margin:0 auto 1.75rem;max-width:36rem}
 .mlede a{color:var(--m-green)}
-.mlink{background:none;border:0;padding:0 .2rem;min-height:44px;cursor:pointer;font:inherit;color:var(--m-green);
-  text-decoration:underline;text-underline-offset:.2em}
+.msec{padding:clamp(2.5rem,6vw,4.5rem) var(--gut)}
+.msec.wrap{padding-left:var(--gut);padding-right:var(--gut)}
 
 body:not(.studio) .kfind{background:#FFFDF8;border-color:var(--m-line);border-radius:999px}
 body:not(.studio) .kfind input{color:var(--m-ink)}
@@ -2038,38 +2092,54 @@ function seedMotes(){
 function viewHome(){
   const list = published();
   if(!list.length) return `<div class="empty">Nothing published yet. Open the <a href="#/studio">Studio</a> and write the first one.</div>`;
-  const lead = list[0];
-  const latest = list.slice(0,6);
-  const films = list.filter(p=>ytId(p)).slice(0,4);
+  const [lead, feat, ...more] = list;
+  const side = more.slice(0,3), row = more.slice(3,6);
+  const films = list.filter(p=>ytId(p)).slice(0,6);
+  const today = new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const cats = {}; list.forEach(p=>{ const c=categoryFor(p); if(c) cats[c]=(cats[c]||0)+1; });
+  const catList = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
   return `
-  <section class="mhero wrap">
-    <a class="mhero-pic" href="#/story/${esc(lead.slug)}" aria-label="${esc(lead.title)}">
-      <img data-cover="${esc(lead.id)}" src="${BLANK}" alt="">
-      <span class="mhero-tag"><span>${esc(firstTag(lead))}</span>${esc(lead.title)}</span>
-    </a>
-    <div class="mhero-in">
-      <h1>A Little Wickedness. A Little Wonder.</h1>
-      <p>Short stories about love, vanity, mystery, ambition and the extraordinary foolishness of human beings.</p>
-      <div class="mbtns">
-        <a class="mbtn" href="#/archive">Read the Stories</a>
-        ${films.length?`<a class="mbtn ghost" href="#/films">Watch the Films</a>`:""}
+  <header class="mast wrap">
+    <p class="mast-date"><span>${esc(today)}</span><span>${list.length} stories</span></p>
+    <h1 class="mast-name">Bad, Mad <i>&amp;</i> Dangerous</h1>
+    <p class="mast-tag">A little wickedness. A little wonder. &nbsp;·&nbsp; Stories by ${esc(store.site.byline)}</p>
+  </header>
+
+  <section class="lead">
+    <a class="lead-pic" href="#/story/${esc(lead.slug)}" tabindex="-1" aria-hidden="true"><img data-cover="${esc(lead.id)}" src="${BLANK}" alt=""></a>
+    <div class="lead-in wrap">
+      <p class="kick">The latest story &nbsp;·&nbsp; ${esc(firstTag(lead))}</p>
+      <h2><a href="#/story/${esc(lead.slug)}">${esc(lead.title)}</a></h2>
+      ${lead.dek?`<p class="lead-dek">${esc(lead.dek)}</p>`:""}
+      <div class="mbtns left">
+        <a class="mbtn light" href="#/story/${esc(lead.slug)}">Read the story</a>
+        ${ytId(lead)?`<button class="mbtn ghost-light" type="button" data-film="${esc(lead.id)}">▶ Watch the film</button>`:""}
       </div>
     </div>
   </section>
 
-  <section class="msec wrap">
-    <div class="mhead"><h2>Latest Stories</h2><a href="#/archive">All stories</a></div>
-    <div class="cards">${latest.map(wcard).join("")}</div>
-  </section>
+  ${feat?`<section class="spread wrap">
+    ${wcard(feat,"big")}
+    <div class="spread-side">
+      <p class="col-head">Also new</p>
+      ${side.map(p=>wcard(p,"row")).join("")}
+    </div>
+  </section>`:""}
 
-  ${films.length?`<section class="msec mgreen"><div class="wrap">
-    <div class="mhead"><h2>Watch the Stories</h2><a href="#/films">All films</a></div>
+  ${row.length?`<section class="wrap msec-tight"><div class="cards three">${row.map(p=>wcard(p)).join("")}</div>
+    <p class="more-line"><a href="#/archive">Every story, newest first</a></p></section>`:""}
+
+  ${films.length?`<section class="cinema"><div class="wrap">
+    <div class="cinema-head"><p class="kick">Now showing</p><h2>The stories, on film</h2>
+      <p>Each one read aloud in a few minutes, with paintings to match.</p></div>
     <div class="films">${films.map(filmCard).join("")}</div>
+    <p class="more-line"><a href="#/films">All films</a> &nbsp;·&nbsp; <a href="${YT_CHANNEL}" target="_blank" rel="noopener">Subscribe on YouTube</a></p>
   </div></section>`:""}
 
-  <section class="msec wrap msurprise">
-    <h2>Not sure where to begin?</h2>
-    <button class="mbtn" type="button" data-surprise>Surprise Me</button>
+  <section class="index wrap">
+    <div class="index-head"><p class="kick">Browse by subject</p><h2>The index</h2></div>
+    <ul class="index-list">${catList.map(([c,n])=>`<li><a href="#/archive?c=${encodeURIComponent(c)}"><span>${esc(c)}</span><i>${n}</i></a></li>`).join("")}</ul>
+    <p class="index-surprise">Or let chance decide. <button class="mlink" type="button" data-surprise>Open a story at random</button></p>
   </section>`;
 }
 
@@ -2093,13 +2163,17 @@ function viewFilms(){
   </section>`;
 }
 
-function wcard(p){
+function wcard(p, shape){
   const bare = !(p.thumb || p.hasThumb);
-  return `<a class="wcard${bare?" bare":""}" href="#/story/${esc(p.slug)}">
+  const cls = "wcard" + (shape?" "+shape:"") + (bare?" bare":"");
+  return `<a class="${cls}" href="#/story/${esc(p.slug)}">
     <span class="pic"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy">${ytId(p)?`<span class="has-film">Film</span>`:""}</span>
-    <span class="cat">${esc(firstTag(p))}</span>
-    <h3>${esc(p.title)}</h3>
-    <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
+    <span class="wtxt">
+      <span class="cat">${esc(firstTag(p))}</span>
+      <h3>${esc(p.title)}</h3>
+      ${p.dek && shape!=="row"?`<span class="dek">${esc(p.dek)}</span>`:""}
+      <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
+    </span>
   </a>`;
 }
 
@@ -2133,8 +2207,9 @@ function syncArchHash(){
 function viewArchive(){
   return `
   <div class="wrap"><section class="sec mpage">
-    <h1>The Stories</h1>
-    <p class="mlede">Every story, newest first. <button class="mlink" type="button" data-surprise>Surprise me</button></p>
+    <p class="kick c">The collection</p>
+    <h1>Every story, newest first</h1>
+    <p class="mlede"><button class="mlink" type="button" data-surprise>Or open one at random</button></p>
     <div class="kfind">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
       <input id="q" type="search" placeholder="Search the stories…" value="${esc(arch.q)}" autocomplete="off">
