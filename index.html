@@ -1599,15 +1599,20 @@ body:not(.studio) .bcard[data-cover="gold"]{--cv:url(assets/covers/gold.webp?v=3
 body:not(.studio) .bcard[data-cover="burgundy"]{--cv:url(assets/covers/burgundy.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
 body:not(.studio) .bcard[data-cover="green"]{--cv:url(assets/covers/green.webp?v=3);--ar:1064/1361;--wl:15.7%;--wt:9.7%;--ww:71.99%;--wh:32.55%}
 body:not(.studio) .bcard[data-cover="navy"]{--cv:url(assets/covers/navy.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
-body:not(.studio) .bcard[data-cover="teal"]{--cv:url(assets/covers/teal.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
+body:not(.studio) .bcard[data-cover="dove"]{--cv:url(assets/covers/dove.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
 body:not(.studio) .bcard[data-cover="plum"]{--cv:url(assets/covers/plum.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
-body:not(.studio) .bcard[data-cover="chestnut"]{--cv:url(assets/covers/chestnut.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
+body:not(.studio) .bcard[data-cover="rose"]{--cv:url(assets/covers/rose.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
 /* words below the cover's ornament (which sits at about 52% down) */
 body:not(.studio) .bcard .txt{top:54%;left:12%;right:8%;bottom:6%}
 body:not(.studio) .bcard .txt::before{display:none}
 body:not(.studio) .bcard.bare .shot .plate{background:rgba(0,0,0,.18) url(assets/crest.png) center/30% auto no-repeat}
 @media (max-width:700px){body:not(.studio) .bcard .shot .plate{top:var(--wt)}body:not(.studio) .bcard .txt{top:55%}}
 @media (hover:hover) and (pointer:fine){body:not(.studio) .bcard:hover .book{transform:translateY(-6px);filter:drop-shadow(14px 22px 22px rgba(70,42,15,.42))}}
+
+/* lighter cloths: deepen the stamped lettering so it still reads */
+body:not(.studio) .bcard[data-cover="dove"] .txt,body:not(.studio) .bcard[data-cover="rose"] .txt{text-shadow:0 1px 3px rgba(0,0,0,.55),0 0 14px rgba(0,0,0,.35)}
+body:not(.studio) .bcard[data-cover="dove"] h3,body:not(.studio) .bcard[data-cover="rose"] h3{color:#FFF6E4;text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 16px rgba(0,0,0,.4)}
+body:not(.studio) .bcard[data-cover="dove"] .cat,body:not(.studio) .bcard[data-cover="rose"] .cat{color:#FBE3A8;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
@@ -2598,8 +2603,8 @@ function bcard(p){
   const t = String(p.title||""), cut = t.indexOf(": ");
   const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
   const sub  = main === t ? "" : t.slice(cut + 2);
-  const cover = ({ "Mystery":"navy", "Ghost Stories":"teal", "Love & Desire":"burgundy", "Dark Humour":"plum",
-                   "Human Folly":"gold", "Reflections":"chestnut", "Adventure":"green" })[categoryFor(p)] || "chestnut";
+  const cover = ({ "Mystery":"navy", "Ghost Stories":"dove", "Love & Desire":"burgundy", "Dark Humour":"plum",
+                   "Human Folly":"gold", "Reflections":"rose", "Adventure":"green" })[categoryFor(p)] || "rose";
   return `<a class="bcard${bare?" bare":""}" data-cover="${cover}"${gradeOff(p)} href="#/story/${esc(p.slug)}">
     <span class="book">
       <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><span class="plate"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span></span>
