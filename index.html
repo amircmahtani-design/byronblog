@@ -192,6 +192,11 @@ window.SITE_CONFIG = {
 <style>
 /* ══════════════════════════ 1 · TOKENS ══════════════════════════ */
 :root{
+  /* the magazine palette: ivory ground, deep green, antique gold, burgundy */
+  --m-ivory:#F7F2E8; --m-ivory-2:#EFE6D4; --m-line:#E1D5BE;
+  --m-ink:#2A241D; --m-ink-2:#4F463A; --m-ink-3:#6E6352;
+  --m-green:#1A3A35; --m-green-2:#244B44; --m-gold:#A8823F; --m-gold-lt:#C9A766;
+  --m-burgundy:#7A2E3E; --m-blue:#DCE5EC;
   --void:#141416; --coal:#232326; --ink:#1A1A1C; --slate:#2E2A33;
   --crimson:#5B0E14; --crimson-lt:#7C1620; --crimson-deep:#3D080D;
 
@@ -629,94 +634,144 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .sec-head h2{font-family:var(--body);font-weight:600;font-size:clamp(.92rem,1.6vw,1.08rem);
   letter-spacing:.24em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));
-  gap:clamp(2.4rem,4vw,3.6rem) clamp(1.6rem,3vw,2.8rem);align-items:start}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));
+  gap:clamp(2.2rem,4vw,3.2rem) clamp(1.4rem,2.6vw,2.4rem);align-items:start}
 .cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}}
-@media (max-width:560px){.cards:not(.three){grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem 1.1rem}}
-@media (max-width:359px){.cards:not(.three){grid-template-columns:minmax(0,15rem);justify-content:center}}
 
-/* ══ A story is a book. Its painting is shown whole, never cropped, lying on
-   a cover made of the same painting blurred into shadow, so every book takes
-   its colour from its own story. Spine on the left, the page block showing
-   past the fore-edge, the title set in cream beneath the plate. ══ */
-.wcard{display:block;text-decoration:none;text-align:center;-webkit-tap-highlight-color:transparent}
-.wcard .book{position:relative;display:block;width:100%;max-width:19.5rem;margin:0 auto;aspect-ratio:4/5;
-  border-radius:6px 14px 14px 6px;
-  box-shadow:18px 24px 46px -12px rgba(0,0,0,.9),0 6px 18px rgba(0,0,0,.45);
-  transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
-/* the page block, peeking out past the cover's fore-edge */
-.wcard .book::before{content:"";position:absolute;z-index:-1;top:4%;bottom:4%;right:-6px;width:12px;
-  border-radius:0 11px 11px 0;
-  background:repeating-linear-gradient(90deg,#E9DFC8 0 1px,#CBBE9F 1px 2px),#DED2B6;
-  box-shadow:inset -2px 0 3px rgba(0,0,0,.35),2px 3px 6px rgba(0,0,0,.6)}
-.wcard .shot{position:absolute;inset:0;display:block;overflow:hidden;border-radius:inherit;isolation:isolate;
-  background:#120E0A}
-/* The house grade. Whatever an image arrived as — a pencil sketch from the old
-   blog, a stock photograph, an AI render — it leaves looking like it belongs:
-   desaturated, warmed toward the brand's gold and crimson, and sunk at the edges. */
-.shot::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:2;
-  background:linear-gradient(158deg,rgba(91,14,20,.28) 0%,rgba(28,20,10,.12) 38%,rgba(200,169,106,.22) 100%);
-  mix-blend-mode:overlay}
-.shot::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:3;
-  background:radial-gradient(115% 95% at 50% 38%,transparent 42%,rgba(13,13,13,.55) 100%),
-             linear-gradient(to top,rgba(13,13,13,.78),transparent 58%)}
-.wcard .shot img{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:var(--img-grade);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
-img[data-fallback]{opacity:0}
-.wcard .shot::before{background:radial-gradient(120% 90% at 55% 40%,transparent 45%,rgba(13,13,13,.6) 100%)}
-/* the cover: the same painting, blurred and sunk */
-.wcard .shot img.bg{filter:blur(16px) brightness(.42) saturate(.8);transform:scale(1.25)}
-/* the plate: the whole painting, centred, its edges melting into the cover */
-.wcard .shot img.pl{inset:auto;left:11%;right:5%;top:10%;width:84%;height:auto;aspect-ratio:16/9;z-index:1;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
-  mask-composite:intersect}
-/* a story whose painting is still being made shows the crest in its place */
-.wcard.bare .shot{background:radial-gradient(90% 70% at 55% 32%,#2A1F14 0%,#120E0A 75%)}
-.wcard.bare .shot img{display:none}
-.wcard.bare .shot::after{background:url(assets/crest.png) 58% 27% / 34% auto no-repeat;mix-blend-mode:normal;opacity:.55}
-/* the hinge: a darker band with a highlight where the board meets the spine */
-.wcard .spine{position:absolute;z-index:4;top:0;bottom:0;left:0;width:7.5%;border-radius:6px 0 0 6px;pointer-events:none;
-  background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 45%,rgba(255,235,200,.16) 62%,rgba(0,0,0,.45) 78%,rgba(0,0,0,.08) 100%)}
-.wcard .txt{position:absolute;z-index:5;top:54%;bottom:5%;left:11%;right:5%;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-start;padding:0 .6rem}
-.wcard .txt::before{content:"";display:block;width:42%;height:9px;margin:0 auto .85rem;
-  background:url(assets/divider.png) center/contain no-repeat;opacity:.85}
-.wcard .cat{display:block;font-family:var(--body);font-weight:700;font-size:max(12px,calc(.8rem * var(--k,1)));letter-spacing:.2em;
-  text-transform:uppercase;color:var(--gold-lt);margin-bottom:.45rem;text-shadow:0 1px 8px rgba(0,0,0,.9)}
-.wcard h3{font-family:var(--display);font-weight:500;color:var(--gold-pale);margin:0;
-  font-size:max(13px,calc(clamp(1.2rem,1.05rem + .5vw,1.5rem) * var(--k,1)));line-height:1.18;text-wrap:balance;
-  text-shadow:0 2px 14px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.8)}
-.wcard .sub{display:block;margin-top:.4em;font-family:var(--display);font-style:italic;color:var(--dim-1);
-  font-size:max(12px,calc(clamp(.92rem,.85rem + .25vw,1.05rem) * var(--k,1)));line-height:1.25;text-wrap:balance;
-  text-shadow:0 1px 10px rgba(0,0,0,.95)}
-/* fitBooks() lowers --k on a cover whose words would run past it; the
-   last resort, below the smallest legible size, is an ellipsis */
-.wcard .txt.nosub .sub{display:none}
-.wcard .txt.clip{overflow:hidden;-webkit-mask-image:linear-gradient(#000 85%,transparent);mask-image:linear-gradient(#000 85%,transparent)}
-.wcard .meta{display:block;margin-top:1.15rem;font-family:var(--body);font-weight:600;font-size:.84rem;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--dim-2);transition:color .35s}
+/* ══ A story card: the painting whole and bright, the words beneath it ══ */
+.wcard{display:block;text-decoration:none;color:var(--m-ink);-webkit-tap-highlight-color:transparent}
+.wcard .pic{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;border-radius:10px;
+  background:var(--m-ivory-2);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 14px 30px -18px rgba(60,40,20,.45)}
+.wcard .pic img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease),filter .5s}
+.wcard.bare .pic{background:var(--m-ivory-2) url(assets/crest.png) center/22% auto no-repeat}
+.wcard.bare .pic img{display:none}
+.wcard .has-film{position:absolute;right:.7rem;bottom:.7rem;display:inline-flex;align-items:center;gap:.4rem;
+  padding:.3rem .65rem .3rem .55rem;border-radius:999px;background:rgba(26,58,53,.88);color:#F7F2E8;
+  font-family:var(--ui);font-size:.72rem;font-weight:600;letter-spacing:.06em}
+.wcard .has-film::before{content:"";width:0;height:0;border-left:.5rem solid currentColor;border-top:.32rem solid transparent;border-bottom:.32rem solid transparent}
+.wcard .cat{display:block;margin:1rem 0 .35rem;font-family:var(--body);font-weight:700;font-size:.8rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--m-burgundy)}
+.wcard h3{font-family:var(--display);font-weight:500;color:var(--m-ink);margin:0;
+  font-size:clamp(1.3rem,1.15rem + .45vw,1.6rem);line-height:1.22;text-wrap:balance;transition:color .3s}
+.wcard .meta{display:block;margin-top:.55rem;font-family:var(--body);font-weight:600;font-size:.84rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--m-ink-3)}
 @media (hover:hover) and (pointer:fine){
-  .wcard:hover .book{transform:translateY(-6px) rotate(-.6deg);
-    box-shadow:22px 30px 50px -10px rgba(0,0,0,.92),4px 6px 14px rgba(0,0,0,.55)}
-  .wcard:hover .shot img.pl{transform:scale(1.03);filter:var(--img-grade-hover)}
-  .wcard:hover .meta{color:var(--gold)}
+  .wcard:hover .pic img{transform:scale(1.04)}
+  .wcard:hover h3{color:var(--m-green)}
 }
 .wcard:focus-visible{outline:none}
-.wcard:focus-visible .book{outline:2px solid var(--gold);outline-offset:6px}
-@media (max-width:560px){
-  .cards:not(.three) .wcard .shot img.pl{top:8%}
-  .cards:not(.three) .wcard .txt{top:49%;padding:0 .3rem}
-  .cards:not(.three) .wcard .txt::before{margin-bottom:.5rem;height:7px}
-  .cards:not(.three) .wcard h3{font-size:max(13px,calc(.92rem * var(--k,1)));line-height:1.14}
-  .cards:not(.three) .wcard .sub{font-size:max(12px,calc(.74rem * var(--k,1)));margin-top:.3em}
-  .cards:not(.three) .wcard .cat{font-size:max(12px,calc(.68rem * var(--k,1)));letter-spacing:.1em;margin-bottom:.25rem}
-  .cards:not(.three) .wcard .meta{font-size:.74rem;letter-spacing:.08em;margin-top:.9rem;white-space:nowrap}
-  .cards:not(.three) .wcard .rd{display:none}
-  .cards.three .wcard .book{max-width:15rem}
-}
+.wcard:focus-visible .pic{outline:2px solid var(--m-gold);outline-offset:4px}
+
+/* ══════════════════════ THE LIGHT HOUSE ══════════════════════
+   A luminous literary magazine: ivory ground, the paintings in full colour,
+   deep green for the films and the footer, burgundy for small labels, gold
+   as an accent. The Studio keeps the old dark room (body.studio).        */
+body:not(.studio){background:var(--m-ivory);color:var(--m-ink)}
+html{background:var(--m-ivory)}
+html:has(body.studio){background:var(--void)}
+.toast:empty{display:none}
+body:not(.studio) .atmos,body:not(.studio) .noise{display:none}
+body:not(.studio) .bar{background:rgba(247,242,232,.94);border-bottom:1px solid var(--m-line);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+body:not(.studio) .bar::after{display:none}
+body:not(.studio) .brand-txt b{color:var(--m-ink)}
+body:not(.studio) .brand-txt span{color:var(--m-ink-3)}
+body:not(.studio) .nav a{color:var(--m-ink-2)}
+body:not(.studio) .nav a:hover{color:var(--m-green)}
+body:not(.studio) .nav a[aria-current="page"]{color:var(--m-green)}
+body:not(.studio) .nav a::after{background:var(--m-gold)}
+body:not(.studio) .searchbtn{color:var(--m-ink-2)}
+body:not(.studio) .searchbtn svg{fill:var(--m-ink-2)}
+
+.mbtn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.6rem;border-radius:999px;
+  border:1px solid var(--m-green);background:var(--m-green);color:#F7F2E8;text-decoration:none;cursor:pointer;
+  font-family:var(--body);font-weight:700;font-size:1rem;letter-spacing:.06em;white-space:nowrap;
+  transition:background-color .3s,color .3s,transform .2s}
+.mbtn.ghost{background:transparent;color:var(--m-green)}
+@media (hover:hover) and (pointer:fine){.mbtn:hover{background:var(--m-green-2)}.mbtn.ghost:hover{background:var(--m-green);color:#F7F2E8}}
+.mbtn:active{transform:scale(.97)}
+.mbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem}
+
+.mhero{padding-top:clamp(1.25rem,3vw,2.25rem)}
+.mhero-pic{position:relative;display:block;aspect-ratio:16/8;max-height:72vh;width:100%;overflow:hidden;border-radius:14px;
+  background:var(--m-ivory-2);box-shadow:0 24px 50px -30px rgba(60,40,20,.55)}
+.mhero-pic img{width:100%;height:100%;object-fit:cover}
+.mhero-tag{position:absolute;left:clamp(.9rem,2vw,1.5rem);bottom:clamp(.9rem,2vw,1.5rem);max-width:min(80%,30rem);
+  padding:.65rem 1rem .75rem;border-radius:10px;background:rgba(247,242,232,.92);color:var(--m-ink);
+  font-family:var(--display);font-size:clamp(1rem,1.6vw,1.25rem);line-height:1.25;text-decoration:none}
+.mhero-tag span{display:block;font-family:var(--body);font-weight:700;font-size:.74rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--m-burgundy);margin-bottom:.15rem}
+@media (max-width:640px){.mhero-pic{aspect-ratio:4/3}.mhero-tag{font-size:1rem;padding:.5rem .8rem .6rem}}
+.mhero-in{text-align:center;max-width:46rem;margin:clamp(1.75rem,4vw,2.75rem) auto 0}
+.mhero-in h1{font-family:var(--display);font-weight:500;color:var(--m-ink);margin:0 0 .7rem;
+  font-size:clamp(1.9rem,1.4rem + 2.4vw,3.2rem);line-height:1.12;text-wrap:balance}
+.mhero-in p{font-family:var(--body);font-size:clamp(1.15rem,1.05rem + .4vw,1.35rem);line-height:1.5;color:var(--m-ink-2);
+  margin:0 auto 1.5rem;max-width:36rem;text-wrap:balance}
+
+.msec{padding:clamp(2.5rem,6vw,4.5rem) var(--gut)}
+.msec.wrap{padding-left:var(--gut);padding-right:var(--gut)}
+.mhead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:clamp(1.4rem,3vw,2rem);
+  border-bottom:1px solid var(--m-line);padding-bottom:.75rem}
+.mhead h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,1.2rem + 1.2vw,2.1rem);margin:0;color:var(--m-ink)}
+.mhead a{font-family:var(--body);font-weight:700;font-size:.95rem;letter-spacing:.06em;color:var(--m-green);
+  text-decoration:none;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center}
+.mhead a::after{content:"  →"}
+
+.mgreen{background:var(--m-green);color:#F1EADB}
+.mgreen .mhead{border-color:rgba(201,167,102,.35)}
+.mgreen .mhead h2{color:#F7F2E8}
+.mgreen .mhead a{color:var(--m-gold-lt)}
+.films{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(46%,13.5rem),1fr));gap:clamp(1rem,2.4vw,1.8rem)}
+.film{display:block;text-align:left;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
+.film-pic{position:relative;display:block;aspect-ratio:9/16;max-height:30rem;overflow:hidden;border-radius:12px;background:#0F2420}
+.film-pic img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.film .play{position:absolute;left:50%;top:50%;width:3.6rem;height:3.6rem;margin:-1.8rem 0 0 -1.8rem;border-radius:50%;
+  background:rgba(247,242,232,.9);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.film .play::after{content:"";position:absolute;left:1.42rem;top:1.08rem;border-left:1.1rem solid var(--m-green);
+  border-top:.72rem solid transparent;border-bottom:.72rem solid transparent}
+.film .cat{display:block;margin:.85rem 0 .25rem;font-family:var(--body);font-weight:700;font-size:.78rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--m-gold-lt)}
+.film .t{display:block;font-family:var(--display);font-size:clamp(1.1rem,1rem + .3vw,1.3rem);line-height:1.25;color:#F7F2E8}
+body:not(.studio) .mpage .film .cat{color:var(--m-burgundy)}
+body:not(.studio) .mpage .film .t{color:var(--m-ink)}
+@media (hover:hover) and (pointer:fine){.film:hover .film-pic img{transform:scale(1.04)}}
+.film:focus-visible{outline:2px solid var(--m-gold);outline-offset:4px;border-radius:12px}
+
+.msurprise{text-align:center}
+.msurprise h2{font-family:var(--display);font-weight:500;font-size:clamp(1.4rem,1.2rem + .9vw,1.9rem);margin:0 0 1rem;color:var(--m-ink)}
+
+.mpage h1{font-family:var(--display);font-weight:500;text-align:center;margin:0 0 .4rem;color:var(--m-ink);
+  font-size:clamp(2.1rem,1.6rem + 2.2vw,3.2rem)}
+.mlede{text-align:center;font-family:var(--body);font-size:1.2rem;color:var(--m-ink-2);margin:0 auto 1.75rem;max-width:36rem}
+.mlede a{color:var(--m-green)}
+.mlink{background:none;border:0;padding:0 .2rem;min-height:44px;cursor:pointer;font:inherit;color:var(--m-green);
+  text-decoration:underline;text-underline-offset:.2em}
+
+body:not(.studio) .kfind{background:#FFFDF8;border-color:var(--m-line);border-radius:999px}
+body:not(.studio) .kfind input{color:var(--m-ink)}
+body:not(.studio) .kfind input::placeholder{color:var(--m-ink-3)}
+body:not(.studio) .kfind svg{fill:var(--m-ink-3)}
+body:not(.studio) .ktabs button{color:var(--m-ink-2);border-radius:999px;border-color:var(--m-line)}
+body:not(.studio) .ktabs button:hover:not(:disabled){color:var(--m-green);border-color:var(--m-green)}
+body:not(.studio) .ktabs button[aria-current="true"]{background:var(--m-green);border-color:var(--m-green);color:#F7F2E8}
+body:not(.studio) .pager button{color:var(--m-ink-2)}
+body:not(.studio) .pager button[aria-current="true"]{color:var(--m-green);border-color:var(--m-green)}
+body:not(.studio) .pager .dots{color:var(--m-ink-3)}
+
+body:not(.studio) .contact h1.gold{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--m-ink)}
+body:not(.studio) .contact p{color:var(--m-ink-2)}
+body:not(.studio) .contact .mail{color:var(--m-green);-webkit-text-fill-color:var(--m-green);border-color:var(--m-line)}
+body:not(.studio) .contact .yt{color:var(--m-ink-2)}
+body:not(.studio) .contact .yt b{color:var(--m-green);border-color:var(--m-line)}
+
+body:not(.studio) .kfoot{background:var(--m-green);border-top:0}
+body:not(.studio) .kfoot .brandcol b{color:#F7F2E8}
+body:not(.studio) .kfoot .brandcol span,body:not(.studio) .kfoot nav a,body:not(.studio) .kfoot .rights{color:#CFC6B2}
+body:not(.studio) .kfoot nav a:hover{color:#F7F2E8}
+body:not(.studio) .kfoot .ytf{color:var(--m-gold-lt)}
+body:not(.studio) .creed{background:var(--m-green);color:#B9B09B;border-top:1px solid rgba(201,167,102,.25)}
+body:not(.studio) .empty{color:var(--m-ink-2)}
 
 /* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
 .kfind{display:flex;align-items:center;gap:.9rem;max-width:34rem;margin:0 auto clamp(1.5rem,3.5vh,2.25rem);
@@ -1534,22 +1589,6 @@ async function fillThumb(img){
   if(src) img.src = src;
 }
 
-/* Each cover has a fixed space for its words. Step the type down on the
-   covers that need it, never below 12px, so a long title fits whole. */
-function fitBooks(root=document){
-  const over = t => t.scrollHeight > t.clientHeight + 1;
-  const shrink = t => { let k = 1; while(over(t) && k > .5){ k = +(k - .05).toFixed(2); t.style.setProperty("--k", k); } };
-  root.querySelectorAll(".wcard .txt").forEach(t=>{
-    t.classList.remove("clip","nosub"); t.style.removeProperty("--k");
-    shrink(t);                                    // every size has its own floor in the CSS
-    if(over(t) && t.querySelector(".sub")){ t.classList.add("nosub"); t.style.removeProperty("--k"); shrink(t); }
-    if(over(t)) t.classList.add("clip");
-  });
-}
-let fitTimer = 0;
-window.addEventListener("resize", ()=>{ clearTimeout(fitTimer); fitTimer = setTimeout(()=>fitBooks(), 200); });
-if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitBooks());
-
 function hydrateThumbs(root=document){
   root.querySelectorAll("img[data-post]:not([data-hyd])").forEach(img=>{
     const p = store.posts.find(x=>x.id===img.dataset.post);
@@ -1999,50 +2038,68 @@ function seedMotes(){
 function viewHome(){
   const list = published();
   if(!list.length) return `<div class="empty">Nothing published yet. Open the <a href="#/studio">Studio</a> and write the first one.</div>`;
-  const [lead,...rest] = list;
-  const latest = [lead,...rest].slice(0,3);
-
+  const lead = list[0];
+  const latest = list.slice(0,6);
+  const films = list.filter(p=>ytId(p)).slice(0,4);
   return `
-  <section class="hero">
-    <div class="hero-bg" style="--hero:url('${esc(ART.hero)}');--hero-tall:url('${esc(ART.heroTall)}')" aria-hidden="true"></div>
-    <div class="hero-in">
-      <p class="hero-say">${esc(store.site.bio)}</p>
-      <p class="hero-name">My name is ${esc(store.site.byline)}</p>
-      ${FIL("hero-orn")}
-      <a class="kb" href="#/story/${esc(lead.slug)}"><span>Read the latest story</span><span class="ar"></span></a>
+  <section class="mhero wrap">
+    <a class="mhero-pic" href="#/story/${esc(lead.slug)}" aria-label="${esc(lead.title)}">
+      <img data-cover="${esc(lead.id)}" src="${BLANK}" alt="">
+      <span class="mhero-tag"><span>${esc(firstTag(lead))}</span>${esc(lead.title)}</span>
+    </a>
+    <div class="mhero-in">
+      <h1>A Little Wickedness. A Little Wonder.</h1>
+      <p>Short stories about love, vanity, mystery, ambition and the extraordinary foolishness of human beings.</p>
+      <div class="mbtns">
+        <a class="mbtn" href="#/archive">Read the Stories</a>
+        ${films.length?`<a class="mbtn ghost" href="#/films">Watch the Films</a>`:""}
+      </div>
     </div>
   </section>
 
-  <div class="wrap" id="latest">
-    <section class="sec">
-      <div class="sec-head rise"><span class="ln"></span><h2>Latest Writings</h2><span class="ln"></span></div>
-      <div class="cards three rise">${latest.map(wcard).join("")}</div>
-      <div style="display:flex;justify-content:center;margin-top:clamp(2rem,5vh,3.25rem)">
-        <a class="kb plain rise" href="#/archive"><span>View the archive</span><span class="ar"></span></a>
-      </div>
-    </section>
-  </div>`;
+  <section class="msec wrap">
+    <div class="mhead"><h2>Latest Stories</h2><a href="#/archive">All stories</a></div>
+    <div class="cards">${latest.map(wcard).join("")}</div>
+  </section>
+
+  ${films.length?`<section class="msec mgreen"><div class="wrap">
+    <div class="mhead"><h2>Watch the Stories</h2><a href="#/films">All films</a></div>
+    <div class="films">${films.map(filmCard).join("")}</div>
+  </div></section>`:""}
+
+  <section class="msec wrap msurprise">
+    <h2>Not sure where to begin?</h2>
+    <button class="mbtn" type="button" data-surprise>Surprise Me</button>
+  </section>`;
+}
+
+function filmCard(p){
+  const id = ytId(p);
+  const pic = p.youtubeShort ? `https://i.ytimg.com/vi/${id}/oar2.jpg` : `https://i.ytimg.com/vi/${id}/hq720.jpg`;
+  return `<button class="film" type="button" data-film="${esc(p.id)}" aria-label="Watch the film: ${esc(p.title)}">
+    <span class="film-pic"><img src="${pic}" alt="" loading="lazy" onerror="this.src='https://i.ytimg.com/vi/${id}/hqdefault.jpg'"><span class="play" aria-hidden="true"></span></span>
+    <span class="cat">${esc(firstTag(p))}</span>
+    <span class="t">${esc(p.title)}</span>
+  </button>`;
+}
+
+function viewFilms(){
+  const films = published().filter(p=>ytId(p));
+  return `<section class="msec wrap mpage">
+    <h1>The Films</h1>
+    <p class="mlede">Each story, read aloud in a few minutes.</p>
+    ${films.length?`<div class="films">${films.map(filmCard).join("")}</div>`:`<p class="mlede">The first films are on their way.</p>`}
+    <p class="mlede"><a href="${YT_CHANNEL}" target="_blank" rel="noopener">Subscribe on YouTube</a></p>
+  </section>`;
 }
 
 function wcard(p){
-  const cat = ((p.tags||[])[0]||"").toLowerCase();
-  const ico = CATICON[cat];
   const bare = !(p.thumb || p.hasThumb);
-  /* "Main title: a subtitle" sets the main title on the cover and the
-     subtitle beneath it, smaller and in italic, as a title page would */
-  const t = String(p.title||""), cut = t.indexOf(": ");
-  const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
-  const sub  = main === t ? "" : t.slice(cut + 2);
   return `<a class="wcard${bare?" bare":""}" href="#/story/${esc(p.slug)}">
-    <span class="book">
-      <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
-      <span class="spine" aria-hidden="true"></span>
-      <span class="txt">
-        <span class="cat">${esc(firstTag(p))}</span>
-        <h3>${esc(main)}</h3>${sub?`<span class="sub">${esc(sub)}</span>`:""}
-      </span>
-    </span>
-    <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min<span class="rd"> read</span></span>
+    <span class="pic"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy">${ytId(p)?`<span class="has-film">Film</span>`:""}</span>
+    <span class="cat">${esc(firstTag(p))}</span>
+    <h3>${esc(p.title)}</h3>
+    <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
   </a>`;
 }
 
@@ -2075,17 +2132,12 @@ function syncArchHash(){
 }
 function viewArchive(){
   return `
-  <section class="archead" style="background-image:url('${esc(ART.archive)}')">
-    <div class="wrap">
-      <h1 class="gold">The Archive</h1>
-      ${FIL("archead-orn")}
-      <p class="hero-name">Every writing, in order of arrival</p>
-    </div>
-  </section>
-  <div class="wrap"><section class="sec" style="padding-top:clamp(2rem,5vh,3.5rem)">
+  <div class="wrap"><section class="sec mpage">
+    <h1>The Stories</h1>
+    <p class="mlede">Every story, newest first. <button class="mlink" type="button" data-surprise>Surprise me</button></p>
     <div class="kfind">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
-      <input id="q" type="search" placeholder="Search writings…" value="${esc(arch.q)}" autocomplete="off">
+      <input id="q" type="search" placeholder="Search the stories…" value="${esc(arch.q)}" autocomplete="off">
     </div>
     <div id="tabsWrap"></div>
     <div class="cards" id="rowlist"></div>
@@ -2135,7 +2187,6 @@ function renderArchive(){
     : `<p class="empty" style="grid-column:1/-1">Nothing matches that. Try a shorter word.</p>`;
   $("#pagerWrap").innerHTML = pages>1 ? pagerHTML(arch.page,pages) : "";
   hydrateThumbs(list);
-  fitBooks(list);
   observeRises();
   syncArchHash();   // after the clamp above, so the URL can never outrun the list
 }
@@ -2241,6 +2292,16 @@ document.addEventListener("click", e=>{
   e.preventDefault(); e.stopPropagation();
   if(BOOK.post) openListen(BOOK.post);
 }, true);
+document.addEventListener("click", e=>{
+  const s = e.target.closest && e.target.closest("[data-surprise]");
+  if(s){
+    const all = published(); if(!all.length) return;
+    location.hash = "#/story/" + all[Math.floor(Math.random()*all.length)].slug;
+    return;
+  }
+  const f = e.target.closest && e.target.closest("[data-film]");
+  if(f){ const p = store.posts.find(x=>x.id===f.dataset.film); if(p) openListen(p); }
+});
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && document.querySelector(".listen")){ e.stopPropagation(); closeListen(); } }, true);
 
 function pageHead(p, img){
@@ -2249,7 +2310,7 @@ function pageHead(p, img){
     ${FIL("pg-fl","ornInk")}
     ${p.dek?`<p class="pg-dek">${esc(p.dek)}</p>`:""}
     <p class="pg-by">By ${esc(store.site.byline)} &nbsp;·&nbsp; ${esc(fmtDate(p.publishedAt))}</p>
-    ${ytId(p)?`<button class="pg-listen" data-listen><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch the story</button>`:""}
+    ${ytId(p)?`<button class="pg-listen" data-listen><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch the film</button>`:""}
     ${img?`<div class="pg-imgwrap"><img class="pg-img" src="${esc(img)}" alt="" onerror="this.closest('.pg-imgwrap').remove()"></div>`:""}`;
 }
 
@@ -3482,8 +3543,8 @@ function stDraw(){
 function buildNav(r){
   // Three tabs. Everything lives in the Archive, searchable — no filing required.
   $("#nav").innerHTML =
-    `<a href="#/"${r.name==="home"?' aria-current="page"':""}>Home</a>` +
-    `<a href="#/archive"${r.name==="archive"?' aria-current="page"':""}>Archive</a>` +
+    `<a href="#/archive"${r.name==="archive"?' aria-current="page"':""}>Stories</a>` +
+    `<a href="#/films"${r.name==="films"?' aria-current="page"':""}>Films</a>` +
     `<a href="#/contact"${r.name==="contact"?' aria-current="page"':""}>Contact</a>`;
 }
 
@@ -3515,6 +3576,7 @@ async function render(){
 }
 async function renderInner(){
   const r = route(), app = $("#app");
+  closeListen();
   pendingEssay = null;
   if(BOOK.ctx){ BOOK.ctx.abort(); BOOK.ctx = null; }
   if(!store.loaded) await loadPosts();
@@ -3530,15 +3592,21 @@ async function renderInner(){
   }
   else if(r.name==="story")   app.innerHTML = viewHome();
   else if(r.name==="contact") app.innerHTML = viewContact();
+  else if(r.name==="films")   app.innerHTML = viewFilms();
   else if(r.name==="studio")  app.innerHTML = viewStudio();
   else                        app.innerHTML = viewHome();
+  document.body.classList.toggle("studio", r.name==="studio");
+  document.querySelectorAll("img[data-cover]").forEach(async img=>{
+    const src = await getCover(store.posts.find(x=>x.id===img.dataset.cover));
+    if(src) img.src = src;
+  });
 
   $("#footLeft").textContent = store.site.title.toUpperCase();
   $("#footBy").textContent = "BY " + store.site.byline.toUpperCase();
-  $("#footYear").textContent = "2021";
+  $("#footYear").textContent = String(new Date().getFullYear());
   $("#footNav").innerHTML =
     `<a href="#/">Home</a>` +
-    `<a href="#/archive">Archive</a><a href="#/contact">Contact</a><a href="#/studio">Studio</a>`;
+    `<a href="#/archive">Stories</a><a href="#/films">Films</a><a href="#/contact">Contact</a><a href="#/studio">Studio</a>`;
   document.title = r.name==="story"
     ? `${(store.posts.find(p=>p.slug===r.arg)||{}).title||"Story"} — ${store.site.title}`
     : store.site.title;
@@ -3548,7 +3616,7 @@ async function renderInner(){
   if(r.name==="studio" && draft) bindEditor();
   if(r.name==="story") await openReader(r.arg); else closeQuietly();
   /* Decoration only. None of it is worth losing the page over. */
-  try{ hydrateThumbs(); fitBooks(); }catch(e){ report("thumbs: " + e.message); }
+  try{ hydrateThumbs(); }catch(e){ report("thumbs: " + e.message); }
   try{ observeRises();  }catch(e){ report("rises: "  + e.message); }
   try{ seedMotes();     }catch(e){ report("motes: "  + e.message); }
   window.scrollTo(0,0);
