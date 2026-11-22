@@ -1377,17 +1377,24 @@ body:not(.studio) .searchbtn{grid-column:3;grid-row:1;justify-self:end;margin:0}
 </style>
 </head>
 <body>
-<!-- THE MASTER COLOUR SETTING for every story painting: a curve measured from
-     the four approved reference paintings, at 85% strength, then a touch more
-     colour. The stored pictures are never changed. -->
+<!-- THE MASTER COLOUR SETTING for every older story painting. A colour
+     correction measured from the four approved reference paintings: it lifts
+     the brightness, takes out the yellow cast (creams read cream, shadows go
+     cool) and widens the colour so reds, blues and greens separate. Fitted
+     from a Lab colour transfer into this matrix + curves. The stored pictures
+     are never changed, and plates painted in the new bright style skip it. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <filter id="house-grade" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+        2.2609 -1.0985 -0.0263 0 0.0478
+        -0.2836 1.4625 0.0151 0 0.1221
+        0.1511 -0.3860 1.4671 0 0.1494
+        0 0 0 1 0"/>
     <feComponentTransfer>
-      <feFuncR type="table" tableValues="0.014 0.040 0.083 0.147 0.223 0.306 0.392 0.471 0.538 0.596 0.644 0.686 0.719 0.749 0.775 0.797 0.818 0.838 0.856 0.873 0.889 0.904 0.918 0.931 0.940 0.950 0.959 0.968 0.975 0.983 0.990 0.995 1.000"/>
-      <feFuncG type="table" tableValues="0.009 0.034 0.077 0.138 0.209 0.284 0.354 0.411 0.457 0.497 0.533 0.568 0.600 0.633 0.665 0.696 0.728 0.758 0.788 0.817 0.843 0.866 0.888 0.906 0.922 0.935 0.947 0.959 0.969 0.978 0.986 0.994 0.999"/>
-      <feFuncB type="table" tableValues="0.013 0.045 0.094 0.153 0.219 0.286 0.341 0.386 0.428 0.471 0.516 0.565 0.614 0.664 0.710 0.749 0.781 0.808 0.832 0.853 0.872 0.890 0.905 0.917 0.929 0.943 0.955 0.966 0.975 0.983 0.991 0.995 1.000"/>
+      <feFuncR type="table" tableValues="0.068 0.068 0.068 0.075 0.104 0.139 0.181 0.223 0.266 0.307 0.348 0.387 0.428 0.468 0.508 0.548 0.587 0.628 0.668 0.708 0.746 0.788 0.829 0.870 0.910 0.950 0.983 0.996 0.998 0.998 0.999 1.000 1.000"/>
+      <feFuncG type="table" tableValues="0.000 0.000 0.000 0.000 0.104 0.129 0.151 0.186 0.230 0.275 0.321 0.367 0.412 0.458 0.502 0.547 0.593 0.638 0.683 0.726 0.772 0.818 0.864 0.908 0.940 0.953 0.956 0.959 0.967 0.977 0.979 0.979 0.988"/>
+      <feFuncB type="table" tableValues="0.036 0.062 0.089 0.108 0.150 0.159 0.177 0.202 0.240 0.286 0.332 0.378 0.424 0.469 0.514 0.558 0.602 0.642 0.675 0.707 0.728 0.748 0.770 0.777 0.782 0.782 0.807 0.847 0.892 0.929 0.929 0.929 0.939"/>
     </feComponentTransfer>
-    <feColorMatrix type="saturate" values="1.12"/>
   </filter>
 </defs></svg>
 
