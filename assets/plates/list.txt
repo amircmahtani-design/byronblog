@@ -1,4 +1,5 @@
 42-the-meaning-of-life
+a-dance-with-the-deep-the-orca-rebellion-of-gibraltar
 a-disappointed-donkey
 a-haunting-encounter-with-a-ghost
 a-marriage-marinated-in-madness
@@ -10,9 +11,11 @@ branded
 breasts-beat-buddhism
 brocade-and-her-ghost-groom
 cadbury-99-flake
+cold-cold-as-your-heart
 cold-grace
 cut-their-balls-off
 deep-love
+descent-into-the-abyss
 desert-mirage-a-tale-of-power-and-pleasure
 drowned-in-the-glow
 duel-of-dual-fate
@@ -23,6 +26,7 @@ empathy
 fear
 follyville
 fortunes-reversal
+from-emperor-to-street-sweeper-a-tale-of-karma
 from-fred-to-fabulous-a-tale-of-unforeseen-transformation
 from-prince-to-king
 genius-idiot
@@ -43,12 +47,16 @@ lost-bloom
 love-beyond-appearances
 love-hurts
 mad-genius-or-just-genius
+maria-the-fallen-woman
 materialism-in-emerging-countries-is-paid-for-by-the-poor
 mind-over-body
 mirror-to-the-world-reflecting-and-refining-national-identity-through-the-prism-of-tourism
+my-pleasures-in-life-are-none-nun
 navigating-modern-chaos
 no-need
 no-pain-no-gain
+not-all-ends-well
+pain-ting
 paths-untraveled-the-melancholy-of-what-could-have-been
 pet-humans-the-agi-dystopia
 phantom-of-the-jungle
@@ -60,6 +68,7 @@ rewriting-history
 roars-kicks-and-unintended-trips-the-turbulence-of-flight-507
 rudeness
 rule-model
+rumi-in-the-desert
 scheherazades-enchantment-the-original-master-of-the-cliffhanger
 seven-truths-about-life
 shark
@@ -69,6 +78,7 @@ smile-of-the-tigress
 solitude
 spectral-love-a-songwriter-s-haunting-romance
 steel-and-soul
+story-about-a-souls-evolution
 tailor
 the-art-of-faking-it
 the-auction-of-regrets
@@ -84,6 +94,7 @@ the-game-of-hearts-and-minds
 the-great-mcburger-procreation-scandal
 the-haunted-night-of-jim-corbett
 the-hour-of-the-blue-sky
+the-indignity-of-being-a-cat
 the-journey-beyond-fear-a-tale-of-death-and-transformation
 the-last-companion-on-the-coming-age-of-artificial-intimacy
 the-man-who-could-hear-envy
@@ -96,6 +107,7 @@ the-ocean-that-dreams
 the-painted-mask-when-beauty-deceives-and-dreams-shatter
 the-paradox-of-thrift
 the-perfection-of-imperfection
+the-phantom-of-the-canals
 the-price-of-ascent
 the-pride-and-fall-of-belmonte
 the-republic-of-thought
@@ -103,6 +115,7 @@ the-restaurant-at-the-end-of-time
 the-rise-and-fall-and-rise-again-of-prince-theodore-and-lady-cassandra
 the-silence-of-knowing
 the-silent-welcome
+the-tale-of-tora-the-tragic-tiger-who-thought-he-was-a-housecat
 the-tale-of-zainab-and-the-glass-butterfly
 the-test-of-testosterone
 the-tigers-triumph-tipu-sultans-rule-over-england
@@ -118,3 +131,4 @@ wait-for-me
 wake-not-the-sleeper
 what-beauty-could-not-do
 who-are-you
+why-you-dont-want-to-be-an-immigrant
