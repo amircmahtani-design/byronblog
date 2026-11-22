@@ -629,16 +629,29 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .sec-head h2{font-family:var(--body);font-weight:600;font-size:clamp(.92rem,1.6vw,1.08rem);
   letter-spacing:.24em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(20.5rem,1fr));gap:clamp(1.4rem,2.6vw,2.2rem)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));
+  gap:clamp(2.4rem,4vw,3.6rem) clamp(1.6rem,3vw,2.8rem);align-items:start}
 .cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}}
-.wcard{display:block;text-decoration:none;border:1px solid rgba(200,169,106,.22);
-  background:linear-gradient(168deg,rgba(28,28,28,.9),rgba(13,13,13,.95));
-  transition:transform .5s var(--ease),border-color .4s,box-shadow .5s var(--ease)}
-.wcard:hover{transform:translateY(-5px);border-color:rgba(200,169,106,.6);
-  box-shadow:0 20px 44px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,106,.12)}
-.wcard .shot{display:block;position:relative;overflow:hidden;background:var(--coal);margin:.75rem .75rem 0}
-.wcard .shot{background:linear-gradient(150deg,#2C2316,#171412)}
+@media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}}
+@media (max-width:560px){.cards:not(.three){grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem 1.1rem}}
+@media (max-width:359px){.cards:not(.three){grid-template-columns:minmax(0,15rem);justify-content:center}}
+
+/* ══ A story is a book. Its painting is shown whole, never cropped, lying on
+   a cover made of the same painting blurred into shadow, so every book takes
+   its colour from its own story. Spine on the left, the page block showing
+   past the fore-edge, the title set in cream beneath the plate. ══ */
+.wcard{display:block;text-decoration:none;text-align:center;-webkit-tap-highlight-color:transparent}
+.wcard .book{position:relative;display:block;width:100%;max-width:19.5rem;margin:0 auto;aspect-ratio:4/5;
+  border-radius:6px 14px 14px 6px;
+  box-shadow:18px 24px 46px -12px rgba(0,0,0,.9),0 6px 18px rgba(0,0,0,.45);
+  transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+/* the page block, peeking out past the cover's fore-edge */
+.wcard .book::before{content:"";position:absolute;z-index:-1;top:4%;bottom:4%;right:-6px;width:12px;
+  border-radius:0 11px 11px 0;
+  background:repeating-linear-gradient(90deg,#E9DFC8 0 1px,#CBBE9F 1px 2px),#DED2B6;
+  box-shadow:inset -2px 0 3px rgba(0,0,0,.35),2px 3px 6px rgba(0,0,0,.6)}
+.wcard .shot{position:absolute;inset:0;display:block;overflow:hidden;border-radius:inherit;isolation:isolate;
+  background:#120E0A}
 /* The house grade. Whatever an image arrived as — a pencil sketch from the old
    blog, a stock photograph, an AI render — it leaves looking like it belongs:
    desaturated, warmed toward the brand's gold and crimson, and sunk at the edges. */
@@ -648,23 +661,62 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .shot::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:3;
   background:radial-gradient(115% 95% at 50% 38%,transparent 42%,rgba(13,13,13,.55) 100%),
              linear-gradient(to top,rgba(13,13,13,.78),transparent 58%)}
-.wcard .shot{isolation:isolate}
-.wcard .shot{height:0;padding-bottom:62.5%;aspect-ratio:16/10}
-@supports (aspect-ratio:16/10){.wcard .shot{height:auto;padding-bottom:0}}
 .wcard .shot img{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height:100%;object-fit:cover;
   filter:var(--img-grade);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
 img[data-fallback]{opacity:0}
-.wcard:hover .shot img{transform:scale(1.07);filter:var(--img-grade-hover)}
-
-.wcard .txt{display:block;padding:1.3rem 1.4rem 1.6rem}
-.wcard .cat{display:flex;align-items:center;gap:.5rem;font-family:var(--body);font-weight:600;
-  font-size:.84rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-text);margin-bottom:.7rem}
-.wcard .cat img{width:1.05rem;height:1.05rem;object-fit:contain;opacity:.9}
-.wcard h3{font-family:var(--display);font-weight:500;color:var(--cream);
-  font-size:1.52rem;line-height:1.22;margin:0 0 .8rem;transition:color .35s}
-.wcard:hover h3{color:var(--gold-lt)}
-.wcard .meta{display:block;font-family:var(--body);font-weight:600;font-size:.84rem;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--dim-2)}
+.wcard .shot::before{background:radial-gradient(120% 90% at 55% 40%,transparent 45%,rgba(13,13,13,.6) 100%)}
+/* the cover: the same painting, blurred and sunk */
+.wcard .shot img.bg{filter:blur(16px) brightness(.42) saturate(.8);transform:scale(1.25)}
+/* the plate: the whole painting, centred, its edges melting into the cover */
+.wcard .shot img.pl{inset:auto;left:11%;right:5%;top:10%;width:84%;height:auto;aspect-ratio:16/9;z-index:1;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  mask-composite:intersect}
+/* a story whose painting is still being made shows the crest in its place */
+.wcard.bare .shot{background:radial-gradient(90% 70% at 55% 32%,#2A1F14 0%,#120E0A 75%)}
+.wcard.bare .shot img{display:none}
+.wcard.bare .shot::after{background:url(assets/crest.png) 58% 27% / 34% auto no-repeat;mix-blend-mode:normal;opacity:.55}
+/* the hinge: a darker band with a highlight where the board meets the spine */
+.wcard .spine{position:absolute;z-index:4;top:0;bottom:0;left:0;width:7.5%;border-radius:6px 0 0 6px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 45%,rgba(255,235,200,.16) 62%,rgba(0,0,0,.45) 78%,rgba(0,0,0,.08) 100%)}
+.wcard .txt{position:absolute;z-index:5;top:54%;bottom:5%;left:11%;right:5%;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;padding:0 .6rem}
+.wcard .txt::before{content:"";display:block;width:42%;height:9px;margin:0 auto .85rem;
+  background:url(assets/divider.png) center/contain no-repeat;opacity:.85}
+.wcard .cat{display:block;font-family:var(--body);font-weight:700;font-size:max(12px,calc(.8rem * var(--k,1)));letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-lt);margin-bottom:.45rem;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.wcard h3{font-family:var(--display);font-weight:500;color:var(--gold-pale);margin:0;
+  font-size:max(13px,calc(clamp(1.2rem,1.05rem + .5vw,1.5rem) * var(--k,1)));line-height:1.18;text-wrap:balance;
+  text-shadow:0 2px 14px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.8)}
+.wcard .sub{display:block;margin-top:.4em;font-family:var(--display);font-style:italic;color:var(--dim-1);
+  font-size:max(12px,calc(clamp(.92rem,.85rem + .25vw,1.05rem) * var(--k,1)));line-height:1.25;text-wrap:balance;
+  text-shadow:0 1px 10px rgba(0,0,0,.95)}
+/* fitBooks() lowers --k on a cover whose words would run past it; the
+   last resort, below the smallest legible size, is an ellipsis */
+.wcard .txt.nosub .sub{display:none}
+.wcard .txt.clip{overflow:hidden;-webkit-mask-image:linear-gradient(#000 85%,transparent);mask-image:linear-gradient(#000 85%,transparent)}
+.wcard .meta{display:block;margin-top:1.15rem;font-family:var(--body);font-weight:600;font-size:.84rem;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim-2);transition:color .35s}
+@media (hover:hover) and (pointer:fine){
+  .wcard:hover .book{transform:translateY(-6px) rotate(-.6deg);
+    box-shadow:22px 30px 50px -10px rgba(0,0,0,.92),4px 6px 14px rgba(0,0,0,.55)}
+  .wcard:hover .shot img.pl{transform:scale(1.03);filter:var(--img-grade-hover)}
+  .wcard:hover .meta{color:var(--gold)}
+}
+.wcard:focus-visible{outline:none}
+.wcard:focus-visible .book{outline:2px solid var(--gold);outline-offset:6px}
+@media (max-width:560px){
+  .cards:not(.three) .wcard .shot img.pl{top:8%}
+  .cards:not(.three) .wcard .txt{top:49%;padding:0 .3rem}
+  .cards:not(.three) .wcard .txt::before{margin-bottom:.5rem;height:7px}
+  .cards:not(.three) .wcard h3{font-size:max(13px,calc(.92rem * var(--k,1)));line-height:1.14}
+  .cards:not(.three) .wcard .sub{font-size:max(12px,calc(.74rem * var(--k,1)));margin-top:.3em}
+  .cards:not(.three) .wcard .cat{font-size:max(12px,calc(.68rem * var(--k,1)));letter-spacing:.1em;margin-bottom:.25rem}
+  .cards:not(.three) .wcard .meta{font-size:.74rem;letter-spacing:.08em;margin-top:.9rem;white-space:nowrap}
+  .cards:not(.three) .wcard .rd{display:none}
+  .cards.three .wcard .book{max-width:15rem}
+}
 
 /* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
 .kfind{display:flex;align-items:center;gap:.9rem;max-width:34rem;margin:0 auto clamp(1.5rem,3.5vh,2.25rem);
@@ -708,6 +760,7 @@ img[data-fallback]{opacity:0}
 .pager button[aria-current="true"]::after{display:none}
 .pager button:disabled{opacity:.28;cursor:default}
 .pager .dots{color:var(--dim-3);padding:0 .2rem}
+@media (max-width:560px){.pager{gap:.25rem}.pager .pw,.pager .far,.pager .dots{display:none}.pager button{min-width:2.75rem;height:2.75rem}}
 
 /* drawn arrows, so no missing font glyph can leave a box behind */
 .ar-l,.ar-r{display:inline-block;width:1.5rem;height:1px;background:currentColor;
@@ -1418,6 +1471,22 @@ async function fillThumb(img){
   if(src) img.src = src;
 }
 
+/* Each cover has a fixed space for its words. Step the type down on the
+   covers that need it, never below 12px, so a long title fits whole. */
+function fitBooks(root=document){
+  const over = t => t.scrollHeight > t.clientHeight + 1;
+  const shrink = t => { let k = 1; while(over(t) && k > .5){ k = +(k - .05).toFixed(2); t.style.setProperty("--k", k); } };
+  root.querySelectorAll(".wcard .txt").forEach(t=>{
+    t.classList.remove("clip","nosub"); t.style.removeProperty("--k");
+    shrink(t);                                    // every size has its own floor in the CSS
+    if(over(t) && t.querySelector(".sub")){ t.classList.add("nosub"); t.style.removeProperty("--k"); shrink(t); }
+    if(over(t)) t.classList.add("clip");
+  });
+}
+let fitTimer = 0;
+window.addEventListener("resize", ()=>{ clearTimeout(fitTimer); fitTimer = setTimeout(()=>fitBooks(), 200); });
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitBooks());
+
 function hydrateThumbs(root=document){
   root.querySelectorAll("img[data-post]:not([data-hyd])").forEach(img=>{
     const p = store.posts.find(x=>x.id===img.dataset.post);
@@ -1895,13 +1964,22 @@ function viewHome(){
 function wcard(p){
   const cat = ((p.tags||[])[0]||"").toLowerCase();
   const ico = CATICON[cat];
-  return `<a class="wcard" href="#/story/${esc(p.slug)}">
-    <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
-    <span class="txt">
-      <span class="cat">${ico?`<img src="${esc(ico)}" alt="" onerror="this.remove()">`:""}${esc(firstTag(p))}</span>
-      <h3>${esc(p.title)}</h3>
-      <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
+  const bare = !(p.thumb || p.hasThumb);
+  /* "Main title: a subtitle" sets the main title on the cover and the
+     subtitle beneath it, smaller and in italic, as a title page would */
+  const t = String(p.title||""), cut = t.indexOf(": ");
+  const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
+  const sub  = main === t ? "" : t.slice(cut + 2);
+  return `<a class="wcard${bare?" bare":""}" href="#/story/${esc(p.slug)}">
+    <span class="book">
+      <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
+      <span class="spine" aria-hidden="true"></span>
+      <span class="txt">
+        <span class="cat">${esc(firstTag(p))}</span>
+        <h3>${esc(main)}</h3>${sub?`<span class="sub">${esc(sub)}</span>`:""}
+      </span>
     </span>
+    <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min<span class="rd"> read</span></span>
   </a>`;
 }
 
@@ -1994,13 +2072,15 @@ function renderArchive(){
     : `<p class="empty" style="grid-column:1/-1">Nothing matches that. Try a shorter word.</p>`;
   $("#pagerWrap").innerHTML = pages>1 ? pagerHTML(arch.page,pages) : "";
   hydrateThumbs(list);
+  fitBooks(list);
   observeRises();
   syncArchHash();   // after the clamp above, so the URL can never outrun the list
 }
 
 function pagerHTML(cur,pages){
   const nums=[];
-  const push=n=>nums.push(`<button data-apage="${n}" aria-current="${n===cur}">${n}</button>`);
+  // pages far from the current one are marked "far" so a phone can drop them
+  const push=n=>nums.push(`<button data-apage="${n}" aria-current="${n===cur}"${Math.abs(n-cur)>1?' class="far"':''}>${n}</button>`);
   if(pages<=7){ for(let i=1;i<=pages;i++) push(i); }
   else{
     push(1);
@@ -2010,9 +2090,9 @@ function pagerHTML(cur,pages){
     push(pages);
   }
   return `<div class="pager">
-    <button data-apage="${cur-1}" ${cur===1?"disabled":""}><span class="ar-l"></span>Prev</button>
+    <button data-apage="${cur-1}" ${cur===1?"disabled":""} aria-label="Previous page"><span class="ar-l"></span><span class="pw">Prev</span></button>
     ${nums.join("")}
-    <button data-apage="${cur+1}" ${cur===pages?"disabled":""}>Next<span class="ar-r"></span></button>
+    <button data-apage="${cur+1}" ${cur===pages?"disabled":""} aria-label="Next page"><span class="pw">Next</span><span class="ar-r"></span></button>
   </div>`;
 }
 
@@ -3405,7 +3485,7 @@ async function renderInner(){
   if(r.name==="studio" && draft) bindEditor();
   if(r.name==="story") await openReader(r.arg); else closeQuietly();
   /* Decoration only. None of it is worth losing the page over. */
-  try{ hydrateThumbs(); }catch(e){ report("thumbs: " + e.message); }
+  try{ hydrateThumbs(); fitBooks(); }catch(e){ report("thumbs: " + e.message); }
   try{ observeRises();  }catch(e){ report("rises: "  + e.message); }
   try{ seedMotes();     }catch(e){ report("motes: "  + e.message); }
   window.scrollTo(0,0);
