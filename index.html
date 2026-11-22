@@ -24,7 +24,7 @@
      ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var BUILD = "build 2026-08-04 \u00b7 ipad-compat-2";
+  var BUILD = "build 2026-11-22 \u00b7 ipad-compat-3";
   window.BMD_BUILD  = BUILD;
   window.BMD_ERRORS = [];
   var panicked = false, ribbon = null;
@@ -73,7 +73,7 @@
     setTimeout(function(){
       var app = document.getElementById("app");
       if(app && !app.children.length) report("The page script did not start.");
-    }, 5000);
+    }, 12000);
   });
 })();
 </script>
@@ -1356,13 +1356,80 @@ function writeCache(){
   }catch(e){ /* private mode, or full — the site works without it */ }
 }
 
+/* ── A second road to the same stories ─────────────────────────────
+   On some iPads and networks the Firebase library loads, then waits for
+   ever on its streaming connection: no error, no answer, and the page sat
+   empty under "The page script did not start". The stories are public, so
+   they can also be read with a plain web request, which works anywhere a
+   web page does. Firebase is given a few seconds; if it has not answered,
+   the plain road is taken for the rest of the visit.                   */
+const REST = `https://firestore.googleapis.com/v1/projects/${CFG.firebase.projectId}/databases/(default)/documents`;
+let viaRest = false;
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error("timeout")), ms))]);
+function restVal(v){
+  if(!v) return null;
+  if("stringValue" in v) return v.stringValue;
+  if("integerValue" in v) return Number(v.integerValue);
+  if("doubleValue" in v) return v.doubleValue;
+  if("booleanValue" in v) return v.booleanValue;
+  if("timestampValue" in v) return v.timestampValue;
+  if("mapValue" in v){ const o = {}, f = v.mapValue.fields || {}; for(const k in f) o[k] = restVal(f[k]); return o; }
+  if("arrayValue" in v) return (v.arrayValue.values || []).map(restVal);
+  return null;
+}
+const restDoc = d => { const o = {}, f = (d && d.fields) || {}; for(const k in f) o[k] = restVal(f[k]); return o; };
+async function restGet(path){
+  const r = await fetch(`${REST}/${path}`);
+  if(!r.ok) return null;
+  return restDoc(await r.json());
+}
+async function restPosts(){
+  const out = []; let tok = "";
+  do{
+    const r = await fetch(`${REST}/posts?pageSize=300${tok ? "&pageToken=" + encodeURIComponent(tok) : ""}`);
+    if(!r.ok) throw new Error("stories could not be read (" + r.status + ")");
+    const j = await r.json();
+    (j.documents || []).forEach(d => out.push({ id: d.name.split("/").pop(), ...restDoc(d) }));
+    tok = j.nextPageToken || "";
+  }while(tok);
+  return out.sort((a,b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
+}
+/* One document, by whichever road is open. Firebase first, unless it has
+   already failed to answer this visit; a slow answer moves to the plain road. */
+async function readDoc(path){
+  if(db && !viaRest){
+    try{
+      const d = await withTimeout(fb.getDoc(fb.doc(db, ...path.split("/"))), 4000);
+      return d.exists() ? d.data() : null;
+    }catch(e){
+      if(!e || e.message !== "timeout") return null;
+      viaRest = true;
+    }
+  }
+  try{ return await restGet(path); }catch(e){ return null; }
+}
+
 async function loadPosts(){
-  await fbReady;
-  if(!db){ store.posts = SAMPLES.slice(); store.loaded = true; return; }
-  const { collection, getDocs, query, orderBy, doc, getDoc } = fb;
-  const snap = await getDocs(query(collection(db,"posts"), orderBy("publishedAt","desc")));
-  store.posts = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-  try{ const s = await getDoc(doc(db,"settings","site")); if(s.exists()) store.site={...store.site,...s.data()}; }catch(e){}
+  if(!LIVE){ store.posts = SAMPLES.slice(); store.loaded = true; return; }
+  const sdk = (async ()=>{
+    await fbReady;
+    if(!db) throw new Error("no firebase");
+    const { collection, getDocs, query, orderBy, doc, getDoc } = fb;
+    const snap = await getDocs(query(collection(db,"posts"), orderBy("publishedAt","desc")));
+    let site = null;
+    try{ const s = await getDoc(doc(db,"settings","site")); if(s.exists()) site = s.data(); }catch(e){}
+    return { posts: snap.docs.map(d=>({ id:d.id, ...d.data() })), site };
+  })();
+  sdk.catch(()=>{});   // if it loses the race it may still fail later; that is no longer news
+  let got;
+  try{ got = await withTimeout(sdk, 4000); }
+  catch(e){
+    viaRest = true;
+    const [posts, site] = await Promise.all([restPosts(), restGet("settings/site").catch(()=>null)]);
+    got = { posts, site };
+  }
+  store.posts = got.posts;
+  if(got.site) store.site = { ...store.site, ...got.site };
   store.loaded = true;
   writeCache();
 }
@@ -1418,36 +1485,32 @@ async function getThumb(p){
   if(mediaCache.has(k)) return mediaCache.get(k);
   const kept = thumbStore.get(k);
   if(kept){ mediaCache.set(k,kept); return kept; }
-  if(!db) return "";
-  try{
-    const d = await fb.getDoc(fb.doc(db,"posts",p.id,"media","thumb"));
-    const v = d.exists()?d.data().data:"";
-    mediaCache.set(k,v); thumbStore.set(k,v); return v;
-  }catch(e){ return ""; }
+  if(!LIVE) return "";
+  const d = await readDoc(`posts/${p.id}/media/thumb`);
+  const v = (d && d.data) || "";
+  if(v){ mediaCache.set(k,v); thumbStore.set(k,v); }
+  return v;
 }
 async function getCover(p){
   if(!p) return "";
   if(p.image) return p.image;
-  if(db && p.hasCover){
+  if(LIVE && p.hasCover){
     const k = p.id+":cover";
     if(mediaCache.has(k)) return mediaCache.get(k);
-    try{
-      const d = await fb.getDoc(fb.doc(db,"posts",p.id,"media","cover"));
-      if(d.exists()){ mediaCache.set(k,d.data().data); return d.data().data; }
-    }catch(e){}
+    const d = await readDoc(`posts/${p.id}/media/cover`);
+    if(d && d.data){ mediaCache.set(k,d.data); return d.data; }
   }
   return getThumb(p);
 }
 async function getBody(p){
   if(!p) return "";
   if(p.body) return p.body;
-  if(!db) return "";
+  if(!LIVE) return "";
   if(bodyCache.has(p.id)) return bodyCache.get(p.id);
-  try{
-    const d = await fb.getDoc(fb.doc(db,"posts",p.id,"content","body"));
-    const v = d.exists()?(d.data().text||""):"";
-    bodyCache.set(p.id,v); return v;
-  }catch(e){ return ""; }
+  const d = await readDoc(`posts/${p.id}/content/body`);
+  const v = (d && d.text) || "";
+  if(v) bodyCache.set(p.id,v);
+  return v;
 }
 /* ── Thumbnails arrive as they are needed ───────────────────────────
    Fetching every thumbnail the moment a page renders means the whole
