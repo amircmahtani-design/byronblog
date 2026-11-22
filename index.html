@@ -694,36 +694,55 @@ img[data-fallback]{opacity:0}
 }
 
 /* ── preview variants ── */
-/* A · Soft: rounded, edges melt into shadow, no hard frame */
-.bk-soft .wcard .book{border-radius:6px 16px 16px 6px;
-  box-shadow:18px 24px 46px -12px rgba(0,0,0,.9),0 6px 18px rgba(0,0,0,.45)}
-.bk-soft .wcard .book::before{border-radius:0 12px 12px 0;top:4%;bottom:4%;right:-6px}
-.bk-soft .wcard .shot img{-webkit-mask-image:radial-gradient(120% 100% at 55% 45%,#000 62%,rgba(0,0,0,.55) 88%,rgba(0,0,0,.25) 100%);
-  mask-image:radial-gradient(120% 100% at 55% 45%,#000 62%,rgba(0,0,0,.55) 88%,rgba(0,0,0,.25) 100%)}
-.bk-soft .wcard .shot{background:#120E0A}
-.bk-soft .wcard .frame{border:0;box-shadow:none;top:auto;height:1px;bottom:calc(3.2% + 0px);left:30%;right:24%;
-  background:linear-gradient(90deg,transparent,rgba(232,211,164,.55),transparent)}
-.bk-soft .wcard .spine{border-radius:6px 0 0 6px}
+/* shared: the whole plate, never cropped, centred on the cover */
+.bk-soft .wcard .shot img.pl,.bk-ink .wcard .shot img.pl{position:absolute;inset:auto;left:11%;right:5%;top:10%;
+  width:84%;height:auto;aspect-ratio:16/9;object-fit:cover;z-index:1}
+.bk-soft .wcard .frame,.bk-ink .wcard .frame{display:none}
+.bk-soft .wcard .book,.bk-ink .wcard .book{aspect-ratio:4/5}
+.bk-soft .wcard .txt,.bk-ink .wcard .txt{top:54%;bottom:5%;left:11%;right:5%;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;padding:0 .6rem}
+.bk-soft .wcard .txt::before,.bk-ink .wcard .txt::before{content:"";display:block;width:42%;height:9px;margin:0 auto .85rem;
+  background:var(--orn) center/contain no-repeat;opacity:.85}
 
-/* B · Arched: leather board, the painting in an arched window */
-.bk-arch .wcard .book{border-radius:5px 12px 12px 5px;
-  background:radial-gradient(120% 90% at 60% 30%,#3A2A1A 0%,#22180F 55%,#150F09 100%);
-  box-shadow:inset 0 0 0 1px rgba(232,211,164,.12),inset 0 0 40px rgba(0,0,0,.6),
-             16px 22px 40px -10px rgba(0,0,0,.9),0 5px 14px rgba(0,0,0,.45)}
-.bk-arch .wcard .book::before{border-radius:0 10px 10px 0}
-.bk-arch .wcard .shot{inset:8% 14% 36% 19%;border-radius:50% 50% 12px 12px / 38% 38% 12px 12px;
-  box-shadow:0 0 0 1px rgba(232,211,164,.55),0 0 0 6px rgba(21,15,9,1),0 0 0 7px rgba(232,211,164,.28),0 10px 24px rgba(0,0,0,.6)}
-.bk-arch .wcard .shot::before{background:radial-gradient(110% 95% at 50% 40%,transparent 55%,rgba(21,15,9,.75) 100%)}
-.bk-arch .wcard .frame{display:none}
-.bk-arch .wcard .spine{border-radius:5px 0 0 5px}
-.bk-arch .wcard .txt{left:12%;right:6%;bottom:4%;top:67%;display:flex;flex-direction:column;justify-content:center;padding:0 .6rem}
-.bk-arch .wcard .cat{color:var(--gold);text-shadow:none;margin-bottom:.35rem}
-.bk-arch .wcard h3{color:var(--gold-lt);text-shadow:0 1px 0 rgba(0,0,0,.6);font-size:clamp(1.05rem,.95rem + .4vw,1.3rem)}
+/* A · the plate on its own painting: the cover is the same picture, blurred
+   and sunk into shadow, with the whole picture lying on it, edges melting */
+.bk-soft .wcard .book{border-radius:6px 14px 14px 6px;
+  box-shadow:18px 24px 46px -12px rgba(0,0,0,.9),0 6px 18px rgba(0,0,0,.45)}
+.bk-soft .wcard .book::before{border-radius:0 11px 11px 0;top:4%;bottom:4%;right:-6px}
+.bk-soft .wcard .shot{background:#120E0A}
+.bk-soft .wcard .shot img.bg{filter:blur(16px) brightness(.42) saturate(.8);transform:scale(1.25)}
+.bk-soft .wcard .shot img.pl{filter:var(--img-grade);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  mask-composite:intersect}
+.bk-soft .wcard .shot::before{background:radial-gradient(120% 90% at 55% 40%,transparent 45%,rgba(13,13,13,.6) 100%)}
+.bk-soft .wcard .spine{border-radius:6px 0 0 6px}
+.bk-soft .wcard{--orn:url(assets/divider.png)}
+
+/* B · quarter-bound: dark leather spine, parchment boards, the whole plate
+   tipped in with a printed double rule, title in brown-black ink */
+.bk-ink .wcard{--orn:url(assets/divider-ink.png)}
+.bk-ink .wcard .book{border-radius:4px 10px 10px 4px;
+  box-shadow:16px 22px 40px -10px rgba(0,0,0,.9),0 5px 14px rgba(0,0,0,.45)}
+.bk-ink .wcard .book::before{border-radius:0 8px 8px 0}
+.bk-ink .wcard .shot{background:url(assets/paper.jpg) center/cover,#E3CDA0;background-blend-mode:multiply}
+.bk-ink .wcard .shot::after{background:radial-gradient(130% 100% at 55% 45%,transparent 55%,rgba(92,70,40,.38) 100%);mix-blend-mode:multiply}
+.bk-ink .wcard .shot::before{display:none}
+.bk-ink .wcard .shot img.bg{display:none}
+.bk-ink .wcard .shot img.pl{filter:sepia(.12) contrast(1.02);border-radius:3px;
+  box-shadow:0 0 0 1px rgba(58,46,28,.55),0 0 0 5px #EAD9B4,0 0 0 6px rgba(58,46,28,.35),0 6px 14px rgba(40,28,12,.35)}
+.bk-ink .wcard .spine{width:9%;border-radius:4px 0 0 4px;
+  background:linear-gradient(90deg,#1B120B 0%,#3A2616 40%,#5A3D22 58%,#2A1B10 80%,rgba(42,27,16,.0) 100%)}
+.bk-ink .wcard .cat{color:#7A5A22;text-shadow:none}
+.bk-ink .wcard h3{color:#2E2418;text-shadow:none;font-weight:600}
+@media (hover:hover) and (pointer:fine){.bk-ink .wcard:hover .shot img.pl{transform:none}}
+
 @media (max-width:560px){
-  .bk-arch .cards:not(.three) .wcard h3{font-size:.86rem;line-height:1.12}
-  .bk-arch .cards:not(.three) .wcard .cat{font-size:.68rem;letter-spacing:.1em;margin-bottom:.15rem}
-  .bk-arch .cards:not(.three) .wcard .shot{inset:7% 13% 39% 18%}
-  .bk-arch .cards:not(.three) .wcard .txt{top:64%;padding:0 .3rem}
+  .bk-soft .cards:not(.three) .wcard .txt,.bk-ink .cards:not(.three) .wcard .txt{top:53%;padding:0 .3rem}
+  .bk-soft .cards:not(.three) .wcard .txt::before,.bk-ink .cards:not(.three) .wcard .txt::before{margin-bottom:.5rem;height:7px}
+  .bk-soft .cards:not(.three) .wcard h3,.bk-ink .cards:not(.three) .wcard h3{font-size:.92rem;line-height:1.14}
+  .bk-soft .cards:not(.three) .wcard .cat,.bk-ink .cards:not(.three) .wcard .cat{font-size:.68rem;letter-spacing:.1em;margin-bottom:.25rem}
 }
 
 /* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
@@ -1957,7 +1976,7 @@ function wcard(p){
   const ico = CATICON[cat];
   return `<a class="wcard" href="#/story/${esc(p.slug)}">
     <span class="book">
-      <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
+      <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
       <span class="spine" aria-hidden="true"></span>
       <span class="frame" aria-hidden="true"></span>
       <span class="txt">
