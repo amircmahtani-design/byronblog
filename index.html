@@ -1541,13 +1541,16 @@ body:not(.studio) .bcard.bare .shot{background:linear-gradient(160deg,var(--clot
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <!-- Colour-matched to the four reference paintings (Nov 2026): a per-channel
+       curve measured from them, at 85% strength, then a touch more colour.
+       To soften: move each tableValues list toward 0 .03 .06 … 1 (no change). -->
   <filter id="house-grade" color-interpolation-filters="sRGB">
     <feComponentTransfer>
-      <feFuncR type="gamma" exponent=".62" amplitude="1.06"/>
-      <feFuncG type="gamma" exponent=".64" amplitude="1.05"/>
-      <feFuncB type="gamma" exponent=".6" amplitude="1.04"/>
+      <feFuncR type="table" tableValues="0.014 0.040 0.083 0.147 0.223 0.306 0.392 0.471 0.538 0.596 0.644 0.686 0.719 0.749 0.775 0.797 0.818 0.838 0.856 0.873 0.889 0.904 0.918 0.931 0.940 0.950 0.959 0.968 0.975 0.983 0.990 0.995 1.000"/>
+      <feFuncG type="table" tableValues="0.009 0.034 0.077 0.138 0.209 0.284 0.354 0.411 0.457 0.497 0.533 0.568 0.600 0.633 0.665 0.696 0.728 0.758 0.788 0.817 0.843 0.866 0.888 0.906 0.922 0.935 0.947 0.959 0.969 0.978 0.986 0.994 0.999"/>
+      <feFuncB type="table" tableValues="0.013 0.045 0.094 0.153 0.219 0.286 0.341 0.386 0.428 0.471 0.516 0.565 0.614 0.664 0.710 0.749 0.781 0.808 0.832 0.853 0.872 0.890 0.905 0.917 0.929 0.943 0.955 0.966 0.975 0.983 0.991 0.995 1.000"/>
     </feComponentTransfer>
-    <feColorMatrix type="saturate" values="1.55"/>
+    <feColorMatrix type="saturate" values="1.12"/>
   </filter>
 </defs></svg>
 
