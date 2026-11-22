@@ -2586,7 +2586,7 @@ function bcard(p){
   const t = String(p.title||""), cut = t.indexOf(": ");
   const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
   const sub  = main === t ? "" : t.slice(cut + 2);
-  const cover = ({ "Mystery":"navy", "Ghost Stories":"navy", "Love & Desire":"burgundy", "Dark Humour":"burgundy",
+  const cover = ["navy","burgundy","gold","green"].includes(p.cover) ? p.cover : ({ "Mystery":"navy", "Ghost Stories":"navy", "Love & Desire":"burgundy", "Dark Humour":"burgundy",
                    "Human Folly":"gold", "Reflections":"gold", "Adventure":"green" })[categoryFor(p)] || "green";
   return `<a class="bcard${bare?" bare":""}" data-cover="${cover}"${gradeOff(p)} href="#/story/${esc(p.slug)}">
     <span class="book">
