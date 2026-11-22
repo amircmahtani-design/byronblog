@@ -1599,6 +1599,9 @@ body:not(.studio) .bcard[data-cover="gold"]{--cv:url(assets/covers/gold.webp?v=3
 body:not(.studio) .bcard[data-cover="burgundy"]{--cv:url(assets/covers/burgundy.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
 body:not(.studio) .bcard[data-cover="green"]{--cv:url(assets/covers/green.webp?v=3);--ar:1064/1361;--wl:15.7%;--wt:9.7%;--ww:71.99%;--wh:32.55%}
 body:not(.studio) .bcard[data-cover="navy"]{--cv:url(assets/covers/navy.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
+body:not(.studio) .bcard[data-cover="teal"]{--cv:url(assets/covers/teal.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
+body:not(.studio) .bcard[data-cover="plum"]{--cv:url(assets/covers/plum.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
+body:not(.studio) .bcard[data-cover="chestnut"]{--cv:url(assets/covers/chestnut.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
 /* words below the cover's ornament (which sits at about 52% down) */
 body:not(.studio) .bcard .txt{top:54%;left:12%;right:8%;bottom:6%}
 body:not(.studio) .bcard .txt::before{display:none}
@@ -2595,8 +2598,8 @@ function bcard(p){
   const t = String(p.title||""), cut = t.indexOf(": ");
   const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
   const sub  = main === t ? "" : t.slice(cut + 2);
-  const cover = ["navy","burgundy","gold","green"].includes(p.cover) ? p.cover : ({ "Mystery":"navy", "Ghost Stories":"navy", "Love & Desire":"burgundy", "Dark Humour":"burgundy",
-                   "Human Folly":"gold", "Reflections":"gold", "Adventure":"green" })[categoryFor(p)] || "green";
+  const cover = ({ "Mystery":"navy", "Ghost Stories":"teal", "Love & Desire":"burgundy", "Dark Humour":"plum",
+                   "Human Folly":"gold", "Reflections":"chestnut", "Adventure":"green" })[categoryFor(p)] || "chestnut";
   return `<a class="bcard${bare?" bare":""}" data-cover="${cover}"${gradeOff(p)} href="#/story/${esc(p.slug)}">
     <span class="book">
       <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><span class="plate"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span></span>
