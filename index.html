@@ -1973,8 +1973,16 @@ const thumbStore = (()=>{
     clear(){ map = new Map(); try{ localStorage.removeItem(THUMB_KEY); }catch(e){} }
   };
 })();
+/* New paintings in the bright style, supplied as files in assets/plates/
+   (cover 1600×900, thumb 640×360), named by story slug. A story listed here
+   shows its new painting everywhere and skips the colour lift; the original
+   paintings are kept in original-paintings/ and in Firestore. To add more:
+   drop the files in and add the slugs to this list. */
+const PLATES = new Set(["a-marriage-marinated-in-madness", "anemoia", "breasts-beat-buddhism", "cut-their-balls-off", "deep-love", "empathy", "from-prince-to-king", "how-to-have-twins", "phantom-of-the-jungle", "prey-dont-mind", "reflections-in-the-minds-mirror", "reincarnated-as-a-fly", "shark-fin-soup-for-400", "solitude", "the-art-of-faking-it", "the-auction-of-regrets", "the-fall-of-a-titan", "the-final-stand-a-wild-alliance", "the-game-of-hearts-and-minds", "the-great-mcburger-procreation-scandal", "the-haunted-night-of-jim-corbett", "the-hour-of-the-blue-sky", "the-last-companion-on-the-coming-age-of-artificial-intimacy", "the-man-who-could-hear-envy", "the-man-who-dreamt", "the-museum-of-forgotten-things", "the-noble-facade", "the-ocean-that-dreams", "the-painted-mask-when-beauty-deceives-and-dreams-shatter", "the-republic-of-thought", "the-restaurant-at-the-end-of-time", "the-rise-and-fall-and-rise-again-of-prince-theodore-and-lady-cassandra", "the-silence-of-knowing", "the-silent-welcome", "the-tigers-triumph-tipu-sultans-rule-over-england", "the-warmth-of-her-own-truth", "the-weight-of-money", "the-weight-of-wings", "veil-of-steel", "what-beauty-could-not-do"]);
+const plateOf = (p, big) => p && PLATES.has(p.slug) ? `assets/plates/${big?"":"thumb/"}${p.slug}.webp` : "";
 async function getThumb(p){
   if(!p) return "";
+  if(plateOf(p)) return plateOf(p);
   if(p.thumb) return p.thumb;
   if(!p.hasThumb) return "";
   const k = p.id+":thumb";
@@ -1989,6 +1997,7 @@ async function getThumb(p){
 }
 async function getCover(p){
   if(!p) return "";
+  if(plateOf(p,true)) return plateOf(p,true);
   if(p.image) return p.image;
   if(LIVE && p.hasCover){
     const k = p.id+":cover";
@@ -2088,7 +2097,7 @@ const MOODS = [
 ];
 const OLD_TO_MOOD = { Desires:"Love & Desire", Travels:"Adventure", Rebellion:"Adventure",
   Society:"Human Folly", Solitude:"Reflections", Mortality:"Reflections", Memory:"Reflections", Reflections:"Reflections" };
-const isBright = p => !!(p && p.illus && p.illus.look === "bright");
+const isBright = p => !!(p && ((p.illus && p.illus.look === "bright") || PLATES.has(p.slug)));
 const gradeOff = p => isBright(p) ? ' style="--l-grade:none"' : "";
 function categoryFor(p){
   if(!p) return "Reflections";
