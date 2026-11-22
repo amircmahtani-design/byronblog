@@ -1590,15 +1590,15 @@ body:not(.studio) .pbanner h1,body:not(.studio) .pbanner p{text-shadow:0 0 18px 
 /* ══ the real cloth covers (assets/covers): the painting sits inside each
    cover's own gold frame; the measured window is set per cover below ══ */
 body:not(.studio) .bcard .book{aspect-ratio:var(--ar,3/4);border-radius:0;box-shadow:none;
-  background:var(--cv) center/100% 100% no-repeat;filter:drop-shadow(10px 16px 18px rgba(70,42,15,.35))}
+  background:var(--cv) center/100% 100% no-repeat;filter:drop-shadow(6px 10px 10px rgba(70,42,15,.28))}
 body:not(.studio) .bcard .book::before,body:not(.studio) .bcard .spine{display:none}
 body:not(.studio) .bcard .shot{background:none!important;border-radius:0;overflow:visible}
 body:not(.studio) .bcard .shot::before,body:not(.studio) .bcard .shot::after{display:none}
 body:not(.studio) .bcard .shot .plate{left:var(--wl);top:var(--wt);width:var(--ww);height:var(--wh);right:auto;aspect-ratio:auto;box-shadow:none}
-body:not(.studio) .bcard[data-cover="gold"]{--cv:url(assets/covers/gold.webp?v=2);--ar:1062/1414;--wl:15.07%;--wt:8.84%;--ww:68.83%;--wh:29.63%}
-body:not(.studio) .bcard[data-cover="burgundy"]{--cv:url(assets/covers/burgundy.webp?v=2);--ar:1053/1378;--wl:16.24%;--wt:9.58%;--ww:68.85%;--wh:30.41%}
-body:not(.studio) .bcard[data-cover="green"]{--cv:url(assets/covers/green.webp?v=2);--ar:1086/1421;--wl:15.84%;--wt:10.49%;--ww:70.53%;--wh:31.18%}
-body:not(.studio) .bcard[data-cover="navy"]{--cv:url(assets/covers/navy.webp?v=2);--ar:1054/1412;--wl:15.09%;--wt:9.7%;--ww:69.73%;--wh:30.95%}
+body:not(.studio) .bcard[data-cover="gold"]{--cv:url(assets/covers/gold.webp?v=3);--ar:1018/1345;--wl:14.44%;--wt:9.14%;--ww:71.81%;--wh:31.15%}
+body:not(.studio) .bcard[data-cover="burgundy"]{--cv:url(assets/covers/burgundy.webp?v=3);--ar:996/1321;--wl:14.56%;--wt:9.84%;--ww:72.79%;--wh:31.72%}
+body:not(.studio) .bcard[data-cover="green"]{--cv:url(assets/covers/green.webp?v=3);--ar:1064/1361;--wl:15.7%;--wt:9.7%;--ww:71.99%;--wh:32.55%}
+body:not(.studio) .bcard[data-cover="navy"]{--cv:url(assets/covers/navy.webp?v=3);--ar:1018/1346;--wl:14.24%;--wt:9.96%;--ww:72.2%;--wh:32.47%}
 /* words below the cover's ornament (which sits at about 52% down) */
 body:not(.studio) .bcard .txt{top:54%;left:12%;right:8%;bottom:6%}
 body:not(.studio) .bcard .txt::before{display:none}
