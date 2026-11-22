@@ -1612,6 +1612,9 @@ body:not(.studio) .bcard.bare .shot .plate{background:rgba(0,0,0,.18) url(assets
 body:not(.studio) .bcard[data-cover="dove"] .txt,body:not(.studio) .bcard[data-cover="rose"] .txt{text-shadow:0 1px 3px rgba(0,0,0,.55),0 0 14px rgba(0,0,0,.35)}
 body:not(.studio) .bcard[data-cover="dove"] h3,body:not(.studio) .bcard[data-cover="rose"] h3{color:#FFF6E4;text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 16px rgba(0,0,0,.4)}
 body:not(.studio) .bcard[data-cover="dove"] .cat,body:not(.studio) .bcard[data-cover="rose"] .cat{color:#FBE3A8;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+
+.film.untitled .t{font-size:clamp(.92rem,.85rem + .25vw,1.05rem);font-weight:500;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.film img.yt,body:not(.studio) .film img.yt{filter:none!important;object-position:center 30%}
 </style>
 </head>
 <body>
@@ -1935,6 +1938,7 @@ async function loadPosts(){
   if(got.site) store.site = { ...store.site, ...got.site };
   store.loaded = true;
   writeCache();
+  loadFilms();   // the channel's films, matched against the stories just loaded
 }
 
 const mediaCache = new Map(), bodyCache = new Map();
@@ -2517,7 +2521,7 @@ function viewHome(){
   const list = published();
   if(!list.length) return `<div class="empty">Nothing published yet. Open the <a href="#/studio">Studio</a> and write the first one.</div>`;
   const latest = list.slice(0,4);
-  const films = list.filter(p=>ytId(p)).slice(0,4);
+  const films = FILMS.list.length ? FILMS.list.slice(0,4) : list.filter(p=>ytId(p)).slice(0,4).map(filmOfPost);
   return `
   <section class="hhero">
     <img class="hhero-art" src="assets/hero-bright.webp" alt="" onerror="this.remove()">
@@ -2541,7 +2545,7 @@ function viewHome(){
     <div class="hfilms-txt"><h2>Watch the Stories</h2>
       <p>Short narrated films of Byron’s stories, each a few minutes long, with paintings to match.</p>
       <a class="hfilms-all" href="#/films">All films</a></div>
-    <div class="hfilms-row">${films.map(filmCard).join("")}</div>
+    <div class="hfilms-row" id="filmsHome">${films.map(filmCard).join("")}</div>
   </div></section>`:""}
 
   <section class="hsec wrap">
@@ -2563,20 +2567,49 @@ const ICON = {
 };
 const secHead = t => `<div class="shead"><span class="ln"></span>${SPRIG}<h2>${esc(t)}</h2>${SPRIG.replace('class="sprig"','class="sprig r"')}<span class="ln"></span></div>`;
 
-function filmCard(p){
-  const id = ytId(p);
-  return `<button class="film" type="button"${gradeOff(p)} data-film="${esc(p.id)}" aria-label="Watch the film: ${esc(p.title)}">
-    <img data-post="${esc(p.id)}" src="${BLANK}" alt="" loading="lazy">
+/* ── The films: every video on the channel ────────────────────────
+   /.netlify/functions/films returns the whole channel (it keeps the ones
+   that have dropped off YouTube's feed). A video that belongs to a story
+   uses the story's title and painting; one that doesn't uses its own. */
+const FILMS = { list:[], loaded:false };
+const dateLike = t => /^\s*\d{1,2}\s+[A-Za-z]+\s+\d{4}\s*$/.test(t||"") || !String(t||"").trim();
+const filmOfPost = p => ({ id: ytId(p), title: p.title, desc: p.dek||"", short: !!p.youtubeShort, post: p });
+function filmFrom(v){
+  const post = store.posts.find(p=>ytId(p)===v.id);
+  const title = post ? post.title : (dateLike(v.title) ? "" : v.title);
+  return { id:v.id, title, desc:v.desc||"", short:!!v.short, post, published:v.published };
+}
+async function loadFilms(){
+  try{
+    const r = await fetch("/.netlify/functions/films");
+    if(!r.ok) return;
+    const j = await r.json();
+    FILMS.list = (j.videos||[]).map(filmFrom); FILMS.loaded = true;
+    const h = document.getElementById("filmsHome"); if(h) h.innerHTML = FILMS.list.slice(0,4).map(filmCard).join("");
+    const g = document.getElementById("filmsPage"); if(g) g.innerHTML = filmsGrid();
+    hydrateThumbs();
+  }catch(e){}
+}
+function filmCard(f){
+  const label = f.title || ((f.desc.match(/^[^.!?]*[.!?]?/)||[""])[0]) || "Watch the film";
+  const pic = f.post && (f.post.hasThumb || PLATES.has(f.post.slug))
+    ? `<img data-post="${esc(f.post.id)}" src="${BLANK}" alt="" loading="lazy">`
+    : `<img class="yt" src="https://i.ytimg.com/vi/${esc(f.id)}/${f.short?"oar2":"hq720"}.jpg" alt="" loading="lazy" onerror="this.src='https://i.ytimg.com/vi/${esc(f.id)}/hqdefault.jpg'">`;
+  return `<button class="film${f.title?"":" untitled"}" type="button"${f.post?gradeOff(f.post):""} data-film="${esc(f.id)}" aria-label="Watch the film: ${esc(label)}">
+    ${pic}
     <span class="play" aria-hidden="true">${ICON.play}</span>
-    <span class="t">${esc(p.title)}</span>
+    <span class="t">${esc(label)}</span>
   </button>`;
 }
+const filmsGrid = () => {
+  const list = FILMS.list.length ? FILMS.list : published().filter(p=>ytId(p)).map(filmOfPost);
+  return list.length ? list.map(filmCard).join("") : `<p class="lede">The first films are on their way.</p>`;
+};
 
 function viewFilms(){
-  const films = published().filter(p=>ytId(p));
   return `${pageBanner("The Films","Each story, read aloud in a few minutes, with paintings to match.")}
   <section class="hsec wrap">
-    ${films.length?`<div class="hfilms-row page">${films.map(filmCard).join("")}</div>`:`<p class="lede">The first films are on their way.</p>`}
+    <div class="hfilms-row page" id="filmsPage">${filmsGrid()}</div>
     <p class="lede"><a href="${YT_CHANNEL}" target="_blank" rel="noopener">Subscribe on YouTube</a></p>
   </section>`;
 }
@@ -2806,7 +2839,8 @@ const seedOf = id => { let h=0; const t=String(id||"x"); for(let i=0;i<t.length;
 const YT_CHANNEL = "https://www.youtube.com/@badmaddangerous";
 const ytId = p => (p && typeof p.youtube==="string" && /^[\w-]{11}$/.test(p.youtube)) ? p.youtube : "";
 function openListen(p){
-  const id = ytId(p); if(!id) return;
+  const id = p && p.id && /^[\w-]{11}$/.test(p.id) && !p.slug ? p.id : ytId(p); if(!id) return;
+  p = { title: p.title || "", youtubeShort: p.youtubeShort ?? p.short };
   closeListen();
   // phones refuse a video that starts itself, so there it waits for one tap
   const auto = matchMedia("(hover:hover) and (pointer:fine)").matches ? "autoplay=1&" : "";
@@ -2834,7 +2868,11 @@ document.addEventListener("click", e=>{
     return;
   }
   const f = e.target.closest && e.target.closest("[data-film]");
-  if(f){ const p = store.posts.find(x=>x.id===f.dataset.film); if(p) openListen(p); }
+  if(f){
+    const v = FILMS.list.find(x=>x.id===f.dataset.film)
+          || (()=>{ const p = store.posts.find(x=>ytId(x)===f.dataset.film); return p && filmOfPost(p); })();
+    if(v) openListen({ id:v.id, title:v.title || "", short:v.short });
+  }
 });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && document.querySelector(".listen")){ e.stopPropagation(); closeListen(); } }, true);
 
