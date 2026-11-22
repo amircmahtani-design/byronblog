@@ -629,16 +629,27 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .sec-head h2{font-family:var(--body);font-weight:600;font-size:clamp(.92rem,1.6vw,1.08rem);
   letter-spacing:.24em;text-transform:uppercase;margin:0;white-space:nowrap;color:var(--gold)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(20.5rem,1fr));gap:clamp(1.4rem,2.6vw,2.2rem)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));
+  gap:clamp(2.4rem,4vw,3.6rem) clamp(1.6rem,3vw,2.8rem);align-items:start}
 .cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}}
-.wcard{display:block;text-decoration:none;border:1px solid rgba(200,169,106,.22);
-  background:linear-gradient(168deg,rgba(28,28,28,.9),rgba(13,13,13,.95));
-  transition:transform .5s var(--ease),border-color .4s,box-shadow .5s var(--ease)}
-.wcard:hover{transform:translateY(-5px);border-color:rgba(200,169,106,.6);
-  box-shadow:0 20px 44px rgba(0,0,0,.7),0 0 0 1px rgba(200,169,106,.12)}
-.wcard .shot{display:block;position:relative;overflow:hidden;background:var(--coal);margin:.75rem .75rem 0}
-.wcard .shot{background:linear-gradient(150deg,#2C2316,#171412)}
+@media (max-width:1000px){.cards.three{grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}}
+@media (max-width:560px){.cards:not(.three){grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem 1.1rem}}
+
+/* ══ A story is a book: the plate is its cover, cloth spine on the left,
+   the block of pages showing on the right, the title stamped in gold. ══ */
+.wcard{display:block;text-decoration:none;text-align:center;-webkit-tap-highlight-color:transparent}
+.wcard .book{position:relative;display:block;width:100%;max-width:19.5rem;margin:0 auto;aspect-ratio:3/4;
+  border-radius:3px 7px 7px 3px;
+  box-shadow:0 1px 0 rgba(255,240,210,.08) inset,
+             14px 18px 30px -8px rgba(0,0,0,.85), 3px 4px 8px rgba(0,0,0,.5);
+  transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+/* the page block, peeking out past the cover's fore-edge */
+.wcard .book::before{content:"";position:absolute;z-index:-1;top:3.5%;bottom:2.5%;right:-7px;width:12px;
+  border-radius:0 3px 3px 0;
+  background:repeating-linear-gradient(90deg,#E9DFC8 0 1px,#CBBE9F 1px 2px),#DED2B6;
+  box-shadow:inset -2px 0 3px rgba(0,0,0,.35),2px 3px 6px rgba(0,0,0,.6)}
+.wcard .shot{position:absolute;inset:0;display:block;overflow:hidden;border-radius:inherit;isolation:isolate;
+  background:linear-gradient(150deg,#2C2316,#171412)}
 /* The house grade. Whatever an image arrived as — a pencil sketch from the old
    blog, a stock photograph, an AI render — it leaves looking like it belongs:
    desaturated, warmed toward the brand's gold and crimson, and sunk at the edges. */
@@ -648,23 +659,39 @@ main{position:relative;z-index:2;padding-top:var(--bar)}
 .shot::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;z-index:3;
   background:radial-gradient(115% 95% at 50% 38%,transparent 42%,rgba(13,13,13,.55) 100%),
              linear-gradient(to top,rgba(13,13,13,.78),transparent 58%)}
-.wcard .shot{isolation:isolate}
-.wcard .shot{height:0;padding-bottom:62.5%;aspect-ratio:16/10}
-@supports (aspect-ratio:16/10){.wcard .shot{height:auto;padding-bottom:0}}
 .wcard .shot img{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height:100%;object-fit:cover;
   filter:var(--img-grade);transition:transform 1.2s var(--ease),filter .6s,opacity .4s}
 img[data-fallback]{opacity:0}
-.wcard:hover .shot img{transform:scale(1.07);filter:var(--img-grade-hover)}
-
-.wcard .txt{display:block;padding:1.3rem 1.4rem 1.6rem}
-.wcard .cat{display:flex;align-items:center;gap:.5rem;font-family:var(--body);font-weight:600;
-  font-size:.84rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-text);margin-bottom:.7rem}
-.wcard .cat img{width:1.05rem;height:1.05rem;object-fit:contain;opacity:.9}
-.wcard h3{font-family:var(--display);font-weight:500;color:var(--cream);
-  font-size:1.52rem;line-height:1.22;margin:0 0 .8rem;transition:color .35s}
-.wcard:hover h3{color:var(--gold-lt)}
-.wcard .meta{display:block;font-family:var(--body);font-weight:600;font-size:.84rem;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--dim-2)}
+/* the hinge: a darker band with a highlight where the board meets the spine */
+.wcard .spine{position:absolute;z-index:4;top:0;bottom:0;left:0;width:7.5%;border-radius:3px 0 0 3px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 45%,rgba(255,235,200,.16) 62%,rgba(0,0,0,.45) 78%,rgba(0,0,0,.08) 100%)}
+.wcard .frame{position:absolute;z-index:4;top:3.2%;bottom:3.2%;left:10.5%;right:3.6%;pointer-events:none;
+  border:1px solid rgba(232,211,164,.5);box-shadow:inset 0 0 0 3px rgba(13,13,13,.0),inset 0 0 0 4px rgba(232,211,164,.18)}
+.wcard .txt{position:absolute;z-index:5;left:10.5%;right:3.6%;bottom:3.2%;display:block;
+  padding:0 .9rem 1.15rem}
+.wcard .cat{display:block;font-family:var(--body);font-weight:700;font-size:.8rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-lt);margin-bottom:.45rem;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.wcard h3{font-family:var(--display);font-weight:500;color:var(--gold-pale);margin:0;
+  font-size:clamp(1.2rem,1.05rem + .5vw,1.5rem);line-height:1.18;text-wrap:balance;
+  text-shadow:0 2px 14px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.8)}
+.wcard .meta{display:block;margin-top:1.15rem;font-family:var(--body);font-weight:600;font-size:.84rem;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim-2);transition:color .35s}
+@media (hover:hover) and (pointer:fine){
+  .wcard:hover .book{transform:translateY(-6px) rotate(-.6deg);
+    box-shadow:0 1px 0 rgba(255,240,210,.1) inset,22px 30px 44px -10px rgba(0,0,0,.9),4px 6px 12px rgba(0,0,0,.55)}
+  .wcard:hover .shot img{transform:scale(1.05);filter:var(--img-grade-hover)}
+  .wcard:hover .meta{color:var(--gold)}
+}
+.wcard:focus-visible{outline:none}
+.wcard:focus-visible .book{outline:2px solid var(--gold);outline-offset:6px}
+@media (max-width:560px){
+  .cards:not(.three) .wcard .txt{padding:0 .55rem .8rem}
+  .cards:not(.three) .wcard h3{font-size:1rem;line-height:1.16}
+  .cards:not(.three) .wcard .cat{font-size:.72rem;letter-spacing:.14em}
+  .cards:not(.three) .wcard .meta{font-size:.74rem;letter-spacing:.08em;margin-top:.9rem;white-space:nowrap}
+  .cards:not(.three) .wcard .rd{display:none}
+  .cards.three .wcard .book{max-width:15rem}
+}
 
 /* ══════════════════════ KIT · SEARCH & PAGINATION ══════════════════════ */
 .kfind{display:flex;align-items:center;gap:.9rem;max-width:34rem;margin:0 auto clamp(1.5rem,3.5vh,2.25rem);
@@ -1896,12 +1923,16 @@ function wcard(p){
   const cat = ((p.tags||[])[0]||"").toLowerCase();
   const ico = CATICON[cat];
   return `<a class="wcard" href="#/story/${esc(p.slug)}">
-    <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
-    <span class="txt">
-      <span class="cat">${ico?`<img src="${esc(ico)}" alt="" onerror="this.remove()">`:""}${esc(firstTag(p))}</span>
-      <h3>${esc(p.title)}</h3>
-      <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min read</span>
+    <span class="book">
+      <span class="shot"><img src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span>
+      <span class="spine" aria-hidden="true"></span>
+      <span class="frame" aria-hidden="true"></span>
+      <span class="txt">
+        <span class="cat">${esc(firstTag(p))}</span>
+        <h3>${esc(p.title)}</h3>
+      </span>
     </span>
+    <span class="meta">${esc(shortDate(p.publishedAt))} &nbsp;·&nbsp; ${readMins(p)} min<span class="rd"> read</span></span>
   </a>`;
 }
 
