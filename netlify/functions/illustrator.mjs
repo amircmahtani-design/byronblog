@@ -280,6 +280,7 @@ async function step(){
         v: Number(process.env.ILLUSTRATOR_VERSION || 2),
         at: new Date().toISOString(),
         model: "gpt-image-2",
+        look: "bright",            // painted in the bright style; the site skips its colour lift
         prompt: String(job.prompt||"").slice(0,900),
         by: "illustrator"          // so a plate made unattended is identifiable
       };

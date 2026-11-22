@@ -29,25 +29,24 @@ const OPENAI = "https://api.openai.com/v1";
    next run re-does the entire archive to match.                      */
 const HOUSE_STYLE =
   "STYLE — follow exactly:\n" +
-  "A nineteenth-century academic narrative painting: oil handling with a fine " +
-  "engraved stipple and cross-hatch grain visible across the surface, under a " +
-  "warm aged varnish with faint craquelure and the tooth of old canvas. " +
-  "Palette of ochre, honey, aged ivory, umber, oxblood and antique gold, set " +
-  "against deep slate blue and near-black; muted and slightly dusty, never " +
-  "bright, never garish, never neon. " +
-  "One dominant light source doing all the work — candle, oil lamp, low sun, " +
-  "a shaft through glass — throwing long shadows and leaving the corners in " +
-  "warm gloom. " +
-  "Painted with obsessive detail: every fold of cloth, every object on every " +
-  "surface, incident carried right into the far background. Deep perspective, " +
-  "wide cinematic staging, the eye led to a clear central anchor. " +
-  "Faces are shown and are legible — expression is part of the picture. " +
-  "Where the story is modern or fantastical, render it in this same antique " +
-  "manner without irony or comment: the paint is always period, the subject " +
-  "need not be.\n" +
+  "A luminous, romantic narrative oil painting with loose, confident, painterly " +
+  "brushwork: visible strokes, thick impasto in the highlights, the richness of " +
+  "a fine illustrated novel cover. Bathed in warm golden sunlight, inviting and " +
+  "alive, never gloomy, never murky, never sepia. " +
+  "Rich saturated jewel colours: sapphire and royal blue, emerald and deep green, " +
+  "crimson, burgundy and wine-red velvet, rose and blush pink flowers, champagne " +
+  "gold, ivory and cream, set against fresh greens and warm honeyed light. " +
+  "Glowing skin with warm highlights; sparkle on crystal, silver and gold. " +
+  "Interiors are lit by sun through tall windows and lamplight together, never " +
+  "a single candle in darkness; exteriors are sunlit gardens, terraces, country " +
+  "houses and dappled shade. Even a night scene is lit with warm lamplight and " +
+  "moonlit blues, colourful and readable, never black. " +
+  "Elegant, attractive, expressive people, shown close enough that faces and " +
+  "expressions carry the story; cinematic composition with a clear focus. " +
+  "Where the story is modern or fantastical, keep this same painterly style.\n" +
   "ABSOLUTELY NO lettering, words, numerals, signatures, captions, borders or " +
   "frames anywhere in the image. No photographic look. No flat vector or " +
-  "cartoon rendering. No modern digital gloss.";
+  "cartoon rendering.";
 
 /* The brief handed to the text model before it reads a story. */
 const DIRECTOR = `You are the art director for a literary press. You commission
@@ -65,7 +64,9 @@ What the paragraph must contain:
     Crowds are welcome; if the story has a room full of people, fill the room.
   · WHERE. The setting in concrete nouns: the architecture, the furniture, the
     landscape, the weather, what is through the window or over the horizon.
-  · THE LIGHT. Name the single source and the time of day.
+  · THE LIGHT. Warm and generous: name the time of day and where the light
+    comes from. Prefer daylight, golden afternoon sun or bright lamplight; a
+    night scene still glows. Never a lone candle in darkness.
   · THE THINGS. Three or four specific objects from the story that must appear.
 
 Rules:
