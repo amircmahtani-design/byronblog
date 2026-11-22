@@ -1263,6 +1263,32 @@ body:not(.studio) .kfoot nav a{font-family:var(--l-it);font-weight:600;font-size
 @media (max-width:820px){body:not(.studio) .kfoot-in{flex-direction:column;text-align:center}.fbrand{flex-direction:column}.fbrand img{border:0;padding:0}
   body:not(.studio) .kfoot nav{border-left:0;padding-left:0}}
 
+
+/* the reader: the same book, set on the ivory room with a green cloth binding */
+body:not(.studio) .reader{background:radial-gradient(120% 90% at 50% 40%,rgba(250,244,231,.97),rgba(233,222,198,.985))}
+body:not(.studio) .reader .book-shell{background:linear-gradient(158deg,#2C5243 0%,#1F3D30 45%,#132A20 100%);
+  box-shadow:0 40px 80px -20px rgba(60,40,15,.55),0 10px 24px rgba(60,40,15,.3),
+             inset 0 0 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(216,185,122,.35)}
+body:not(.studio) .reader .book-shell::after{border-color:rgba(216,185,122,.45)}
+body:not(.studio) .ribbon{height:calc(100% + 1.5rem)}
+body:not(.studio) .reader-close,body:not(.studio) .rnav{background:var(--l-card);border:1px solid var(--l-gold);color:var(--l-green);
+  box-shadow:0 6px 14px -8px rgba(60,40,15,.5)}
+body:not(.studio) .reader-close:hover,body:not(.studio) .rnav:hover:not(:disabled){background:var(--l-green);color:#F8F0DF;border-color:var(--l-green)}
+body:not(.studio) .reader-close{border-radius:50%}
+body:not(.studio) .reader-bar{color:var(--l-ink-2)}
+body:not(.studio) .reader-bar button:hover{color:var(--l-green)}
+body:not(.studio) .reader-bar .count{color:var(--l-wine)}
+body:not(.studio) .reader-prog{background:rgba(176,138,69,.25)}
+body:not(.studio) .reader-prog i{background:var(--l-green)}
+body:not(.studio) .reader.candle{background:radial-gradient(120% 90% at 50% 40%,rgba(58,40,20,.96),rgba(22,15,8,.99))}
+body:not(.studio) .reader.candle .reader-bar{color:#E3D6BA}
+body:not(.studio) .pg-listen{border-color:var(--l-wine);color:var(--l-wine)}
+@media (hover:hover) and (pointer:fine){body:not(.studio) .pg-listen:hover{background:var(--l-wine);color:#F8F0DF}}
+body:not(.studio) .pg-listen:active{background:var(--l-wine);color:#F8F0DF}
+body:not(.studio) .listen{background:rgba(19,42,32,.92)}
+body:not(.studio) .listen h2{color:#F6EEDC}
+body:not(.studio) .listen .frame{border-color:var(--l-gold)}
+
 </style>
 </head>
 <body>
