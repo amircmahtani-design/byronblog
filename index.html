@@ -1563,6 +1563,48 @@ body:not(.studio) .hhero p{text-shadow:0 0 14px rgba(255,248,230,.95),0 0 4px rg
 body:not(.studio) .pbanner::before{background:radial-gradient(30% 70% at 50% 50%,rgba(251,243,224,.72) 0%,rgba(251,243,224,.42) 55%,rgba(251,243,224,0) 100%)}
 body:not(.studio) .pbanner h1,body:not(.studio) .pbanner p{text-shadow:0 0 18px rgba(255,248,230,.95),0 0 4px rgba(255,248,230,.9)}
 @media (max-width:700px){body:not(.studio) .pbanner::before{background:radial-gradient(80% 70% at 50% 50%,rgba(251,243,224,.78) 0%,rgba(251,243,224,.5) 60%,rgba(251,243,224,.1) 100%)}}
+
+/* a phone on its side: the reader takes the whole screen, one slim row on top,
+   the page in the middle with the turn buttons either side, and nothing below */
+@media (orientation:landscape) and (max-height:520px){
+  body:not(.studio) .reader{top:0;padding:0 .5rem .3rem}
+  body:not(.studio) .reader-top{grid-template-columns:auto 1fr auto;padding:.25rem .5rem 0;gap:.5rem}
+  body:not(.studio) .reader-top .rt b{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  body:not(.studio) .reader-top .rt span{display:none}
+  body:not(.studio) .reader-top .rback{min-height:40px}
+  body:not(.studio) .rwatch{display:block}
+  body:not(.studio) .rfilm{min-height:36px;padding:0 .9rem;font-size:.95rem}
+  body:not(.studio) .reader .pg-listen{display:none!important}
+  body:not(.studio) .pg-listen{display:none!important}
+  body:not(.studio) .reader .rnav{display:grid;width:44px;height:44px}
+  body:not(.studio) .reader-stage{gap:.6rem}
+  body:not(.studio) .reader-bar{position:absolute;right:.6rem;top:.3rem;width:auto;padding:0;justify-content:flex-end}
+  body:not(.studio) .reader-bar .mnav,body:not(.studio) .reader-bar .grp{display:none}
+  body:not(.studio) .reader-bar .count{font-size:.85rem}
+  body:not(.studio) .reader-top{padding-right:5.5rem}
+}
+
+.book.single .leaf{transition:opacity .38s ease!important}
+.book.single .leaf .peel{display:none!important}
+
+/* ══ the real cloth covers (assets/covers): the painting sits inside each
+   cover's own gold frame; the measured window is set per cover below ══ */
+body:not(.studio) .bcard .book{aspect-ratio:var(--ar,3/4);border-radius:0;box-shadow:none;
+  background:var(--cv) center/100% 100% no-repeat;filter:drop-shadow(10px 16px 18px rgba(70,42,15,.35))}
+body:not(.studio) .bcard .book::before,body:not(.studio) .bcard .spine{display:none}
+body:not(.studio) .bcard .shot{background:none!important;border-radius:0;overflow:visible}
+body:not(.studio) .bcard .shot::before,body:not(.studio) .bcard .shot::after{display:none}
+body:not(.studio) .bcard .shot .plate{left:var(--wl);top:var(--wt);width:var(--ww);height:var(--wh);right:auto;aspect-ratio:auto;box-shadow:none}
+body:not(.studio) .bcard[data-cover="gold"]{--cv:url(assets/covers/gold.webp?v=2);--ar:1062/1414;--wl:15.07%;--wt:8.84%;--ww:68.83%;--wh:29.63%}
+body:not(.studio) .bcard[data-cover="burgundy"]{--cv:url(assets/covers/burgundy.webp?v=2);--ar:1053/1378;--wl:16.24%;--wt:9.58%;--ww:68.85%;--wh:30.41%}
+body:not(.studio) .bcard[data-cover="green"]{--cv:url(assets/covers/green.webp?v=2);--ar:1086/1421;--wl:15.84%;--wt:10.49%;--ww:70.53%;--wh:31.18%}
+body:not(.studio) .bcard[data-cover="navy"]{--cv:url(assets/covers/navy.webp?v=2);--ar:1054/1412;--wl:15.09%;--wt:9.7%;--ww:69.73%;--wh:30.95%}
+/* words below the cover's ornament (which sits at about 52% down) */
+body:not(.studio) .bcard .txt{top:54%;left:12%;right:8%;bottom:6%}
+body:not(.studio) .bcard .txt::before{display:none}
+body:not(.studio) .bcard.bare .shot .plate{background:rgba(0,0,0,.18) url(assets/crest.png) center/30% auto no-repeat}
+@media (max-width:700px){body:not(.studio) .bcard .shot .plate{top:var(--wt)}body:not(.studio) .bcard .txt{top:55%}}
+@media (hover:hover) and (pointer:fine){body:not(.studio) .bcard:hover .book{transform:translateY(-6px);filter:drop-shadow(14px 22px 22px rgba(70,42,15,.42))}}
 </style>
 </head>
 <body>
@@ -2544,8 +2586,9 @@ function bcard(p){
   const t = String(p.title||""), cut = t.indexOf(": ");
   const main = cut > 2 && cut < t.length - 3 ? t.slice(0, cut) : t;
   const sub  = main === t ? "" : t.slice(cut + 2);
-  const cloth = (MOODS.findIndex(m=>m.name===categoryFor(p))+7)%7;
-  return `<a class="bcard${bare?" bare":""}" data-cloth="${cloth}"${gradeOff(p)} href="#/story/${esc(p.slug)}">
+  const cover = ({ "Mystery":"navy", "Ghost Stories":"navy", "Love & Desire":"burgundy", "Dark Humour":"burgundy",
+                   "Human Folly":"gold", "Reflections":"gold", "Adventure":"green" })[categoryFor(p)] || "green";
+  return `<a class="bcard${bare?" bare":""}" data-cover="${cover}"${gradeOff(p)} href="#/story/${esc(p.slug)}">
     <span class="book">
       <span class="shot"><img class="bg" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy" aria-hidden="true"><span class="plate"><img class="pl" src="${BLANK}" data-post="${esc(p.id)}" alt="" loading="lazy"></span></span>
       <span class="spine" aria-hidden="true"></span>
@@ -2987,20 +3030,26 @@ async function mountEssay(){
   // strip behind Safari's address bar and push the foot of the book off it.
   const vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight);
   const room = stage.clientHeight || 0;
-  const maxH = Math.max(300, room > 240 ? room - (single ? 48 : 40) : vh - (single ? 104 : 132));
+  // a phone on its side: short and wide, so one page that takes the full height
+  const land = window.innerWidth > window.innerHeight && vh < 520;
+  const maxH = Math.max(land ? 170 : 300, room > (land ? 150 : 240) ? room - (land ? 20 : single ? 48 : 40) : vh - (single ? 104 : 132));
   let pw = single ? Math.min(wrapW - (room ? 44 : 0), 620) : Math.min(wrapW/2, 700);
   // A phone is far taller than 1.36 pages are. Holding that ratio left a third
   // of the screen empty, so on one page we take the height and let the shape
   // follow, up to a limit that still reads as a book rather than a receipt.
   let ph = single ? Math.min(maxH, pw * 1.78) : pw * 1.36;
+  if(single && land){ ph = maxH; pw = Math.min(pw, Math.round(ph * 1.55)); }
   if(!single && ph > maxH){ ph = maxH; pw = Math.min(pw, ph/1.12); }
   pw = Math.max(240, Math.round(pw)); ph = Math.round(ph);
+  // type is scaled from the page's width; a landscape page is wide but short,
+  // so size its type as if it were a narrower page, or each page holds three lines
+  const tw = single && land ? Math.min(pw, Math.round(ph * 1.05)) : pw;
 
   const book = $("#book");
   book.classList.toggle("single", single);
   pagesEl.style.setProperty("--pw", pw+"px");
-  pagesEl.style.setProperty("--ps", psFor(pw));   // the prose scales from this
-  pagesEl.style.setProperty("--psc", pscFor(pw));  // the furniture from this
+  pagesEl.style.setProperty("--ps", psFor(tw));   // the prose scales from this
+  pagesEl.style.setProperty("--psc", pscFor(tw));  // the furniture from this
   pagesEl.style.setProperty("--paper-tex", `url("${ART.paper}")`);
   pagesEl.style.width  = (single ? pw : pw*2) + "px";
   pagesEl.style.height = ph + "px";
@@ -3009,8 +3058,8 @@ async function mountEssay(){
   const meas = document.createElement("div");
   meas.className = "side f";
   meas.style.cssText = `position:absolute;left:-99999px;top:0;width:${pw}px;height:${ph}px;visibility:hidden`;
-  meas.style.setProperty("--ps", psFor(pw));
-  meas.style.setProperty("--psc", pscFor(pw));
+  meas.style.setProperty("--ps", psFor(tw));
+  meas.style.setProperty("--psc", pscFor(tw));
   meas.innerHTML = `<div class="pg paper"><div class="pg-body"></div></div>`;
   pagesEl.appendChild(meas);
   const mBody = meas.querySelector(".pg-body");
@@ -3101,6 +3150,17 @@ async function mountEssay(){
 }
 
 function setLeaf(leaf, deg){
+  /* On a phone the page turns by fading to the next, rather than swinging
+     round the spine: a narrow screen has no room for the swing, and the page
+     was seen leaving the screen. */
+  if(BOOK.single){
+    leaf.style.transform = "none";
+    leaf.style.opacity = String(Math.max(0, 1 - deg/150));
+    leaf.style.pointerEvents = deg >= 150 ? "none" : "";
+    leaf.style.setProperty("--t", "0");
+    return;
+  }
+  leaf.style.opacity = ""; leaf.style.pointerEvents = "";
   leaf.style.transform = `rotateY(${-deg}deg)`;
   leaf.style.setProperty("--t", (deg/180).toFixed(4));
 }
