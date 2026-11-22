@@ -1193,7 +1193,8 @@ body:not(.studio) .wcard .shot img.bg{filter:var(--lp-grade) blur(18px) brightne
 /* a wash of warm ivory over the cover, so each book is a light cloth tinted by its own painting */
 body:not(.studio) .wcard .shot img.bg{z-index:0}
 body:not(.studio) .wcard .shot::before{z-index:1;background:linear-gradient(170deg,rgba(250,242,224,.5),rgba(244,232,206,.72) 55%,rgba(236,220,188,.8))}
-body:not(.studio) .wcard .shot img.pl{z-index:2}
+body:not(.studio) .wcard .shot img.pl{z-index:2;left:8%;right:8%;width:84%}
+body:not(.studio) .wcard .txt{left:8%;right:8%}
 body:not(.studio) .wcard .shot::after{display:none}
 body:not(.studio) .wcard.bare .shot{background:radial-gradient(90% 70% at 55% 32%,#F4E8CF 0%,#DCC9A2 75%)}
 body:not(.studio) .wcard .cat{color:var(--lp-wine);text-shadow:none}
@@ -1386,14 +1387,14 @@ body:not(.studio) .searchbtn{grid-column:3;grid-row:1;justify-self:end;margin:0}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <filter id="house-grade" color-interpolation-filters="sRGB">
     <feColorMatrix type="matrix" values="
-        2.2609 -1.0985 -0.0263 0 0.0478
-        -0.2836 1.4625 0.0151 0 0.1221
-        0.1511 -0.3860 1.4671 0 0.1494
+        3.2519 -2.0837 -0.1339 0 0.0654
+        -0.6644 1.8499 -0.0108 0 0.2128
+        0.1282 -0.9039 1.9339 0 0.2437
         0 0 0 1 0"/>
     <feComponentTransfer>
-      <feFuncR type="table" tableValues="0.068 0.068 0.068 0.075 0.104 0.139 0.181 0.223 0.266 0.307 0.348 0.387 0.428 0.468 0.508 0.548 0.587 0.628 0.668 0.708 0.746 0.788 0.829 0.870 0.910 0.950 0.983 0.996 0.998 0.998 0.999 1.000 1.000"/>
-      <feFuncG type="table" tableValues="0.000 0.000 0.000 0.000 0.104 0.129 0.151 0.186 0.230 0.275 0.321 0.367 0.412 0.458 0.502 0.547 0.593 0.638 0.683 0.726 0.772 0.818 0.864 0.908 0.940 0.953 0.956 0.959 0.967 0.977 0.979 0.979 0.988"/>
-      <feFuncB type="table" tableValues="0.036 0.062 0.089 0.108 0.150 0.159 0.177 0.202 0.240 0.286 0.332 0.378 0.424 0.469 0.514 0.558 0.602 0.642 0.675 0.707 0.728 0.748 0.770 0.777 0.782 0.782 0.807 0.847 0.892 0.929 0.929 0.929 0.939"/>
+      <feFuncR type="table" tableValues="0.099 0.099 0.099 0.099 0.109 0.150 0.196 0.244 0.291 0.337 0.383 0.427 0.471 0.515 0.559 0.603 0.646 0.690 0.733 0.776 0.820 0.862 0.907 0.947 0.976 0.992 0.997 0.998 0.999 0.999 0.999 1.000 1.000"/>
+      <feFuncG type="table" tableValues="0.000 0.000 0.000 0.000 0.000 0.000 0.013 0.150 0.182 0.214 0.262 0.318 0.376 0.434 0.491 0.547 0.604 0.660 0.713 0.769 0.821 0.869 0.900 0.915 0.924 0.928 0.931 0.935 0.940 0.940 0.949 0.971 0.981"/>
+      <feFuncB type="table" tableValues="0.000 0.027 0.027 0.027 0.065 0.122 0.161 0.194 0.222 0.251 0.292 0.352 0.415 0.476 0.530 0.573 0.607 0.634 0.656 0.679 0.689 0.697 0.707 0.713 0.743 0.796 0.805 0.805 0.829 0.897 0.945 0.945 0.945"/>
     </feComponentTransfer>
   </filter>
 </defs></svg>
