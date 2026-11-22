@@ -516,8 +516,6 @@ exports.handler = async (event) => {
       srcId: msg.messageId || "",
       srcFrom: msg.from || "",
 
-      /* the cloth binding it wears on the shelf, chosen at random */
-      cover: ["navy","burgundy","gold","green"][Math.floor(Math.random()*4)],
 
       /* ── The illustrator's queue ──────────────────────────────────────
          The scheduled illustrator looks for exactly this flag and nothing
