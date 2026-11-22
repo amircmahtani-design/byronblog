@@ -2,3 +2,7 @@
   Cache-Control: public, max-age=3600
 /assets/*
   Cache-Control: public, max-age=604800
+# Shared with films.badmaddangerous.com: short cache so a change shows within minutes.
+/brand.css
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *

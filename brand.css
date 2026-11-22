@@ -1,0 +1,32 @@
+/* ══════════════════════ BAD, MAD & DANGEROUS · HOUSE TOKENS ══════════════════════
+   The one place the house look is set: colours and type for the light
+   house. Two sites read this file:
+     · www.badmaddangerous.com (index.html links it before its own styles)
+     · films.badmaddangerous.com (links https://www.badmaddangerous.com/brand.css)
+   Change a value here and both sites follow on their next page load.
+
+   This file is a public contract, so:
+     · Change VALUES freely.
+     · Do not RENAME or DELETE a token. If a name must change, add the new
+       name and keep the old one pointing at it, e.g. --l-green:var(--l-forest).
+       (A missing token is not a break: the films site falls back to its own
+       copy of the last known value, but it would stop following that one.)
+     · Only custom properties and the font import live here. No selectors,
+       so nothing here can restyle the other site's layout by accident.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cinzel:wght@500;600&family=Mrs+Saint+Delafield&display=swap");
+
+:root{
+  /* paper and lines */
+  --l-paper:#F6EFE1; --l-paper-2:#EFE5D1; --l-card:#FBF6EC; --l-line:#D9C7A0; --l-line-2:#E6D9BE;
+  /* ink, strongest to faintest */
+  --l-ink:#2B241C; --l-ink-2:#4E4436; --l-ink-3:#6E6250;
+  /* the house colours */
+  --l-green:#1F3D30; --l-green-2:#2A5040; --l-green-deep:#173126;
+  --l-wine:#7A2232; --l-wine-2:#922B3D; --l-gold:#B08A45; --l-gold-lt:#D8B97A;
+  /* type */
+  --l-caps:"Cinzel","Cormorant Garamond",Georgia,serif;
+  --l-it:"Cormorant Garamond",Georgia,serif;
+  /* the crest, as an absolute address so other sites can show it */
+  --l-crest:url("https://www.badmaddangerous.com/assets/crest.png");
+}

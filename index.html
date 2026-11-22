@@ -189,6 +189,8 @@ window.SITE_CONFIG = {
 };
 </script>
 
+<!-- House colours and type, shared with films.badmaddangerous.com. -->
+<link rel="stylesheet" href="/brand.css">
 <style>
 /* ══════════════════════════ 1 · TOKENS ══════════════════════════ */
 :root{
@@ -1050,19 +1052,16 @@ tr:hover .row-actions,tr:focus-within .row-actions{visibility:visible}
    Ivory paper, deep green, antique gold and burgundy, bright paintings.
    Built from the approved mockups (Nov 2026). The Studio keeps the dark
    room: everything here is scoped to body:not(.studio).              */
+/* The house colours and type (--l-paper, --l-green, --l-wine, --l-gold,
+   --l-caps, --l-it …) live in /brand.css, linked in <head>. The films site
+   reads the same file, so change them there, once, for both sites. */
 :root{
-  --l-paper:#F6EFE1; --l-paper-2:#EFE5D1; --l-card:#FBF6EC; --l-line:#D9C7A0; --l-line-2:#E6D9BE;
-  --l-ink:#2B241C; --l-ink-2:#4E4436; --l-ink-3:#6E6250;
-  --l-green:#1F3D30; --l-green-2:#2A5040; --l-green-deep:#173126;
-  --l-wine:#7A2232; --l-wine-2:#922B3D; --l-gold:#B08A45; --l-gold-lt:#D8B97A;
   /* THE MASTER COLOUR SETTING for every story painting on the site. The
      stored pictures are never changed. The numbers live in the <filter
      id="house-grade"> just after <body>: gamma exponent lower = brighter
      shadows (1 = untouched), saturate higher = richer colour (1 = untouched).
      Set --l-grade to none to see the paintings exactly as painted. */
   --l-grade:url(#house-grade);
-  --l-caps:"Cinzel","Cormorant Garamond",Georgia,serif;
-  --l-it:"Cormorant Garamond",Georgia,serif;
 }
 html{background:var(--l-paper)}
 html:has(body.studio){background:var(--void)}
