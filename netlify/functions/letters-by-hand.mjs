@@ -12,11 +12,17 @@
    leave a letter here after it has gone out: ingest recognises the
    message id (and the writing itself) and skips it. Remove letters once
    they are on the site to keep the file short.
+
+   `mood` is optional. When given, it is written onto the post, which
+   fixes the story's shelf and its cloth cover instead of leaving both to
+   the word lists. One of: Mystery, Ghost Stories, Love & Desire,
+   Human Folly, Dark Humour, Adventure, Reflections.
    ═════════════════════════════════════════════════════════════════════ */
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const { handler: ingest } = require("./ingest.js");
+const admin = require("firebase-admin");
 
 export const config = { schedule: "*/10 * * * *" };
 
@@ -25,6 +31,7 @@ const LETTERS = [
     messageId: "byhand-1a2173a3b4e623fa",
     from: "Chandru Mahtani <ceo@innercircle.gi>",
     subject: "A Grief of Her Own",
+    mood: "Reflections",     // picks the cover: Reflections is the dusty rose cloth
     date: "2026-11-26T06:56:00Z",
     text: [
       "Signora Teresa Esposito had attended nearly two thousand funerals in Naples and had been genuinely sorry at perhaps eleven of them.",
@@ -66,7 +73,18 @@ export default async () => {
       headers: { "x-byron-secret": process.env.BYRON_INGEST_SECRET || "" },
       body: JSON.stringify(msg)
     });
-    out.push({ subject: msg.subject, status: r.statusCode, body: r.body });
+    let mood = null;
+    if(msg.mood){
+      try{
+        const id = JSON.parse(r.body || "{}").id;
+        if(id && admin.apps.length){
+          const ref = admin.firestore().collection("posts").doc(id);
+          if((await ref.get()).get("mood") !== msg.mood){ await ref.set({ mood: msg.mood }, { merge:true }); mood = "set"; }
+          else mood = "already";
+        }
+      }catch(e){ mood = "failed: " + e.message; }
+    }
+    out.push({ subject: msg.subject, status: r.statusCode, body: r.body, mood });
   }
   console.log("letters-by-hand:", JSON.stringify(out));
   return new Response(JSON.stringify(out), { status:200, headers:{ "Content-Type":"application/json" } });
